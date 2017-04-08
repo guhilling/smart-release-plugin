@@ -132,7 +132,7 @@ public class TestProject extends ExternalResource {
 
     @Override
     protected void after() {
-        if (checkClean && true == false) {
+        if (checkClean) {
             try {
                 origin.reset().setMode(ResetCommand.ResetType.HARD).call();
             } catch (GitAPIException e) {
