@@ -5,6 +5,7 @@ import scaffolding.TestProject;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static scaffolding.CountMatcher.noneOf;
 import static scaffolding.CountMatcher.oneOf;
 import static scaffolding.CountMatcher.twoOf;
 import static scaffolding.GitMatchers.hasTagWithModuleVersion;
@@ -31,7 +32,14 @@ public class ParentAsSiblingTest {
 
     @Test
     public void buildsAndInstallsAndTagsAllModules() throws Exception {
-        buildsEachProjectOnceAndOnlyOnce(testProject.mvnRelease());
+        buildsEachProjectTwiceAndExecutesTestsOnce(testProject.mvnRelease());
+        installsAllModulesIntoTheRepoWithTheBuildNumber();
+        theLocalAndRemoteGitReposAreTaggedWithTheModuleNameAndVersion();
+    }
+
+    @Test
+    public void buildsAndInstallsAndTagsAllModulesSkipTestExecution() throws Exception {
+        buildsEachProjectOnceAndOnlyOnce(testProject.mvnRelease("-DtestBehaviour=skipPreRelease"));
         installsAllModulesIntoTheRepoWithTheBuildNumber();
         theLocalAndRemoteGitReposAreTaggedWithTheModuleNameAndVersion();
     }
@@ -41,10 +49,24 @@ public class ParentAsSiblingTest {
             commandOutput,
             allOf(
                 oneOf(containsString("Going to release parent-as-sibling " + expectedAggregatorVersion)),
-                twoOf(containsString("Building parent-as-sibling")), // once for initial build; once for release build
+                oneOf(containsString("Building parent-as-sibling " + expectedAggregatorVersion)),
                 oneOf(containsString("Building parent-module")),
                 oneOf(containsString("Building core-utils")),
                 oneOf(containsString("Building console-app")),
+                noneOf(containsString("The Calculator Test has run"))
+            )
+        );
+    }
+
+    private void buildsEachProjectTwiceAndExecutesTestsOnce(List<String> commandOutput) throws Exception {
+        assertThat(
+            commandOutput,
+            allOf(
+                oneOf(containsString("Going to release parent-as-sibling " + expectedAggregatorVersion)),
+                twoOf(containsString("Building parent-as-sibling " + expectedAggregatorVersion)),
+                twoOf(containsString("Building parent-module")),
+                twoOf(containsString("Building core-utils")),
+                twoOf(containsString("Building console-app")),
                 oneOf(containsString("The Calculator Test has run"))
             )
         );
