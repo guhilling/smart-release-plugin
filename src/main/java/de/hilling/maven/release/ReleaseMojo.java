@@ -2,6 +2,7 @@ package de.hilling.maven.release;
 
 import static de.hilling.maven.release.Reactor.fromProjects;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -52,8 +53,8 @@ public class ReleaseMojo extends BaseMojo {
      * }
      * </pre>
      */
-    @Parameter(alias = "releaseGoals", defaultValue = "{deploy}")
-    private List<String> releaseGoals;
+    @Parameter(alias = "releaseGoals")
+    private List<String> releaseGoals = emptyList();
 
     /**
      * <p>
@@ -90,8 +91,8 @@ public class ReleaseMojo extends BaseMojo {
      * Remember that you will most probably do an implicit "compile package install deploy" during the release phase.
      * </p>
      */
-    @Parameter(alias = "testGoals", defaultValue = "{clean install}")
-    private List<String> testGoals= emptyList();;
+    @Parameter(alias = "testGoals")
+    private List<String> testGoals = emptyList();
 
     /**
      * <p>
@@ -107,7 +108,7 @@ public class ReleaseMojo extends BaseMojo {
      * @since 1.0.1
      */
     @Parameter(alias = "testProfiles")
-    private List<String> testProfiles;
+    private List<String> testProfiles = emptyList();
 
     /**
      * If true then tests will not be run during a release.
@@ -154,6 +155,7 @@ public class ReleaseMojo extends BaseMojo {
 
     @Override
     public void executeConcreteMojo(Scm scm, Scm originalScm, LocalGitRepo repo) throws MojoExecutionException, MojoFailureException, GitAPIException {
+        setDefaults();
         repo.errorIfNotClean();
 
         final ReleaseInfoStorage infoStorage = new ReleaseInfoStorage(project.getBasedir(), repo.git);
@@ -201,6 +203,15 @@ public class ReleaseMojo extends BaseMojo {
         } finally {
             revertChanges(repo, changedFiles,
                           false); // warn if you can't revert but keep throwing the original exception so the root cause isn't lost
+        }
+    }
+
+    private void setDefaults() {
+        if (testGoals.isEmpty()) {
+            testGoals = singletonList("test");
+        }
+        if (releaseGoals.isEmpty()) {
+            releaseGoals = singletonList("deploy");
         }
     }
 
