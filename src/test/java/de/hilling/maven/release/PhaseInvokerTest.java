@@ -17,6 +17,8 @@ import org.apache.maven.model.Profile;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.shared.invoker.DefaultInvocationRequest;
+import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
@@ -52,7 +54,6 @@ public class PhaseInvokerTest {
     public void setup() throws Exception {
         phaseInvoker = new PhaseInvoker(log, project, request, invoker);
         phaseInvoker.setGoals(singletonList("deploy"));
-        phaseInvoker.setModulesToRelease(emptyList());
         phaseInvoker.setProfiles(emptyList());
         modulesInBuildOrder.add(module);
         when(log.isDebugEnabled()).thenReturn(true);
@@ -63,7 +64,7 @@ public class PhaseInvokerTest {
 
     @Test
     public void verifyDefaultConstructor() {
-        new PhaseInvoker(log, project);
+        new PhaseInvoker(log, project, new DefaultInvocationRequest(), new DefaultInvoker());
     }
 
     @Test
@@ -170,7 +171,6 @@ public class PhaseInvokerTest {
     public void runMavenBuild_UserImplicitlyWantsThisToBeReleased() throws Exception {
         when(reactor.getModulesInBuildOrder()).thenReturn(modulesInBuildOrder);
         when(module.isToBeReleased()).thenReturn(true);
-        phaseInvoker.setModulesToRelease(modulesToRelease);
         phaseInvoker.runMavenBuild(reactor);
         verify(request).setProjects(Mockito.argThat(new BaseMatcher<List<String>>() {
 
@@ -191,7 +191,6 @@ public class PhaseInvokerTest {
     @Test
     public void runMavenBuild_UserImplicitlyWantsThisToBeReleased_WillNotBeReleased() throws Exception {
         when(reactor.getModulesInBuildOrder()).thenReturn(modulesInBuildOrder);
-        phaseInvoker.setModulesToRelease(modulesToRelease);
         phaseInvoker.runMavenBuild(reactor);
         verify(request).setProjects(Mockito.argThat(new BaseMatcher<List<String>>() {
 

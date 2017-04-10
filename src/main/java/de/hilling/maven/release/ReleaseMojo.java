@@ -15,6 +15,8 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.shared.invoker.DefaultInvocationRequest;
+import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import de.hilling.maven.release.releaseinfo.ReleaseInfoStorage;
@@ -68,7 +70,7 @@ public class ReleaseMojo extends BaseMojo {
      * @since 1.0.1
      */
     @Parameter(alias = "releaseProfiles")
-    private List<String> releaseProfiles = emptyList();
+    protected List<String> releaseProfiles = emptyList();
 
     /**
      * <p>
@@ -92,7 +94,7 @@ public class ReleaseMojo extends BaseMojo {
      * </p>
      */
     @Parameter(alias = "testGoals")
-    private List<String> testGoals = emptyList();
+    protected List<String> testGoals = emptyList();
 
     /**
      * <p>
@@ -108,14 +110,14 @@ public class ReleaseMojo extends BaseMojo {
      * @since 1.0.1
      */
     @Parameter(alias = "testProfiles")
-    private List<String> testProfiles = emptyList();
+    protected List<String> testProfiles = emptyList();
 
     /**
-     * If true then tests will not be run during a release.
-     * This is the same as adding -DskipTests=true to the release goals.
+     * Determines running of tests. Possible values:
+     * {@code testPhaseOnly}, {@code runAlways}, {@code skipTests}
      */
-    @Parameter(alias = "skipTests", defaultValue = "false", property = "skipTests")
-    private boolean skipTests;
+    @Parameter(alias = "testBehaviour", defaultValue = "testPhaseOnly", property = "testBehaviour")
+    protected TestBehaviour testBehaviour;
 
     /**
      * Push changes to remote repository. This includes:
@@ -192,12 +194,10 @@ public class ReleaseMojo extends BaseMojo {
         // and so fail. The downside is that failed builds result in tags being pushed.
         tagAndPushRepo(repo, currentRelease);
 
+        System.out.println("test: " + testBehaviour);
         try {
-            final PhaseInvoker invoker = new PhaseInvoker(getLog(), project);
-            invoker.setGoals(releaseGoals);
-            invoker.setModulesToRelease(modulesToRelease);
-            invoker.setProfiles(releaseProfiles);
-            invoker.setSkipTests(skipTests);
+            final PhaseInvoker invoker = new PhaseInvoker(getLog(), project, new DefaultInvocationRequest(),
+                                                          new DefaultInvoker(), releaseGoals, releaseProfiles, !testBehaviour.isRunInReleasePhase());
             invoker.runMavenBuild(reactor);
             revertChanges(repo, changedFiles, true); // throw if you can't revert as that is the root problem
         } finally {

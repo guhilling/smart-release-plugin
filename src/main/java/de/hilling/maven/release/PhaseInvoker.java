@@ -33,16 +33,24 @@ class PhaseInvoker {
     private       List<String>      goals;
     private       List<String>      profiles;
 
-    public PhaseInvoker(final Log log, final MavenProject project) {
-        this(log, project, new DefaultInvocationRequest(), new DefaultInvoker());
-    }
-
     public PhaseInvoker(final Log log, final MavenProject project, final InvocationRequest request,
                         final Invoker invoker) {
         this.log = log;
         this.project = project;
         this.request = request;
         this.invoker = invoker;
+    }
+
+    public PhaseInvoker(Log log, MavenProject project, DefaultInvocationRequest request,
+                        DefaultInvoker invoker, List<String> goals, List<String> profiles,
+                        boolean skipTests) {
+        this.log = log;
+        this.project = project;
+        this.request = request;
+        this.invoker = invoker;
+        this.goals = goals;
+        this.profiles = profiles;
+        this.skipTests = skipTests;
     }
 
     private static List<?> from(List input) {
@@ -53,15 +61,12 @@ class PhaseInvoker {
         this.goals = goals;
     }
 
-    final void setModulesToRelease(final List<String> modulesToReleaseOrNull) {
-        List<String> modulesToRelease = modulesToReleaseOrNull;
-    }
-
     final void setProfiles(final List<String> profiles) {
         this.profiles = profiles;
     }
 
     final void setSkipTests(final boolean skipTests) {
+        System.out.println("skip tests: " + skipTests);
         this.skipTests = skipTests;
     }
 

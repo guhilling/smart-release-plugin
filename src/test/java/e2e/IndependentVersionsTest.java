@@ -43,14 +43,14 @@ public class IndependentVersionsTest {
 
     @Test
     public void buildsAndInstallsAndTagsAllModules() throws Exception {
-        buildsEachProjectOnceAndOnlyOnce(testProject.mvnRelease());
+        buildsEachProjectOnceAndOnlyOnce(testProject.mvnRelease("-DtestBehaviour=runAlways"));
         installsAllModulesIntoTheRepoWithTheBuildNumber();
         theLocalAndRemoteGitReposAreTaggedWithTheModuleNameAndVersion();
     }
 
     @Test
     public void referCorrectTagIfModuleNotReleased() throws Exception {
-        testProject.mvnRelease();
+        testProject.mvnRelease("-DtestBehaviour=runAlways");
         final ReleaseInfoStorage releaseInfoStorage = new ReleaseInfoStorage(testProject.localDir, testProject.local);
         final ReleaseInfo beforeRelease = releaseInfoStorage.load();
         testProject.commitRandomFile("console-app");
