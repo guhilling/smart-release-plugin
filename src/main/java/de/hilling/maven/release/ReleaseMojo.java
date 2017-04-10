@@ -60,10 +60,10 @@ public class ReleaseMojo extends BaseMojo {
      * </p>
      * <pre>
      * {@code
-     * <releaseGoals>
-     *     <releaseGoal>clean</releaseGoal>
-     *     <releaseGoal>install</releaseGoal>
-     * </releaseGoals>
+     * <testGoals>
+     *     <testGoals>clean</testGoals>
+     *     <testGoals>install</testGoals>
+     * </testGoals>
      * }
      * </pre>
      * <p>

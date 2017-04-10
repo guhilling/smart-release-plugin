@@ -207,8 +207,12 @@
                 <artifactId>smart-release-plugin</artifactId>
                 <version>${project.version}</version>
                 <configuration>
+                    <testGoals>
+                        <testGoal>clean</testGoal>
+                        <testGoal>install</testGoal>
+                        <testGoal>-Dmaven.javadoc.skip=true</testGoal>
+                    </testGoals>
                     <releaseGoals>
-                        <releaseGoal>clean</releaseGoal>
                         <releaseGoal>deploy</releaseGoal>
                     </releaseGoals>
                     <releaseProfiles>
