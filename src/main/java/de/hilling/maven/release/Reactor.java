@@ -39,8 +39,6 @@ public class Reactor {
             throws ValidationException, GitAPIException, MojoExecutionException {
         if (previousRelease.isEmpty()) {
             log.warn("no info file for previous releases found, assuming initial release");
-        } else {
-            log.info("previous release: " + previousRelease.toString());
         }
         TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(gitRepo.git.getRepository(), log);
         List<ReleasableModule> modules = new ArrayList<>();
