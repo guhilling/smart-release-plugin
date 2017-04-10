@@ -31,7 +31,7 @@ public class TestRunningTest {
     @Test
     public void doesNotReleaseIfThereAreTestFailuresButTagsAreStillWritten() throws Exception {
         try {
-            projectWithTestsThatFail.mvnRelease();
+            projectWithTestsThatFail.mvnRelease("-DtestBehaviour=runAlways");
             Assert.fail("Should have failed");
         } catch (MavenExecutionException e) {
         }
