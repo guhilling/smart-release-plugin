@@ -117,6 +117,7 @@ public class SingleModuleTest {
 
     @Test
     public void onlyLocalGitRepoIsTaggedWithoutPush() throws IOException, InterruptedException {
+        testProject.checkClean = false;
         testProject.mvn("-Dpush=false", RELEASE_GOAL);
         assertThat(testProject.local, hasTag(expectedTag()));
         assertThat(testProject.origin, not(hasTag(expectedTag())));

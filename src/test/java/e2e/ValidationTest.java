@@ -56,6 +56,7 @@ public class ValidationTest {
 
     @Test
     public void ifIOErrorOccursWhileUpdatingPomsThenThisIsReported() throws IOException, InterruptedException {
+        independentVersionsProject.checkClean = false;
         File pom = new File(independentVersionsProject.localDir, "console-app/pom.xml");
         pom.setWritable(false); // this should cause an IO exception when writing the pom
         try {
