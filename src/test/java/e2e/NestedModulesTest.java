@@ -7,7 +7,6 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static scaffolding.CountMatcher.oneOf;
 import static scaffolding.CountMatcher.twoOf;
 import static scaffolding.GitMatchers.hasTagWithModuleVersion;
 import static scaffolding.MvnRunner.assertArtifactInLocalRepo;
@@ -37,7 +36,7 @@ public class NestedModulesTest {
 
     @Test
     public void buildsAndInstallsAndTagsAllModules() throws Exception {
-        buildsEachProjectOnceAndOnlyOnce(testProject.mvnRelease());
+        buildsEachProjectTwiceTests(testProject.mvnRelease());
         hasInstalledAllModulesIntoTheRepoWithTheBuildNumber();
 
         assertBothReposTagged("nested-project", expectedAggregatorVersion, "");
@@ -88,16 +87,15 @@ public class NestedModulesTest {
         return new VersionMatcher(expectedCoreVersion).fixVersion().withMinorVersion(newMinor).toString();
     }
 
-    private void buildsEachProjectOnceAndOnlyOnce(List<String> commandOutput) throws Exception {
-        assertThat(commandOutput, allOf(twoOf(containsString("Building nested-project")),
-                                        // once for initial build; once for release build
-                                        oneOf(containsString("Building core-utils")),
-                                        oneOf(containsString("Building console-app")),
-                                        oneOf(containsString("Building parent-module")),
-                                        oneOf(containsString("Building server-modules")),
-                                        oneOf(containsString("Building server-module-a")),
-                                        oneOf(containsString("Building server-module-b")),
-                                        oneOf(containsString("Building server-module-c"))));
+    private void buildsEachProjectTwiceTests(List<String> commandOutput) throws Exception {
+        assertThat(commandOutput, allOf(twoOf(containsString("Building nested-project " + expectedAggregatorVersion)),
+                                        twoOf(containsString("Building core-utils")),
+                                        twoOf(containsString("Building console-app")),
+                                        twoOf(containsString("Building parent-module")),
+                                        twoOf(containsString("Building server-modules")),
+                                        twoOf(containsString("Building server-module-a")),
+                                        twoOf(containsString("Building server-module-b")),
+                                        twoOf(containsString("Building server-module-c"))));
     }
 
     private void hasInstalledAllModulesIntoTheRepoWithTheBuildNumber() throws Exception {

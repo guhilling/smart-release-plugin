@@ -43,7 +43,7 @@ public class IndependentVersionsTest {
 
     @Test
     public void buildsAndInstallsAndTagsAllModules() throws Exception {
-        buildsEachProjectOnceAndOnlyOnce(testProject.mvnRelease());
+        buildsEachProjectTwiceTestsOnce(testProject.mvnRelease());
         installsAllModulesIntoTheRepoWithTheBuildNumber();
         theLocalAndRemoteGitReposAreTaggedWithTheModuleNameAndVersion();
     }
@@ -66,12 +66,12 @@ public class IndependentVersionsTest {
                                                                                               (coreUtils).get()));
     }
 
-    private void buildsEachProjectOnceAndOnlyOnce(List<String> commandOutput) throws Exception {
+    private void buildsEachProjectTwiceTestsOnce(List<String> commandOutput) throws Exception {
         assertThat(commandOutput,
                    allOf(oneOf(containsString("Going to release independent-versions " + expectedParentVersion)),
-                         twoOf(containsString("Building independent-versions")),
-                         // once for initial build; once for release build
-                         oneOf(containsString("Building core-utils")), oneOf(containsString("Building console-app")),
+                         twoOf(containsString("Building independent-versions " + expectedParentVersion)),
+                         twoOf(containsString("Building core-utils")),
+                         twoOf(containsString("Building console-app")),
                          oneOf(containsString("The Calculator Test has run"))));
     }
 
