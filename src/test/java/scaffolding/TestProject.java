@@ -179,7 +179,7 @@ public class TestProject extends ExternalResource {
     }
 
     public List<String> mvnReleaseBugfix() throws IOException, InterruptedException {
-        return mvnRunner.runMaven(localDir, "-DperformBugfixRelease=true", TestUtils.RELEASE_GOAL);
+        return mvnRunner.runMaven(localDir, "-DbugfixRelease=true", TestUtils.RELEASE_GOAL);
     }
 
     public List<String> mvnReleaserNext(String... arguments) throws IOException, InterruptedException {

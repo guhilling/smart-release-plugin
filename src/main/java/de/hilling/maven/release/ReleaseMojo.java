@@ -196,7 +196,7 @@ public class ReleaseMojo extends BaseMojo {
             final PhaseInvoker invoker = new PhaseInvoker(getLog(), project);
             invoker.setGoals(releaseGoals);
             invoker.setModulesToRelease(modulesToRelease);
-            invoker.setReleaseProfiles(releaseProfiles);
+            invoker.setProfiles(releaseProfiles);
             invoker.setSkipTests(skipTests);
             invoker.runMavenBuild(reactor);
             revertChanges(repo, changedFiles, true); // throw if you can't revert as that is the root problem

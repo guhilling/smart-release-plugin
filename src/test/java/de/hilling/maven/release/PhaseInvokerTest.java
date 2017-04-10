@@ -3,12 +3,11 @@ package de.hilling.maven.release;
 import static de.hilling.maven.release.PhaseInvoker.DEPLOY;
 import static de.hilling.maven.release.PhaseInvoker.SKIP_TESTS;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -28,9 +27,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-/**
- * @author Roland Hauser sourcepond@gmail.com
- */
 public class PhaseInvokerTest {
     private final static String                 ACTIVE_PROFILE_ID   = "activeProfile";
     private final static String                 SOME_PROFILE_ID     = "someProfile";
@@ -43,18 +39,21 @@ public class PhaseInvokerTest {
     private final        InvocationRequest      request             = mock(InvocationRequest.class);
     private final        InvocationResult       result              = mock(InvocationResult.class);
     private final        Invoker                invoker             = mock(Invoker.class);
-    private final        List<String>           goals               = new LinkedList<String>();
-    private final        List<String>           modulesToRelease    = new LinkedList<String>();
-    private final        List<String>           releaseProfiles     = new LinkedList<String>();
-    private final        List<ReleasableModule> modulesInBuildOrder = new LinkedList<ReleasableModule>();
+    private final        List<String>           goals               = new LinkedList<>();
+    private final        List<String>           modulesToRelease    = new LinkedList<>();
+    private final        List<String>           releaseProfiles     = new LinkedList<>();
+    private final        List<ReleasableModule> modulesInBuildOrder = new LinkedList<>();
     private final        Reactor                reactor             = mock(Reactor.class);
     private final        ReleasableModule       module              = mock(ReleasableModule.class);
     private final        Profile                activeProfile       = mock(Profile.class);
-    private final        PhaseInvoker           phaseInvoker        = new PhaseInvoker(log, project, request,
-                                                                                       invoker);
+    private PhaseInvoker phaseInvoker;
 
     @Before
     public void setup() throws Exception {
+        phaseInvoker = new PhaseInvoker(log, project, request, invoker);
+        phaseInvoker.setGoals(singletonList("deploy"));
+        phaseInvoker.setModulesToRelease(emptyList());
+        phaseInvoker.setProfiles(emptyList());
         modulesInBuildOrder.add(module);
         when(log.isDebugEnabled()).thenReturn(true);
         when(invoker.execute(request)).thenReturn(result);
@@ -147,7 +146,7 @@ public class PhaseInvokerTest {
     @Test
     public void runMavenBuild_WithActiveProfiles() throws Exception {
         releaseProfiles.add(SOME_PROFILE_ID);
-        phaseInvoker.setReleaseProfiles(releaseProfiles);
+        phaseInvoker.setProfiles(releaseProfiles);
         when(project.getActiveProfiles()).thenReturn(asList(activeProfile));
         phaseInvoker.runMavenBuild(reactor);
         verify(request).setProfiles(Mockito.argThat(new BaseMatcher<List<String>>() {

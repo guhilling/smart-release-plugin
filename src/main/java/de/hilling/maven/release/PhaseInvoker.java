@@ -1,12 +1,14 @@
 package de.hilling.maven.release;
 
 import static java.lang.String.format;
+import static java.util.stream.Stream.concat;
+import static java.util.stream.Stream.of;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.maven.model.Profile;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
@@ -29,13 +31,7 @@ class PhaseInvoker {
     private final Invoker           invoker;
     private       boolean           skipTests;
     private       List<String>      goals;
-    private       List<String>      modulesToRelease;
-    private       List<String>      releaseProfiles;
-
-    {
-        goals = new ArrayList<>();
-        goals.add(DEPLOY);
-    }
+    private       List<String>      profiles;
 
     public PhaseInvoker(final Log log, final MavenProject project) {
         this(log, project, new DefaultInvocationRequest(), new DefaultInvoker());
@@ -49,16 +45,20 @@ class PhaseInvoker {
         this.invoker = invoker;
     }
 
-    final void setGoals(final List<String> goalsOrNull) {
-        goals = goalsOrNull;
+    private static List<?> from(List input) {
+        return input;
+    }
+
+    final void setGoals(final List<String> goals) {
+        this.goals = goals;
     }
 
     final void setModulesToRelease(final List<String> modulesToReleaseOrNull) {
-        modulesToRelease = modulesToReleaseOrNull;
+        List<String> modulesToRelease = modulesToReleaseOrNull;
     }
 
-    final void setReleaseProfiles(final List<String> releaseProfilesOrNull) {
-        releaseProfiles = releaseProfilesOrNull;
+    final void setProfiles(final List<String> profiles) {
+        this.profiles = profiles;
     }
 
     final void setSkipTests(final boolean skipTests) {
@@ -79,7 +79,7 @@ class PhaseInvoker {
         request.setDebug(log.isDebugEnabled());
 
         if (skipTests) {
-            goals.add(SKIP_TESTS);
+            goals = concat(goals.stream(), of(SKIP_TESTS)).collect(Collectors.toList());
         }
 
         request.setGoals(goals);
@@ -112,11 +112,8 @@ class PhaseInvoker {
     }
 
     private List<String> profilesToActivate() {
-        final List<String> profiles = new ArrayList<>();
-        profiles.addAll(releaseProfiles);
-        for (final Object activatedProfile : project.getActiveProfiles()) {
-            profiles.add(((org.apache.maven.model.Profile) activatedProfile).getId());
-        }
-        return profiles;
+        return concat(profiles.stream(),
+                      from(project.getActiveProfiles()).stream().map(Profile.class::cast).map(Profile::getId))
+                   .collect(Collectors.toList());
     }
 }
