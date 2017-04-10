@@ -93,7 +93,8 @@ class ModuleDependencyVerifier {
                     final Optional<Ref> tagRef = gitRepo.getRemoteTag(tagName);
                     if (tagRef.isPresent()) {
                         final Ref gitTag = tagRef.get();
-                        final TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(gitRepo.git.getRepository());
+                        final TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(gitRepo.git
+                                                                                                 .getRepository(), log);
                         if (detector.hasChangedSince(relativePathToModule, moduleList(), gitTag)) {
                             toBeReleased = true;
                             equivalentVersion = newVersion;

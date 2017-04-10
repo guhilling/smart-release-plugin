@@ -11,6 +11,8 @@ import static org.hamcrest.Matchers.is;
 import java.io.IOException;
 import java.util.Collections;
 
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.Before;
 import org.junit.Rule;
@@ -25,10 +27,13 @@ public class DiffDetectorTest {
     @Rule
     public TestProject independentVersions = new TestProject(ProjectType.INDEPENDENT_VERSIONS);
 
+    private Log log;
+
     @Before
     public void setUp() {
         singleProject.checkClean = false;
         independentVersions.checkClean = false;
+        log = new SystemStreamLog();
     }
 
     @Test
@@ -38,7 +43,7 @@ public class DiffDetectorTest {
         AnnotatedTag tag2 = saveFileInModule(independentVersions, "core-utils", "2.0");
         AnnotatedTag tag3 = saveFileInModule(independentVersions, "console-app", "1.2.4");
 
-        TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(independentVersions.local.getRepository());
+        TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(independentVersions.local.getRepository(), log);
 
         assertThat(detector.hasChangedSince("core-utils", Collections.emptyList(), tag2.ref()), is(false));
         assertThat(detector.hasChangedSince("console-app", Collections.emptyList(), tag2.ref()), is(true));
@@ -51,7 +56,7 @@ public class DiffDetectorTest {
         singleProject.commitRandomFile(".");
         AnnotatedTag tag2 = saveFileInModule(singleProject, ".", "1.0.2");
 
-        TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(singleProject.local.getRepository());
+        TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(singleProject.local.getRepository(), log);
 
         assertThat(detector.hasChangedSince(".", Collections.emptyList(), tag1.ref()), is(true));
         assertThat(detector.hasChangedSince(".", Collections.emptyList(), tag2.ref()), is(false));
@@ -61,7 +66,7 @@ public class DiffDetectorTest {
     public void ignoreReleaseInfoInTheRoot() throws IOException, GitAPIException {
         AnnotatedTag tag1 = saveFileInModule(singleProject, ".", "1.0.1");
         singleProject.commitFile(".", ReleaseInfoStorage.RELEASE_INFO_FILE, "any-content");
-        TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(singleProject.local.getRepository());
+        TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(singleProject.local.getRepository(), log);
         assertThat(detector.hasChangedSince(".", Collections.emptyList(), tag1.ref()), is(false));
 
         AnnotatedTag tag2 = saveFileInModule(singleProject, ".", "1.0.2");
@@ -75,7 +80,7 @@ public class DiffDetectorTest {
         AnnotatedTag tag3 = saveFileInModule(independentVersions, "console-app", "1.2.4");
         independentVersions.commitRandomFile("console-app");
 
-        TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(independentVersions.local.getRepository());
+        TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(independentVersions.local.getRepository(), log);
         assertThat(detector.hasChangedSince("console-app", Collections.emptyList(), tag3.ref()), is(true));
     }
 
@@ -86,7 +91,7 @@ public class DiffDetectorTest {
         AnnotatedTag tag3 = saveFileInModule(independentVersions, "console-app", "1.2.4");
         independentVersions.commitRandomFile("console-app");
 
-        TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(independentVersions.local.getRepository());
+        TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(independentVersions.local.getRepository(), log);
         assertThat(detector.hasChangedSince("console-app", singletonList("console-app"), tag3.ref()), is(false));
     }
 }

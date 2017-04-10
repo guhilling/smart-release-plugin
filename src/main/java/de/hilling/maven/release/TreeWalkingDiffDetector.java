@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.maven.plugin.logging.Log;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -20,9 +21,11 @@ import de.hilling.maven.release.releaseinfo.ReleaseInfoStorage;
 public class TreeWalkingDiffDetector {
 
     private final Repository repo;
+    private final Log log;
 
-    public TreeWalkingDiffDetector(Repository repo) {
+    public TreeWalkingDiffDetector(Repository repo, Log log) {
         this.repo = repo;
+        this.log = log;
     }
 
     private static void stopWalkingWhenTheTagsAreHit(Ref tagReference, RevWalk walk) throws IOException {
@@ -52,7 +55,7 @@ public class TreeWalkingDiffDetector {
             final Iterator<RevCommit> iterator = walk.iterator();
             while (iterator.hasNext()) {
                 changed = true;
-                System.out.println("change detected: " + iterator.next());
+                log.debug("change detected: " + iterator.next());
             }
             return changed;
         } finally {
