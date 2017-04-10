@@ -75,7 +75,6 @@ public class SshAgentSessionFactory extends JschConfigSessionFactory {
 	protected JSch createDefaultJSch(final FS fs) throws JSchException {
 		Connector con = null;
 		try {
-			// TODO: add support for others as well, such as page-ant.
 			if (SSHAgentConnector.isConnectorAvailable()) {
 				final USocketFactory usf = new NCUSocketFactory();
 				con = new SSHAgentConnector(usf);

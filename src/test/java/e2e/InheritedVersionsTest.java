@@ -5,19 +5,14 @@ import scaffolding.TestProject;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsEqual.equalTo;
 import static scaffolding.CountMatcher.oneOf;
 import static scaffolding.CountMatcher.twoOf;
-import static scaffolding.GitMatchers.hasCleanWorkingDirectory;
 import static scaffolding.GitMatchers.hasTagWithModuleVersion;
 import static scaffolding.MvnRunner.assertArtifactInLocalRepo;
 
 import java.io.IOException;
 import java.util.List;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.lib.ObjectId;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -61,27 +56,5 @@ public class InheritedVersionsTest {
             assertThat(testProject.local, hasTagWithModuleVersion(GROUP_ID, artifactId, expected));
             assertThat(testProject.origin, hasTagWithModuleVersion(GROUP_ID, artifactId, expected));
         }
-    }
-
-    // TODO fix this globally
-    @Ignore
-    @Test
-    public void thePomChangesAreRevertedAfterTheRelease() throws IOException, InterruptedException {
-        ObjectId originHeadAtStart = head(testProject.origin);
-        ObjectId localHeadAtStart = head(testProject.local);
-        assertThat(originHeadAtStart, equalTo(localHeadAtStart));
-        testProject.mvnRelease();
-        assertThat(head(testProject.origin), equalTo(originHeadAtStart));
-        assertThat(head(testProject.local), equalTo(localHeadAtStart));
-        assertThat(testProject.local, hasCleanWorkingDirectory());
-    }
-
-    //    @Test
-    //    public void whenOneModuleDependsOnAnotherThenWhenReleasingThisDependencyHasTheRelaseVersion() {
-    //        // TODO: implement this
-    //    }
-
-    private ObjectId head(Git git) throws IOException {
-        return git.getRepository().getRef("HEAD").getObjectId();
     }
 }

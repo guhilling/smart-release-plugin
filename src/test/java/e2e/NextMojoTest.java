@@ -31,6 +31,7 @@ public class NextMojoTest {
 
     @Test
     public void doesNotReReleaseAModuleThatHasNotChanged() throws Exception {
+        dependenciesProject.checkNoChanges = false;
         dependenciesProject.mvnRelease();
 
         dependenciesProject.commitRandomFile("console-app").pushIt();

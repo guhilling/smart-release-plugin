@@ -4,6 +4,8 @@ import e2e.ProjectType;
 
 import static de.hilling.maven.release.FileUtils.pathOf;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsEqual.equalTo;
+import static scaffolding.GitMatchers.hasChangesOnlyInReleaseInfo;
 import static scaffolding.GitMatchers.hasCleanWorkingDirectory;
 import static scaffolding.GitMatchers.isInSynchWithOrigin;
 import static scaffolding.Photocopier.copyTestProjectToTemporaryLocation;
@@ -22,6 +24,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.InitCommand;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.ObjectId;
 import org.junit.rules.ExternalResource;
 
 import de.hilling.maven.release.TestUtils;
@@ -45,12 +48,15 @@ public class TestProject extends ExternalResource {
     public        Git    origin;
     public        File   localDir;
     public        Git    local;
-    public  boolean checkClean = true;
+    public  boolean       checkClean    = true;
     private AtomicInteger commitCounter = new AtomicInteger(1);
     private ProjectType type;
     private MvnRunner   mvnRunner;
-    private boolean purge      = true;
+    private boolean purge = true;
     private RandomNameGenerator nameGenerator;
+    ObjectId            originHeadAtStart;
+    ObjectId            localHeadAtStart;
+    public boolean checkNoChanges = true;
 
     public TestProject(ProjectType type) {
         this.type = type;
@@ -100,6 +106,14 @@ public class TestProject extends ExternalResource {
         return "scm:git:file://localhost/" + pathOf(sourceDir).replace('\\', '/').toLowerCase();
     }
 
+    public static ObjectId head(Git git) {
+        try {
+            return git.getRepository().getRef("HEAD").getObjectId();
+        } catch (IOException e) {
+            throw new RuntimeException("failed to get objectid of head");
+        }
+    }
+
     @Override
     protected void before() {
         final String submoduleName = type.getSubmoduleName();
@@ -120,6 +134,9 @@ public class TestProject extends ExternalResource {
             localDir = Photocopier.folderForSampleProject(submoduleName, subfolderWorkingName);
             local = Git.cloneRepository().setBare(false).setDirectory(localDir).setURI(originDir.toURI().toString())
                        .call();
+            originHeadAtStart = head(origin);
+            localHeadAtStart = head(local);
+            assertThat(originHeadAtStart, equalTo(localHeadAtStart));
         } catch (GitAPIException e) {
             throw new RuntimeException("error accessing/creating git repo", e);
         }
@@ -133,14 +150,21 @@ public class TestProject extends ExternalResource {
     @Override
     protected void after() {
         if (checkClean) {
-            try {
-                origin.reset().setMode(ResetCommand.ResetType.HARD).call();
-            } catch (GitAPIException e) {
-                throw new RuntimeException("resetting origin failed", e);
-            }
-            assertThat(local, hasCleanWorkingDirectory());
-            assertThat(local, isInSynchWithOrigin());
+            verifyWorkingDirectoryCleanAndUnchanged();
         }
+        if (checkNoChanges) {
+            assertThat(this, hasChangesOnlyInReleaseInfo());
+        }
+    }
+
+    private void verifyWorkingDirectoryCleanAndUnchanged() {
+        try {
+            origin.reset().setMode(ResetCommand.ResetType.HARD).call();
+        } catch (GitAPIException e) {
+            throw new RuntimeException("resetting origin failed", e);
+        }
+        assertThat(local, hasCleanWorkingDirectory());
+        assertThat(local, isInSynchWithOrigin());
     }
 
     /**
@@ -164,6 +188,7 @@ public class TestProject extends ExternalResource {
 
     public TestProject commitFile(String module, String fileName, String fileContent) throws IOException,
                                                                                              GitAPIException {
+        checkNoChanges = false;
         File moduleDir = new File(localDir, module);
         if (!moduleDir.isDirectory()) {
             throw new RuntimeException("Could not find " + moduleDir.getCanonicalPath());
@@ -182,12 +207,13 @@ public class TestProject extends ExternalResource {
     }
 
     public TestProject commitRandomFile(String module) throws IOException, GitAPIException {
+        checkNoChanges = false;
         File moduleDir = new File(localDir, module);
         if (!moduleDir.isDirectory()) {
             throw new RuntimeException("Could not find " + moduleDir.getCanonicalPath());
         }
         File random = new File(moduleDir, nameGenerator.randomName() + ".txt");
-        if(!random.createNewFile()) {
+        if (!random.createNewFile()) {
             throw new RuntimeException("file alredy exists: " + random.getCanonicalPath());
         }
         String modulePath = module.equals(".")

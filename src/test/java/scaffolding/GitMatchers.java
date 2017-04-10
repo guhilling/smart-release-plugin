@@ -1,11 +1,14 @@
 package scaffolding;
 
+import static scaffolding.TestProject.head;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.eclipse.jgit.annotations.NonNull;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -14,6 +17,10 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTree;
+import org.eclipse.jgit.revwalk.RevWalk;
+import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -21,6 +28,7 @@ import org.hamcrest.TypeSafeDiagnosingMatcher;
 
 import de.hilling.maven.release.AnnotatedTag;
 import de.hilling.maven.release.GitHelper;
+import de.hilling.maven.release.releaseinfo.ReleaseInfoStorage;
 import de.hilling.maven.release.versioning.ImmutableFixVersion;
 import de.hilling.maven.release.versioning.ImmutableModuleVersion;
 import de.hilling.maven.release.versioning.ImmutableQualifiedArtifact;
@@ -147,5 +155,63 @@ public class GitMatchers {
                 description.appendText("A git directory with no staged or unstaged changes");
             }
         };
+    }
+
+    public static Matcher<TestProject> hasChangesOnlyInReleaseInfo() {
+        return new TypeSafeDiagnosingMatcher<TestProject>() {
+            @Override
+            protected boolean matchesSafely(TestProject git, Description mismatchDescription) {
+                final List<DiffEntry> originEntries = diffDir(git.origin, git.originHeadAtStart);
+                boolean success = true;
+                if(originEntries.stream().filter(GitMatchers::isNoReleaseInfoDiff)
+                             .peek(diff -> mismatchDescription.appendText("unexpected diff: " + diff))
+                             .count() > 0) {
+                    success = false;
+                }
+                final List<DiffEntry> localEntries = diffDir(git.local, git.localHeadAtStart);
+                if(localEntries.stream().filter(GitMatchers::isNoReleaseInfoDiff)
+                                .peek(diff -> mismatchDescription.appendText("unexpected diff: " + diff))
+                                .count() > 0) {
+                    success = false;
+                }
+                return success;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("changes only in release-info file");
+            }
+        };
+    }
+
+    private static boolean isNoReleaseInfoDiff(DiffEntry m) {
+        return !m.getNewPath().equals(ReleaseInfoStorage.RELEASE_INFO_FILE);
+    }
+
+    private static @NonNull
+    List<DiffEntry> diffDir(Git git, ObjectId oldCommit) {
+        final Repository repository = git.getRepository();
+        ObjectId newCommit = head(git);
+        try {
+            final AbstractTreeIterator oldTree = prepareTreeParser(repository, oldCommit);
+            final AbstractTreeIterator newTree = prepareTreeParser(repository, newCommit);
+            return git.diff().setOldTree(oldTree).setNewTree(newTree).call();
+        } catch (GitAPIException | IOException e) {
+            throw new RuntimeException("unable to diff commits", e);
+        }
+    }
+
+    private static AbstractTreeIterator prepareTreeParser(Repository repository, ObjectId objectId) throws IOException {
+        try (RevWalk walk = new RevWalk(repository)) {
+            RevCommit commit = walk.parseCommit(objectId);
+            RevTree tree = walk.parseTree(commit.getTree().getId());
+
+            CanonicalTreeParser oldTreeParser = new CanonicalTreeParser();
+            try (ObjectReader oldReader = repository.newObjectReader()) {
+                oldTreeParser.reset(oldReader, tree.getId());
+            }
+            walk.dispose();
+            return oldTreeParser;
+        }
     }
 }

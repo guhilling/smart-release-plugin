@@ -12,7 +12,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static scaffolding.CountMatcher.oneOf;
 import static scaffolding.CountMatcher.twoOf;
-import static scaffolding.GitMatchers.hasCleanWorkingDirectory;
 import static scaffolding.GitMatchers.hasTagWithModuleVersion;
 import static scaffolding.MvnRunner.assertArtifactInLocalRepo;
 
@@ -23,7 +22,6 @@ import java.util.List;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -95,19 +93,6 @@ public class IndependentVersionsTest {
         assertThat(testProject.origin, hasTagWithModuleVersion(INDEPENDENT_VERSIONS_GROUPID, "independent-versions", expectedParentVersion));
         assertThat(testProject.origin, hasTagWithModuleVersion(INDEPENDENT_VERSIONS_GROUPID, "core-utils", expectedCoreVersion));
         assertThat(testProject.origin, hasTagWithModuleVersion(INDEPENDENT_VERSIONS_GROUPID, "console-app", expectedAppVersion));
-    }
-
-    // TODO
-    @Ignore("update test")
-    @Test
-    public void thePomChangesAreRevertedAfterTheRelease() throws IOException, InterruptedException {
-        ObjectId originHeadAtStart = head(testProject.origin);
-        ObjectId localHeadAtStart = head(testProject.local);
-        assertThat(originHeadAtStart, equalTo(localHeadAtStart));
-        testProject.mvnRelease();
-        assertThat(testProject.local, hasCleanWorkingDirectory());
-        assertThat(head(testProject.origin), equalTo(originHeadAtStart));
-        assertThat(head(testProject.local), equalTo(localHeadAtStart));
     }
 
     @Test
