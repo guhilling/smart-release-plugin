@@ -1,9 +1,12 @@
 package de.hilling.maven.release;
 
+import static de.hilling.maven.release.GitHelper.getRemoteUrlOrNullIfNoneSet;
+import static de.hilling.maven.release.repository.LocalGitRepo.fromCurrentDir;
 import static java.lang.String.format;
 
 import java.util.List;
 
+import org.apache.maven.model.Scm;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -14,6 +17,7 @@ import org.apache.maven.settings.Settings;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.JschConfigSessionFactory;
 
+import de.hilling.maven.release.repository.LocalGitRepo;
 import de.hilling.maven.release.utils.ErrorUtils;
 
 /**
@@ -77,7 +81,11 @@ public abstract class BaseMojo extends AbstractMojo {
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
         try {
-            executeConcreteMojo();
+            configureJsch();
+            final Scm originalScm = project.getOriginalModel().getScm();
+            final Scm scm = project.getModel().getScm();
+            final LocalGitRepo repo = fromCurrentDir(getRemoteUrlOrNullIfNoneSet(originalScm, scm), getLog());
+            executeConcreteMojo(scm, originalScm, repo);
         } catch (ValidationException e) {
             ErrorUtils.printBigErrorMessageAndThrow(getLog(), e.getMessage(), e.getMessages());
         } catch (GitAPIException gae) {
@@ -85,8 +93,8 @@ public abstract class BaseMojo extends AbstractMojo {
         }
     }
 
-    protected abstract void executeConcreteMojo() throws MojoExecutionException, MojoFailureException,
-                                                         GitAPIException, ValidationException;
+    protected abstract void executeConcreteMojo(Scm scm, Scm originalScm, LocalGitRepo repo) throws MojoExecutionException, MojoFailureException,
+                                                                                                    GitAPIException, ValidationException;
 
     final Settings getSettings() {
         return settings;

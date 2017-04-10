@@ -2,6 +2,7 @@ package de.hilling.maven.release;
 
 import static java.util.Arrays.asList;
 
+import org.apache.maven.model.Scm;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
@@ -32,6 +33,23 @@ public class GitHelper {
         String remote = scmUrl.substring(GIT_PREFIX.length());
         remote  = remote.replace("file://localhost/", "file:///");
         return remote;
+    }
+
+    static String getRemoteUrlOrNullIfNoneSet(Scm originalScm, Scm actualScm) throws ValidationException {
+        if (originalScm == null) {
+            // No scm was specified, so don't inherit from any parent poms as they are probably used in different git repos
+            return null;
+        }
+
+        // There is an SCM specified, so the actual SCM with derived values is used in case (so that variables etc are interpolated)
+        String remote = actualScm.getDeveloperConnection();
+        if (remote == null) {
+            remote = actualScm.getConnection();
+        }
+        if (remote == null) {
+            return null;
+        }
+        return scmUrlToRemote(remote);
     }
 
     private static class EqualsMatcher {

@@ -4,7 +4,6 @@ import static java.lang.String.format;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,9 +18,9 @@ import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 
 /**
- * @author Roland Hauser sourcepond@gmail.com
+ * Invoker for maven run.
  */
-class ReleaseInvoker {
+class PhaseInvoker {
     static final String DEPLOY     = "deploy";
     static final String SKIP_TESTS = "-DskipTests=true";
     private final Log               log;
@@ -38,12 +37,12 @@ class ReleaseInvoker {
         goals.add(DEPLOY);
     }
 
-    public ReleaseInvoker(final Log log, final MavenProject project) {
+    public PhaseInvoker(final Log log, final MavenProject project) {
         this(log, project, new DefaultInvocationRequest(), new DefaultInvoker());
     }
 
-    public ReleaseInvoker(final Log log, final MavenProject project, final InvocationRequest request,
-                          final Invoker invoker) {
+    public PhaseInvoker(final Log log, final MavenProject project, final InvocationRequest request,
+                        final Invoker invoker) {
         this.log = log;
         this.project = project;
         this.request = request;
@@ -54,18 +53,8 @@ class ReleaseInvoker {
         goals = goalsOrNull;
     }
 
-    private List<String> getModulesToRelease() {
-        return modulesToRelease == null
-               ? Collections.emptyList()
-               : modulesToRelease;
-    }
-
     final void setModulesToRelease(final List<String> modulesToReleaseOrNull) {
         modulesToRelease = modulesToReleaseOrNull;
-    }
-
-    private List<String> getReleaseProfilesOrNull() {
-        return releaseProfiles;
     }
 
     final void setReleaseProfiles(final List<String> releaseProfilesOrNull) {
@@ -124,9 +113,7 @@ class ReleaseInvoker {
 
     private List<String> profilesToActivate() {
         final List<String> profiles = new ArrayList<>();
-        if (getReleaseProfilesOrNull() != null) {
-            profiles.addAll(getReleaseProfilesOrNull());
-        }
+        profiles.addAll(releaseProfiles);
         for (final Object activatedProfile : project.getActiveProfiles()) {
             profiles.add(((org.apache.maven.model.Profile) activatedProfile).getId());
         }

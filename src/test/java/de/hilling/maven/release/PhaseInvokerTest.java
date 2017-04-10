@@ -1,7 +1,7 @@
 package de.hilling.maven.release;
 
-import static de.hilling.maven.release.ReleaseInvoker.DEPLOY;
-import static de.hilling.maven.release.ReleaseInvoker.SKIP_TESTS;
+import static de.hilling.maven.release.PhaseInvoker.DEPLOY;
+import static de.hilling.maven.release.PhaseInvoker.SKIP_TESTS;
 import static java.util.Arrays.asList;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
@@ -31,7 +31,7 @@ import org.mockito.Mockito;
 /**
  * @author Roland Hauser sourcepond@gmail.com
  */
-public class ReleaseInvokerTest {
+public class PhaseInvokerTest {
     private final static String                 ACTIVE_PROFILE_ID   = "activeProfile";
     private final static String                 SOME_PROFILE_ID     = "someProfile";
     private final static File                   GLOBAL_SETTINGS     = new File("file:///globalSettings");
@@ -50,8 +50,8 @@ public class ReleaseInvokerTest {
     private final        Reactor                reactor             = mock(Reactor.class);
     private final        ReleasableModule       module              = mock(ReleasableModule.class);
     private final        Profile                activeProfile       = mock(Profile.class);
-    private final        ReleaseInvoker         releaseInvoker      = new ReleaseInvoker(log, project, request,
-                                                                                         invoker);
+    private final        PhaseInvoker           phaseInvoker        = new PhaseInvoker(log, project, request,
+                                                                                       invoker);
 
     @Before
     public void setup() throws Exception {
@@ -64,12 +64,12 @@ public class ReleaseInvokerTest {
 
     @Test
     public void verifyDefaultConstructor() {
-        new ReleaseInvoker(log, project);
+        new PhaseInvoker(log, project);
     }
 
     @Test
     public void runMavenBuild_BaseTest() throws Exception {
-        releaseInvoker.runMavenBuild(reactor);
+        phaseInvoker.runMavenBuild(reactor);
         verify(request).setInteractive(false);
         verify(request).setShowErrors(true);
         verify(request).setDebug(true);
@@ -106,15 +106,15 @@ public class ReleaseInvokerTest {
 
     @Test
     public void runMavenBuild_WithUserSettings() throws Exception {
-        releaseInvoker.setUserSettings(USER_SETTINGS);
-        releaseInvoker.runMavenBuild(reactor);
+        phaseInvoker.setUserSettings(USER_SETTINGS);
+        phaseInvoker.runMavenBuild(reactor);
         verify(request).setUserSettingsFile(USER_SETTINGS);
     }
 
     @Test
     public void runMavenBuild_WithGlobalSettings() throws Exception {
-        releaseInvoker.setGlobalSettings(GLOBAL_SETTINGS);
-        releaseInvoker.runMavenBuild(reactor);
+        phaseInvoker.setGlobalSettings(GLOBAL_SETTINGS);
+        phaseInvoker.runMavenBuild(reactor);
         verify(request).setGlobalSettingsFile(GLOBAL_SETTINGS);
     }
 
@@ -126,8 +126,8 @@ public class ReleaseInvokerTest {
     @Test
     public void runMavenBuild_WithGoals() throws Exception {
         goals.add(SITE);
-        releaseInvoker.setGoals(goals);
-        releaseInvoker.runMavenBuild(reactor);
+        phaseInvoker.setGoals(goals);
+        phaseInvoker.runMavenBuild(reactor);
         verify(request).setGoals(Mockito.argThat(new BaseMatcher<List<String>>() {
 
             @Override
@@ -147,9 +147,9 @@ public class ReleaseInvokerTest {
     @Test
     public void runMavenBuild_WithActiveProfiles() throws Exception {
         releaseProfiles.add(SOME_PROFILE_ID);
-        releaseInvoker.setReleaseProfiles(releaseProfiles);
+        phaseInvoker.setReleaseProfiles(releaseProfiles);
         when(project.getActiveProfiles()).thenReturn(asList(activeProfile));
-        releaseInvoker.runMavenBuild(reactor);
+        phaseInvoker.runMavenBuild(reactor);
         verify(request).setProfiles(Mockito.argThat(new BaseMatcher<List<String>>() {
 
             @Override
@@ -171,8 +171,8 @@ public class ReleaseInvokerTest {
     public void runMavenBuild_UserImplicitlyWantsThisToBeReleased() throws Exception {
         when(reactor.getModulesInBuildOrder()).thenReturn(modulesInBuildOrder);
         when(module.isToBeReleased()).thenReturn(true);
-        releaseInvoker.setModulesToRelease(modulesToRelease);
-        releaseInvoker.runMavenBuild(reactor);
+        phaseInvoker.setModulesToRelease(modulesToRelease);
+        phaseInvoker.runMavenBuild(reactor);
         verify(request).setProjects(Mockito.argThat(new BaseMatcher<List<String>>() {
 
             @Override
@@ -192,8 +192,8 @@ public class ReleaseInvokerTest {
     @Test
     public void runMavenBuild_UserImplicitlyWantsThisToBeReleased_WillNotBeReleased() throws Exception {
         when(reactor.getModulesInBuildOrder()).thenReturn(modulesInBuildOrder);
-        releaseInvoker.setModulesToRelease(modulesToRelease);
-        releaseInvoker.runMavenBuild(reactor);
+        phaseInvoker.setModulesToRelease(modulesToRelease);
+        phaseInvoker.runMavenBuild(reactor);
         verify(request).setProjects(Mockito.argThat(new BaseMatcher<List<String>>() {
 
             @Override
@@ -211,8 +211,8 @@ public class ReleaseInvokerTest {
 
     @Test
     public void skipTests() throws Exception {
-        releaseInvoker.setSkipTests(true);
-        releaseInvoker.runMavenBuild(reactor);
+        phaseInvoker.setSkipTests(true);
+        phaseInvoker.runMavenBuild(reactor);
         verify(request).setGoals(Mockito.argThat(new BaseMatcher<List<String>>() {
 
             @Override
@@ -232,7 +232,7 @@ public class ReleaseInvokerTest {
     @Test(expected = MojoExecutionException.class)
     public void runMavenBuild_ErrorExitCode() throws Exception {
         when(result.getExitCode()).thenReturn(1);
-        releaseInvoker.runMavenBuild(reactor);
+        phaseInvoker.runMavenBuild(reactor);
     }
 
     @Test
@@ -240,7 +240,7 @@ public class ReleaseInvokerTest {
         final MavenInvocationException expected = new MavenInvocationException("anyMessage");
         doThrow(expected).when(invoker).execute(request);
         try {
-            releaseInvoker.runMavenBuild(reactor);
+            phaseInvoker.runMavenBuild(reactor);
             fail("Exception expected here");
         } catch (final MojoExecutionException e) {
             assertSame(expected, e.getCause());

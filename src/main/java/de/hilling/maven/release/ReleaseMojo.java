@@ -1,6 +1,7 @@
 package de.hilling.maven.release;
 
 import static de.hilling.maven.release.Reactor.fromProjects;
+import static java.util.Collections.emptyList;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,7 +40,7 @@ public class ReleaseMojo extends BaseMojo {
      * </p>
      * <p>
      * You can specify more goals and maven options. For example if you want to perform
-     * a clean, build a maven site, and then deploys it, use:
+     * a clean, build a maven site, and then deploy it, use:
      * </p>
      * <pre>
      * {@code
@@ -51,8 +52,8 @@ public class ReleaseMojo extends BaseMojo {
      * }
      * </pre>
      */
-    @Parameter(alias = "releaseGoals")
-    private List<String> goals;
+    @Parameter(alias = "releaseGoals", defaultValue = "{deploy}")
+    private List<String> releaseGoals;
 
     /**
      * <p>
@@ -66,7 +67,47 @@ public class ReleaseMojo extends BaseMojo {
      * @since 1.0.1
      */
     @Parameter(alias = "releaseProfiles")
-    private List<String> releaseProfiles;
+    private List<String> releaseProfiles = emptyList();
+
+    /**
+     * <p>
+     * The goals to run against the project before the release. By default this is "test" which
+     * means the project is built and the tests are run.
+     * </p>
+     * <p>
+     * You can specify more goals and maven options. For example if you want to perform
+     * a clean install, use:
+     * </p>
+     * <pre>
+     * {@code
+     * <releaseGoals>
+     *     <releaseGoal>clean</releaseGoal>
+     *     <releaseGoal>install</releaseGoal>
+     * </releaseGoals>
+     * }
+     * </pre>
+     * <p>
+     * Remember that you will most probably do an implicit "compile package install deploy" during the release phase.
+     * </p>
+     */
+    @Parameter(alias = "testGoals", defaultValue = "{clean install}")
+    private List<String> testGoals= emptyList();;
+
+    /**
+     * <p>
+     * Profiles to activate during the the test run.
+     * </p>
+     * <p>
+     * Note that if any profiles are activated during the build using the `-P` or `--activate-profiles` will also be
+     * activated during test.
+     * This gives two options for running test: either configure it in the plugin configuration, or activate profiles
+     * from the command line.
+     * </p>
+     *
+     * @since 1.0.1
+     */
+    @Parameter(alias = "testProfiles")
+    private List<String> testProfiles;
 
     /**
      * If true then tests will not be run during a release.
@@ -85,23 +126,6 @@ public class ReleaseMojo extends BaseMojo {
      */
     @Parameter(alias = "push", defaultValue = "true", property = "push")
     private boolean push;
-
-    static String getRemoteUrlOrNullIfNoneSet(Scm originalScm, Scm actualScm) throws ValidationException {
-        if (originalScm == null) {
-            // No scm was specified, so don't inherit from any parent poms as they are probably used in different git repos
-            return null;
-        }
-
-        // There is an SCM specified, so the actual SCM with derived values is used in case (so that variables etc are interpolated)
-        String remote = actualScm.getDeveloperConnection();
-        if (remote == null) {
-            remote = actualScm.getConnection();
-        }
-        if (remote == null) {
-            return null;
-        }
-        return GitHelper.scmUrlToRemote(remote);
-    }
 
     private static List<File> updatePomsAndReturnChangedFiles(Log log, LocalGitRepo repo, Reactor reactor) throws
                                                                                                            MojoExecutionException,
@@ -129,13 +153,7 @@ public class ReleaseMojo extends BaseMojo {
     }
 
     @Override
-    public void executeConcreteMojo() throws MojoExecutionException, MojoFailureException, GitAPIException {
-
-        configureJsch();
-
-        final Scm originalScm = project.getOriginalModel().getScm();
-        final Scm scm = project.getModel().getScm();
-        LocalGitRepo repo = LocalGitRepo.fromCurrentDir(getRemoteUrlOrNullIfNoneSet(originalScm, scm), getLog());
+    public void executeConcreteMojo(Scm scm, Scm originalScm, LocalGitRepo repo) throws MojoExecutionException, MojoFailureException, GitAPIException {
         repo.errorIfNotClean();
 
         final ReleaseInfoStorage infoStorage = new ReleaseInfoStorage(project.getBasedir(), repo.git);
@@ -173,8 +191,8 @@ public class ReleaseMojo extends BaseMojo {
         tagAndPushRepo(repo, currentRelease);
 
         try {
-            final ReleaseInvoker invoker = new ReleaseInvoker(getLog(), project);
-            invoker.setGoals(goals);
+            final PhaseInvoker invoker = new PhaseInvoker(getLog(), project);
+            invoker.setGoals(releaseGoals);
             invoker.setModulesToRelease(modulesToRelease);
             invoker.setReleaseProfiles(releaseProfiles);
             invoker.setSkipTests(skipTests);

@@ -1,8 +1,5 @@
 package de.hilling.maven.release;
 
-import static de.hilling.maven.release.ReleaseMojo.getRemoteUrlOrNullIfNoneSet;
-import static de.hilling.maven.release.repository.LocalGitRepo.fromCurrentDir;
-
 import org.apache.maven.model.Scm;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
@@ -28,12 +25,7 @@ import de.hilling.maven.release.versioning.ReleaseInfo;
 public class NextMojo extends BaseMojo {
 
     @Override
-    public void executeConcreteMojo() throws MojoExecutionException, MojoFailureException, GitAPIException {
-        configureJsch();
-
-        final Scm originalScm = project.getOriginalModel().getScm();
-        final Scm scm = project.getModel().getScm();
-        LocalGitRepo repo = fromCurrentDir(getRemoteUrlOrNullIfNoneSet(originalScm, scm), getLog());
+    public void executeConcreteMojo(Scm scm, Scm originalScm, LocalGitRepo repo) throws MojoExecutionException, MojoFailureException, GitAPIException {
         ReleaseInfo previousRelease = new ReleaseInfoStorage(project.getBasedir(), repo.git).load();
         Reactor.fromProjects(getLog(), repo, project, projects, modulesToForceRelease, noChangesAction, bugfixRelease,
                              previousRelease);
