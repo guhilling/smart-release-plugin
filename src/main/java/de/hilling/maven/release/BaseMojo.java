@@ -17,7 +17,7 @@ import org.eclipse.jgit.transport.JschConfigSessionFactory;
 import de.hilling.maven.release.utils.ErrorUtils;
 
 /**
- * @author Roland Hauser sourcepond@gmail.com
+ * Base class for {@link NextMojo} and {@link ReleaseMojo}.
  */
 public abstract class BaseMojo extends AbstractMojo {
     @Parameter(property = "project", required = true, readonly = true, defaultValue = "${project}")
@@ -38,7 +38,11 @@ public abstract class BaseMojo extends AbstractMojo {
      */
     @Parameter(alias = "noChangesAction", defaultValue = "ReleaseAll", property = "noChangesAction")
     protected NoChangesAction noChangesAction;
-    @Parameter(defaultValue = "false", alias = "performBugfixRelease", property = "performBugfixRelease")
+    /**
+     * Perform a bugfix release. When performing a bugfix release, the last ("bugfix") number of the release
+     * version is incremented. The previous releases are determined from the .release-info.json-File.
+     */
+    @Parameter(defaultValue = "false", alias = "bugfixRelease", property = "bugfixRelease")
     protected boolean         bugfixRelease;
     @Parameter(property = "disableSshAgent")
     private   boolean         disableSshAgent;
