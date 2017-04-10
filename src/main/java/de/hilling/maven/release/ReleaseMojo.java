@@ -38,28 +38,6 @@ public class ReleaseMojo extends BaseMojo {
 
     /**
      * <p>
-     * The goals to run against the project during a release. By default this is "deploy" which
-     * means the release version of your artifact will be tested and deployed.
-     * </p>
-     * <p>
-     * You can specify more goals and maven options. For example if you want to perform
-     * a clean, build a maven site, and then deploy it, use:
-     * </p>
-     * <pre>
-     * {@code
-     * <releaseGoals>
-     *     <releaseGoal>clean</releaseGoal>
-     *     <releaseGoal>site</releaseGoal>
-     *     <releaseGoal>deploy</releaseGoal>
-     * </releaseGoals>
-     * }
-     * </pre>
-     */
-    @Parameter(alias = "releaseGoals")
-    private List<String> releaseGoals = emptyList();
-
-    /**
-     * <p>
      * Profiles to activate during the release.
      * </p>
      * <p>
@@ -71,7 +49,6 @@ public class ReleaseMojo extends BaseMojo {
      */
     @Parameter(alias = "releaseProfiles")
     protected List<String> releaseProfiles = emptyList();
-
     /**
      * <p>
      * The goals to run against the project before the release. By default this is "test" which
@@ -95,7 +72,6 @@ public class ReleaseMojo extends BaseMojo {
      */
     @Parameter(alias = "testGoals")
     protected List<String> testGoals = emptyList();
-
     /**
      * <p>
      * Profiles to activate during the the test run.
@@ -111,20 +87,39 @@ public class ReleaseMojo extends BaseMojo {
      */
     @Parameter(alias = "testProfiles")
     protected List<String> testProfiles = emptyList();
-
     /**
      * Determines running of tests. Possible values:
      * {@code testPhaseOnly}, {@code runAlways}, {@code skipTests}
      */
     @Parameter(alias = "testBehaviour", defaultValue = "testPhaseOnly", property = "testBehaviour")
     protected TestBehaviour testBehaviour;
-
+    /**
+     * <p>
+     * The goals to run against the project during a release. By default this is "deploy" which
+     * means the release version of your artifact will be tested and deployed.
+     * </p>
+     * <p>
+     * You can specify more goals and maven options. For example if you want to perform
+     * a clean, build a maven site, and then deploy it, use:
+     * </p>
+     * <pre>
+     * {@code
+     * <releaseGoals>
+     *     <releaseGoal>clean</releaseGoal>
+     *     <releaseGoal>site</releaseGoal>
+     *     <releaseGoal>deploy</releaseGoal>
+     * </releaseGoals>
+     * }
+     * </pre>
+     */
+    @Parameter(alias = "releaseGoals")
+    private List<String> releaseGoals = emptyList();
     /**
      * Push changes to remote repository. This includes:
      * <ul>
-     *     <li>The newly created tag for this release containing the release information</li>
-     *     <li>The release info file containing the same information. This will be used to find relevant older
-     *     releases to compare to during the following release.</li>
+     * <li>The newly created tag for this release containing the release information</li>
+     * <li>The release info file containing the same information. This will be used to find relevant older
+     * releases to compare to during the following release.</li>
      * </ul>
      */
     @Parameter(alias = "push", defaultValue = "true", property = "push")
@@ -156,7 +151,9 @@ public class ReleaseMojo extends BaseMojo {
     }
 
     @Override
-    public void executeConcreteMojo(Scm scm, Scm originalScm, LocalGitRepo repo) throws MojoExecutionException, MojoFailureException, GitAPIException {
+    public void executeConcreteMojo(Scm scm, Scm originalScm, LocalGitRepo repo) throws MojoExecutionException,
+                                                                                        MojoFailureException,
+                                                                                        GitAPIException {
         setDefaults();
         repo.errorIfNotClean();
 
@@ -165,7 +162,7 @@ public class ReleaseMojo extends BaseMojo {
         getLog().info("previous release: " + previousRelease);
 
         Reactor reactor = fromProjects(getLog(), repo, project, projects, modulesToForceRelease, noChangesAction,
-                                            bugfixRelease, previousRelease);
+                                       bugfixRelease, previousRelease);
         if (reactor == null) {
             return;
         }
@@ -189,15 +186,17 @@ public class ReleaseMojo extends BaseMojo {
 
         List<File> changedFiles = updatePomsAndReturnChangedFiles(getLog(), repo, reactor);
 
-        // Do this before running the maven build in case the build uploads some artifacts and then fails. If it is
-        // not tagged in a half-failed build, then subsequent releases will re-use a version that is already in Nexus
-        // and so fail. The downside is that failed builds result in tags being pushed.
+        if (testBehaviour != TestBehaviour.skipPreRelease) {
+            new PhaseInvoker(getLog(), project, new DefaultInvocationRequest(), new DefaultInvoker(), testGoals,
+                             testProfiles, !testBehaviour.isRunInTestPhase()).runMavenBuild(reactor);
+        }
+
         tagAndPushRepo(repo, currentRelease);
 
-        System.out.println("test: " + testBehaviour);
         try {
             final PhaseInvoker invoker = new PhaseInvoker(getLog(), project, new DefaultInvocationRequest(),
-                                                          new DefaultInvoker(), releaseGoals, releaseProfiles, !testBehaviour.isRunInReleasePhase());
+                                                          new DefaultInvoker(), releaseGoals, releaseProfiles,
+                                                          !testBehaviour.isRunInReleasePhase());
             invoker.runMavenBuild(reactor);
             revertChanges(repo, changedFiles, true); // throw if you can't revert as that is the root problem
         } finally {

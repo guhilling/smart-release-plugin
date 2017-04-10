@@ -78,6 +78,12 @@ class PhaseInvoker {
         request.setUserSettingsFile(userSettings);
     }
 
+    /**
+     * Run build with given reactor.
+     *
+     * @param reactor reactor to use
+     * @throws MojoExecutionException on any error during execution.
+     */
     public final void runMavenBuild(final Reactor reactor) throws MojoExecutionException {
         request.setInteractive(false);
         request.setShowErrors(true);

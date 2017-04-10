@@ -31,7 +31,7 @@ public class TestRunningTest {
     @Test
     public void doesNotReleaseIfThereAreTestFailuresButTagsAreStillWritten() throws Exception {
         try {
-            projectWithTestsThatFail.mvnRelease("-DtestBehaviour=runAlways");
+            projectWithTestsThatFail.mvnRelease();
             Assert.fail("Should have failed");
         } catch (MavenExecutionException e) {
         }
@@ -42,6 +42,6 @@ public class TestRunningTest {
 
     @Test
     public void ifTestsAreSkippedYouCanReleaseWithoutRunningThem() throws IOException {
-        projectWithTestsThatFail.mvn("-DskipTests", RELEASE_GOAL);
+        projectWithTestsThatFail.mvn("-DtestBehaviour=skipTests", RELEASE_GOAL);
     }
 }

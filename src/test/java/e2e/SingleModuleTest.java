@@ -10,6 +10,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 import static scaffolding.CountMatcher.oneOf;
+import static scaffolding.CountMatcher.twoOf;
 import static scaffolding.GitMatchers.hasTag;
 import static scaffolding.GitMatchers.hasTagWithModuleVersion;
 
@@ -40,7 +41,7 @@ public class SingleModuleTest {
     public void canUpdateSnapshotVersionToReleaseVersionAndInstallToLocalRepo() throws Exception {
         List<String> outputLines = testProject.mvnRelease();
         assertThat(outputLines, oneOf(containsString("Going to release single-module " + expected)));
-        assertThat(outputLines, oneOf(containsString("Hello from version " + expected + "!")));
+        assertThat(outputLines, twoOf(containsString("Hello from version " + expected + "!")));
 
         MvnRunner
             .assertArtifactInLocalRepo(TestUtils.TEST_GROUP_ID, "single-module", expected);

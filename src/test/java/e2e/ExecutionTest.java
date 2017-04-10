@@ -6,6 +6,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static scaffolding.CountMatcher.noneOf;
 import static scaffolding.CountMatcher.oneOf;
+import static scaffolding.CountMatcher.twoOf;
 
 import java.io.File;
 import java.util.List;
@@ -33,7 +34,7 @@ public class ExecutionTest {
     @Test
     public void profilesPassedToTheReleaseExecutionArePassedOnToTheDeployment() throws Exception {
         List<String> consoleOutput = testProject.mvnRelease( "-PrunTestsProfile");
-        assertThat(consoleOutput, oneOf(containsString("The module-with-profiles test has run")));
+        assertThat(consoleOutput, twoOf(containsString("The module-with-profiles test has run")));
         assertThat(consoleOutput, oneOf(containsString(ECHO_PLUGIN_OUTPUT)));
     }
 

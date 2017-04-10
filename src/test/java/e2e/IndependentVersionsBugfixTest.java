@@ -5,7 +5,7 @@ import scaffolding.TestProject;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static scaffolding.CountMatcher.noneOf;
-import static scaffolding.CountMatcher.oneOf;
+import static scaffolding.CountMatcher.twoOf;
 import static scaffolding.MvnRunner.assertArtifactInLocalRepo;
 import static scaffolding.MvnRunner.assertArtifactNotInLocalRepo;
 
@@ -83,7 +83,7 @@ public class IndependentVersionsBugfixTest {
         testProject.local.checkout().setName(branchName).call();
         testProject.commitRandomFile(CONSOLE_APP_ARTIFACT);
         final List<String> outputLines = testProject.mvnReleaseBugfix();
-        assertThat(outputLines, oneOf(containsString("Building console-app 3.0.1")));
+        assertThat(outputLines, twoOf(containsString("Building console-app 3.0.1")));
         assertThat(outputLines, noneOf(containsString("Building core-utils")));
         assertThat(outputLines, noneOf(containsString("Building independent-versions 1.0")));
     }

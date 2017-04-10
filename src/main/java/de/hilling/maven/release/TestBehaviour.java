@@ -10,6 +10,10 @@ public enum TestBehaviour {
      */
     runAlways(true, true),
     /**
+     * Skip the entire test (pre-release) execution.
+     */
+    skipPreRelease(false, false),
+    /**
      * Don't run tests at all.
      */
     skipTests(false, false);

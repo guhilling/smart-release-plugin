@@ -31,7 +31,7 @@ public class ParentAsSiblingTest {
 
     @Test
     public void buildsAndInstallsAndTagsAllModules() throws Exception {
-        buildsEachProjectOnceAndOnlyOnce(testProject.mvnRelease("-DtestBehaviour=runAlways"));
+        buildsEachProjectOnceAndOnlyOnce(testProject.mvnRelease());
         installsAllModulesIntoTheRepoWithTheBuildNumber();
         theLocalAndRemoteGitReposAreTaggedWithTheModuleNameAndVersion();
     }
