@@ -70,6 +70,7 @@ public class GitRelatedTest {
 
     @Test
     public void ifTheScmIsSpecifiedButIsNotGitThenThisIsThrown() throws GitAPIException, IOException, InterruptedException {
+        scmTagProject.checkNoChanges = false;
         File pom = new File(scmTagProject.localDir, "pom.xml");
         String xml = FileUtils.readFileToString(pom, "UTF-8");
         xml = xml.replace("scm:git:", "scm:svn:");
