@@ -4,9 +4,8 @@ import scaffolding.MavenExecutionException;
 import scaffolding.TestProject;
 
 import static de.hilling.maven.release.TestUtils.RELEASE_GOAL;
-import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static scaffolding.GitMatchers.hasCleanWorkingDirectory;
+import static org.hamcrest.collection.IsEmptyCollection.empty;
 
 import java.io.IOException;
 
@@ -29,15 +28,14 @@ public class TestRunningTest {
     }
 
     @Test
-    public void doesNotReleaseIfThereAreTestFailuresButTagsAreStillWritten() throws Exception {
+    public void doesNotReleaseIfThereAreTestFailuresAndNoTagsAreWritten() throws Exception {
         try {
             projectWithTestsThatFail.mvnRelease();
             Assert.fail("Should have failed");
         } catch (MavenExecutionException e) {
         }
-        assertThat(projectWithTestsThatFail.local, hasCleanWorkingDirectory());
-        assertThat(projectWithTestsThatFail.local.tagList().call().get(0).getName(), startsWith(expectedTagName));
-        assertThat(projectWithTestsThatFail.origin.tagList().call().get(0).getName(), startsWith(expectedTagName));
+        assertThat(projectWithTestsThatFail.local.tagList().call(), empty());
+        assertThat(projectWithTestsThatFail.origin.tagList().call(), empty());
     }
 
     @Test

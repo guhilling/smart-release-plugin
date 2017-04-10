@@ -182,13 +182,18 @@ public class ReleaseMojo extends BaseMojo {
 
         final ImmutableReleaseInfo currentRelease = releaseBuilder.build();
         getLog().info("current release: " + currentRelease);
-        infoStorage.store(currentRelease);
 
         List<File> changedFiles = updatePomsAndReturnChangedFiles(getLog(), repo, reactor);
 
         if (testBehaviour != TestBehaviour.skipPreRelease) {
-            new PhaseInvoker(getLog(), project, new DefaultInvocationRequest(), new DefaultInvoker(), testGoals,
-                             testProfiles, !testBehaviour.isRunInTestPhase()).runMavenBuild(reactor);
+            try {
+                new PhaseInvoker(getLog(), project, new DefaultInvocationRequest(), new DefaultInvoker(), testGoals,
+                                 testProfiles, !testBehaviour.isRunInTestPhase()).runMavenBuild(reactor);
+                infoStorage.store(currentRelease);
+            } catch (MojoExecutionException mee) {
+                revertChanges(repo, changedFiles, false);
+                throw mee;
+            }
         }
 
         tagAndPushRepo(repo, currentRelease);
