@@ -19,9 +19,12 @@ public class VersionNamer {
     }
 
     /**
+     * Computes the next to be released version for the given project.
+     *
+     * @param project project to get next version for.
      * @return next version name to use
      *
-     * @throws ValidationException
+     * @throws ValidationException if current snapshot is older than previously released version
      */
     public FixVersion nextVersion(MavenProject project) throws ValidationException {
         final ImmutableQualifiedArtifact artifact = ImmutableQualifiedArtifact.builder().groupId(project.getGroupId())

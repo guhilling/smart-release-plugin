@@ -51,6 +51,8 @@ public class LocalGitRepo {
      * @param remoteUrl The value in pom.scm.connection or null if none specified, in which case the default remote is used.
      * @param log       maven logger
      *
+     * @return new LocalGitRepo created from current working directory.
+     *
      * @throws ValidationException if anything goes wrong
      */
     public static LocalGitRepo fromCurrentDir(String remoteUrl, Log log) throws ValidationException {
