@@ -5,7 +5,6 @@ import scaffolding.TestProject;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static scaffolding.CountMatcher.noneOf;
 import static scaffolding.CountMatcher.oneOf;
 import static scaffolding.CountMatcher.twoOf;
 import static scaffolding.GitMatchers.hasTagWithModuleVersion;
@@ -53,7 +52,7 @@ public class ParentAsSiblingTest {
                 oneOf(containsString("Building parent-module")),
                 oneOf(containsString("Building core-utils")),
                 oneOf(containsString("Building console-app")),
-                noneOf(containsString("The Calculator Test has run"))
+                oneOf(containsString("The Calculator Test has run"))
             )
         );
     }
