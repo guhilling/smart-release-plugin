@@ -5,6 +5,8 @@ import static java.util.stream.Stream.concat;
 import static java.util.stream.Stream.of;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,8 +14,8 @@ import org.apache.maven.model.Profile;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.shared.invoker.DefaultInvocationRequest;
-import org.apache.maven.shared.invoker.DefaultInvoker;
+import org.apache.maven.settings.Settings;
+import org.apache.maven.settings.io.DefaultSettingsWriter;
 import org.apache.maven.shared.invoker.InvocationRequest;
 import org.apache.maven.shared.invoker.InvocationResult;
 import org.apache.maven.shared.invoker.Invoker;
@@ -29,27 +31,20 @@ class PhaseInvoker {
     private final MavenProject      project;
     private final InvocationRequest request;
     private final Invoker           invoker;
+    private final Settings          settings;
     private       boolean           skipTests;
     private       List<String>      goals;
     private       List<String>      profiles;
 
-    public PhaseInvoker(final Log log, final MavenProject project, final InvocationRequest request,
-                        final Invoker invoker) {
-        this.log = log;
-        this.project = project;
-        this.request = request;
-        this.invoker = invoker;
-    }
-
-    public PhaseInvoker(Log log, MavenProject project, DefaultInvocationRequest request,
-                        DefaultInvoker invoker, List<String> goals, List<String> profiles,
-                        boolean skipTests) {
+    public PhaseInvoker(Log log, MavenProject project, InvocationRequest request, Invoker invoker, List<String> goals,
+                        List<String> profiles, Settings settings, boolean skipTests) {
         this.log = log;
         this.project = project;
         this.request = request;
         this.invoker = invoker;
         this.goals = goals;
         this.profiles = profiles;
+        this.settings = settings;
         this.skipTests = skipTests;
     }
 
@@ -70,18 +65,11 @@ class PhaseInvoker {
         this.skipTests = skipTests;
     }
 
-    final void setGlobalSettings(final File globalSettings) {
-        request.setGlobalSettingsFile(globalSettings);
-    }
-
-    final void setUserSettings(final File userSettings) {
-        request.setUserSettingsFile(userSettings);
-    }
-
     /**
      * Run build with given reactor.
      *
      * @param reactor reactor to use
+     *
      * @throws MojoExecutionException on any error during execution.
      */
     public final void runMavenBuild(final Reactor reactor) throws MojoExecutionException {
@@ -91,6 +79,22 @@ class PhaseInvoker {
 
         if (skipTests) {
             goals = concat(goals.stream(), of(SKIP_TESTS)).collect(Collectors.toList());
+        }
+
+        if (settings != null) {
+            try {
+                File settingsFile = File.createTempFile("tmp", ".xml");
+                settingsFile.deleteOnExit();
+                new DefaultSettingsWriter().write(settingsFile, null, settings);
+                if (log.isDebugEnabled()) {
+                    final StringWriter output = new StringWriter();
+                    new DefaultSettingsWriter().write(output, null, settings);
+                    log.debug("using settings: " + output.toString());
+                }
+                request.setUserSettingsFile(settingsFile);
+            } catch (IOException e) {
+                throw new MojoExecutionException("unable to create temporary file", e);
+            }
         }
 
         request.setGoals(goals);

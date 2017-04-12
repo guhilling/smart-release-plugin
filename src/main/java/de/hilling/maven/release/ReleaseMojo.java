@@ -48,7 +48,7 @@ public class ReleaseMojo extends BaseMojo {
      * @since 1.0.1
      */
     @Parameter(alias = "releaseProfiles")
-    protected List<String> releaseProfiles = emptyList();
+    private       List<String> releaseProfiles = emptyList();
     /**
      * <p>
      * The goals to run against the project before the release. By default this is "test" which
@@ -71,7 +71,7 @@ public class ReleaseMojo extends BaseMojo {
      * </p>
      */
     @Parameter(alias = "testGoals")
-    protected List<String> testGoals = emptyList();
+    private List<String> testGoals    = emptyList();
     /**
      * <p>
      * Profiles to activate during the the test run.
@@ -86,13 +86,13 @@ public class ReleaseMojo extends BaseMojo {
      * @since 1.0.1
      */
     @Parameter(alias = "testProfiles")
-    protected List<String> testProfiles = emptyList();
+    private List<String> testProfiles = emptyList();
     /**
      * Determines running of tests. Possible values:
      * {@code testPhaseOnly}, {@code runAlways}, {@code skipTests}
      */
     @Parameter(alias = "testBehaviour", defaultValue = "testPhaseOnly", property = "testBehaviour")
-    protected TestBehaviour testBehaviour;
+    private TestBehaviour testBehaviour;
     /**
      * <p>
      * The goals to run against the project during a release. By default this is "deploy" which
@@ -187,8 +187,11 @@ public class ReleaseMojo extends BaseMojo {
 
         if (testBehaviour != TestBehaviour.skipPreRelease) {
             try {
-                new PhaseInvoker(getLog(), project, new DefaultInvocationRequest(), new DefaultInvoker(), testGoals,
-                                 testProfiles, !testBehaviour.isRunInTestPhase()).runMavenBuild(reactor);
+                final PhaseInvoker invoker = new PhaseInvoker(getLog(), project, new DefaultInvocationRequest(),
+                                                                   new DefaultInvoker(), testGoals, testProfiles,
+                                                                   getSettings(),
+                                                                   !testBehaviour.isRunInTestPhase());
+                invoker.runMavenBuild(reactor);
                 infoStorage.store(currentRelease);
             } catch (MojoExecutionException mee) {
                 revertChanges(repo, changedFiles, false);
@@ -200,7 +203,7 @@ public class ReleaseMojo extends BaseMojo {
 
         try {
             final PhaseInvoker invoker = new PhaseInvoker(getLog(), project, new DefaultInvocationRequest(),
-                                                          new DefaultInvoker(), releaseGoals, releaseProfiles,
+                                                          new DefaultInvoker(), releaseGoals, releaseProfiles, getSettings(),
                                                           !testBehaviour.isRunInReleasePhase());
             invoker.runMavenBuild(reactor);
             revertChanges(repo, changedFiles, true); // throw if you can't revert as that is the root problem
