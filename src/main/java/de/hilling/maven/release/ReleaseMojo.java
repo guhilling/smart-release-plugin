@@ -125,6 +125,26 @@ public class ReleaseMojo extends BaseMojo {
     @Parameter(alias = "push", defaultValue = "true", property = "push")
     private boolean push;
 
+    /**
+     * Specifies a custom, user specific Maven settings file to be used during the release build.
+     *
+     * @deprecated In versions prior to 2.1, if the plugin was run with custom user settings the settings were ignored
+     * during the release phase. Now that custom settings are inherited, setting this value is no longer needed.
+     * Please use the '-s' command line parameter to set custom user settings.
+     */
+    @Parameter(alias = "userSettings")
+    private File userSettings;
+
+    /**
+     * Specifies a custom, global Maven settings file to be used during the release build.
+     *
+     * @deprecated In versions prior to 2.1, if the plugin was run with custom global settings the settings were ignored
+     * during the release phase. Now that custom settings are inherited, setting this value is no longer needed.
+     * Please use the '-gs' command line parameter to set custom global settings.
+     */
+    @Parameter(alias = "globalSettings")
+    private File globalSettings;
+
     private static List<File> updatePomsAndReturnChangedFiles(Log log, LocalGitRepo repo, Reactor reactor) throws
                                                                                                            MojoExecutionException,
                                                                                                            ValidationException {
@@ -187,8 +207,12 @@ public class ReleaseMojo extends BaseMojo {
 
         if (testBehaviour != TestBehaviour.skipPreRelease) {
             try {
-                new PhaseInvoker(getLog(), project, new DefaultInvocationRequest(), new DefaultInvoker(), testGoals,
-                                 testProfiles, !testBehaviour.isRunInTestPhase()).runMavenBuild(reactor);
+                final PhaseInvoker invoker = new PhaseInvoker(getLog(), project, new DefaultInvocationRequest(),
+                                                                   new DefaultInvoker(), testGoals, testProfiles,
+                                                                   !testBehaviour.isRunInTestPhase());
+                invoker.setGlobalSettings(globalSettings);
+                invoker.setUserSettings(userSettings);
+                invoker.runMavenBuild(reactor);
                 infoStorage.store(currentRelease);
             } catch (MojoExecutionException mee) {
                 revertChanges(repo, changedFiles, false);
