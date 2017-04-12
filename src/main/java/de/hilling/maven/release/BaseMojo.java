@@ -52,6 +52,8 @@ public abstract class BaseMojo extends AbstractMojo {
     private   boolean         disableSshAgent;
     @Parameter(defaultValue = "${settings}", readonly = true, required = true)
     private   Settings        settings;
+    @Parameter(readonly = true, required = false)
+    private   String          coverageArgline;
     /**
      * If set, the identityFile and passphrase will be read from the Maven
      * settings file.
@@ -81,6 +83,7 @@ public abstract class BaseMojo extends AbstractMojo {
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
         try {
+            getLog().warn("using coverage argline " + coverageArgline);
             configureJsch();
             final Scm originalScm = project.getOriginalModel().getScm();
             final Scm scm = project.getModel().getScm();
@@ -93,8 +96,11 @@ public abstract class BaseMojo extends AbstractMojo {
         }
     }
 
-    protected abstract void executeConcreteMojo(Scm scm, Scm originalScm, LocalGitRepo repo) throws MojoExecutionException, MojoFailureException,
-                                                                                                    GitAPIException, ValidationException;
+    protected abstract void executeConcreteMojo(Scm scm, Scm originalScm, LocalGitRepo repo) throws
+                                                                                             MojoExecutionException,
+                                                                                             MojoFailureException,
+                                                                                             GitAPIException,
+                                                                                             ValidationException;
 
     final Settings getSettings() {
         return settings;

@@ -105,9 +105,24 @@ public class MvnRunner {
         request.setBaseDirectory(workingDir);
         request.setDebug(false);
         request.setShowErrors(false);
+        final String mavenOpts = request.getMavenOpts();
+        /*
+        request.setMavenOpts("-javaagent:/Users/gunnar/.m2/repository/org/jacoco/org.jacoco" +
+                                            ".agent/0.7.9/org.jacoco" +
+                                 ".agent-0.7.9-runtime.jar=destfile=/Users/gunnar/jacoco3.exec,append=true," +
+                                 "includes=de.hilling.*");
+        if (mavenOpts == null) {
+            request.setMavenOpts("-Djacoco-agent.append=true -Djacoco-agent.fork=true " +
+                                     "-Djacoco.append=true " +
+                                     "-Djacoco.destfile=/Users/gunnar/jacoco6.exec " +
+                                     "-Djacoco-agent.destfile=/Users/gunnar/jacoco6.exec");
+  } else {
+            request.setMavenOpts(mavenOpts + " -Djacoco-agent.append=true -Djacoco-agent" +
+                                     ".destfile=/Users/gunnar/jacoco.exec2");
+        }
+        */
 
         Invoker invoker = new DefaultInvoker();
-
         invoker.setMavenHome(mvnHome);
 
         CollectingLogOutputStream logOutput = new CollectingLogOutputStream(logToStandardOut);
