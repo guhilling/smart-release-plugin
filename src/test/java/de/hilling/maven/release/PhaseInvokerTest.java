@@ -33,7 +33,6 @@ import org.mockito.Mockito;
 public class PhaseInvokerTest {
     private final static String                 ACTIVE_PROFILE_ID   = "activeProfile";
     private final static String                 SOME_PROFILE_ID     = "someProfile";
-    private final static File                   GLOBAL_SETTINGS     = new File("file:///globalSettings");
     private final static String                 MODULE_PATH         = "modulePath";
     private final static String                 SITE                = "site";
     private final        Log                    log                 = mock(Log.class);
@@ -42,7 +41,6 @@ public class PhaseInvokerTest {
     private final        InvocationResult       result              = mock(InvocationResult.class);
     private final        Invoker                invoker             = mock(Invoker.class);
     private final        List<String>           goals               = new LinkedList<>();
-    private final        List<String>           modulesToRelease    = new LinkedList<>();
     private final        List<String>           releaseProfiles     = new LinkedList<>();
     private final        List<ReleasableModule> modulesInBuildOrder = new LinkedList<>();
     private final        Reactor                reactor             = mock(Reactor.class);
@@ -76,7 +74,6 @@ public class PhaseInvokerTest {
         verify(request).setInteractive(false);
         verify(request).setShowErrors(true);
         verify(request).setDebug(true);
-        verify(log).isDebugEnabled();
         verify(request).setAlsoMake(true);
         verify(request).setGoals(Mockito.argThat(new BaseMatcher<List<String>>() {
 
