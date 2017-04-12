@@ -17,6 +17,7 @@ import org.apache.maven.model.Profile;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
+import org.apache.maven.settings.Settings;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.apache.maven.shared.invoker.InvocationRequest;
@@ -33,7 +34,6 @@ public class PhaseInvokerTest {
     private final static String                 ACTIVE_PROFILE_ID   = "activeProfile";
     private final static String                 SOME_PROFILE_ID     = "someProfile";
     private final static File                   GLOBAL_SETTINGS     = new File("file:///globalSettings");
-    private final static File                   USER_SETTINGS       = new File("file:///globalSettings");
     private final static String                 MODULE_PATH         = "modulePath";
     private final static String                 SITE                = "site";
     private final        Log                    log                 = mock(Log.class);
@@ -49,10 +49,12 @@ public class PhaseInvokerTest {
     private final        ReleasableModule       module              = mock(ReleasableModule.class);
     private final        Profile                activeProfile       = mock(Profile.class);
     private PhaseInvoker phaseInvoker;
+    private Settings settings;
 
     @Before
     public void setup() throws Exception {
-        phaseInvoker = new PhaseInvoker(log, project, request, invoker);
+        settings = new Settings();
+        phaseInvoker = new PhaseInvoker(log, project, request, invoker, emptyList(), emptyList(), null, false);
         phaseInvoker.setGoals(singletonList("deploy"));
         phaseInvoker.setProfiles(emptyList());
         modulesInBuildOrder.add(module);
@@ -64,7 +66,8 @@ public class PhaseInvokerTest {
 
     @Test
     public void verifyDefaultConstructor() {
-        new PhaseInvoker(log, project, new DefaultInvocationRequest(), new DefaultInvoker());
+        new PhaseInvoker(log, project, new DefaultInvocationRequest(), new DefaultInvoker(), emptyList(), emptyList(),
+                         null, false);
     }
 
     @Test
@@ -105,22 +108,12 @@ public class PhaseInvokerTest {
     }
 
     @Test
-    public void runMavenBuild_WithUserSettings() throws Exception {
-        phaseInvoker.setUserSettings(USER_SETTINGS);
-        phaseInvoker.runMavenBuild(reactor);
-        verify(request).setUserSettingsFile(USER_SETTINGS);
-    }
-
-    @Test
-    public void runMavenBuild_WithGlobalSettings() throws Exception {
-        phaseInvoker.setGlobalSettings(GLOBAL_SETTINGS);
+    public void runMavenBuild_WithSettings() throws Exception {
+        final org.apache.maven.settings.Profile profile = new org.apache.maven.settings.Profile();
+        profile.setId("test");
+        settings.addProfile(profile);
         phaseInvoker.runMavenBuild(reactor);
         verify(request).setGlobalSettingsFile(GLOBAL_SETTINGS);
-    }
-
-    @Test
-    public void runMavenBuild_WithReleasableModule() throws Exception {
-        // releaseProfiles.add(e)
     }
 
     @Test

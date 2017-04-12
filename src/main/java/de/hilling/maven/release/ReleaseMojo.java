@@ -48,7 +48,7 @@ public class ReleaseMojo extends BaseMojo {
      * @since 1.0.1
      */
     @Parameter(alias = "releaseProfiles")
-    protected List<String> releaseProfiles = emptyList();
+    private       List<String> releaseProfiles = emptyList();
     /**
      * <p>
      * The goals to run against the project before the release. By default this is "test" which
@@ -71,7 +71,7 @@ public class ReleaseMojo extends BaseMojo {
      * </p>
      */
     @Parameter(alias = "testGoals")
-    protected List<String> testGoals = emptyList();
+    private List<String> testGoals    = emptyList();
     /**
      * <p>
      * Profiles to activate during the the test run.
@@ -86,13 +86,13 @@ public class ReleaseMojo extends BaseMojo {
      * @since 1.0.1
      */
     @Parameter(alias = "testProfiles")
-    protected List<String> testProfiles = emptyList();
+    private List<String> testProfiles = emptyList();
     /**
      * Determines running of tests. Possible values:
      * {@code testPhaseOnly}, {@code runAlways}, {@code skipTests}
      */
     @Parameter(alias = "testBehaviour", defaultValue = "testPhaseOnly", property = "testBehaviour")
-    protected TestBehaviour testBehaviour;
+    private TestBehaviour testBehaviour;
     /**
      * <p>
      * The goals to run against the project during a release. By default this is "deploy" which
@@ -124,26 +124,6 @@ public class ReleaseMojo extends BaseMojo {
      */
     @Parameter(alias = "push", defaultValue = "true", property = "push")
     private boolean push;
-
-    /**
-     * Specifies a custom, user specific Maven settings file to be used during the release build.
-     *
-     * @deprecated In versions prior to 2.1, if the plugin was run with custom user settings the settings were ignored
-     * during the release phase. Now that custom settings are inherited, setting this value is no longer needed.
-     * Please use the '-s' command line parameter to set custom user settings.
-     */
-    @Parameter(alias = "userSettings")
-    private File userSettings;
-
-    /**
-     * Specifies a custom, global Maven settings file to be used during the release build.
-     *
-     * @deprecated In versions prior to 2.1, if the plugin was run with custom global settings the settings were ignored
-     * during the release phase. Now that custom settings are inherited, setting this value is no longer needed.
-     * Please use the '-gs' command line parameter to set custom global settings.
-     */
-    @Parameter(alias = "globalSettings")
-    private File globalSettings;
 
     private static List<File> updatePomsAndReturnChangedFiles(Log log, LocalGitRepo repo, Reactor reactor) throws
                                                                                                            MojoExecutionException,
@@ -209,9 +189,8 @@ public class ReleaseMojo extends BaseMojo {
             try {
                 final PhaseInvoker invoker = new PhaseInvoker(getLog(), project, new DefaultInvocationRequest(),
                                                                    new DefaultInvoker(), testGoals, testProfiles,
+                                                                   getSettings(),
                                                                    !testBehaviour.isRunInTestPhase());
-                invoker.setGlobalSettings(globalSettings);
-                invoker.setUserSettings(userSettings);
                 invoker.runMavenBuild(reactor);
                 infoStorage.store(currentRelease);
             } catch (MojoExecutionException mee) {
@@ -224,7 +203,7 @@ public class ReleaseMojo extends BaseMojo {
 
         try {
             final PhaseInvoker invoker = new PhaseInvoker(getLog(), project, new DefaultInvocationRequest(),
-                                                          new DefaultInvoker(), releaseGoals, releaseProfiles,
+                                                          new DefaultInvoker(), releaseGoals, releaseProfiles, getSettings(),
                                                           !testBehaviour.isRunInReleasePhase());
             invoker.runMavenBuild(reactor);
             revertChanges(repo, changedFiles, true); // throw if you can't revert as that is the root problem
