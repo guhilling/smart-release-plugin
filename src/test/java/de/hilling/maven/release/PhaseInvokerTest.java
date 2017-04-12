@@ -54,7 +54,7 @@ public class PhaseInvokerTest {
     @Before
     public void setup() throws Exception {
         settings = new Settings();
-        phaseInvoker = new PhaseInvoker(log, project, request, invoker, emptyList(), emptyList(), null, false);
+        phaseInvoker = new PhaseInvoker(log, project, request, invoker, emptyList(), emptyList(), settings, false);
         phaseInvoker.setGoals(singletonList("deploy"));
         phaseInvoker.setProfiles(emptyList());
         modulesInBuildOrder.add(module);
@@ -113,7 +113,7 @@ public class PhaseInvokerTest {
         profile.setId("test");
         settings.addProfile(profile);
         phaseInvoker.runMavenBuild(reactor);
-        verify(request).setGlobalSettingsFile(GLOBAL_SETTINGS);
+        verify(request).setUserSettingsFile(any(File.class));
     }
 
     @Test
