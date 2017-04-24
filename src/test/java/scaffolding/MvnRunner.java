@@ -56,7 +56,7 @@ public class MvnRunner {
         System.out.println("Installing the plugin into the local repo");
         assertThat("Environment variable M2_HOME must be set", systemMavenHome() != null);
         MvnRunner mvnRunner = new MvnRunner();
-        mvnRunner.runMaven(new File("."), "-DskipTests=true", "install");
+        mvnRunner.runMaven(new File("."), "-DskipTests=true -Pcoverage", "install");
         System.out.println(
             "Finished installing the plugin into the local repo in " + (System.currentTimeMillis() - start) + "ms");
         haveInstalledPlugin = true;
@@ -103,24 +103,21 @@ public class MvnRunner {
         InvocationRequest request = new DefaultInvocationRequest();
         request.setGoals(asList(arguments));
         request.setBaseDirectory(workingDir);
-        request.setDebug(false);
-        request.setShowErrors(false);
+        request.setDebug(true);
+        request.setShowErrors(true);
         final String mavenOpts = request.getMavenOpts();
         /*
         request.setMavenOpts("-javaagent:/Users/gunnar/.m2/repository/org/jacoco/org.jacoco" +
                                             ".agent/0.7.9/org.jacoco" +
                                  ".agent-0.7.9-runtime.jar=destfile=/Users/gunnar/jacoco3.exec,append=true," +
                                  "includes=de.hilling.*");
+                                 */
         if (mavenOpts == null) {
             request.setMavenOpts("-Djacoco-agent.append=true -Djacoco-agent.fork=true " +
                                      "-Djacoco.append=true " +
                                      "-Djacoco.destfile=/Users/gunnar/jacoco6.exec " +
                                      "-Djacoco-agent.destfile=/Users/gunnar/jacoco6.exec");
-  } else {
-            request.setMavenOpts(mavenOpts + " -Djacoco-agent.append=true -Djacoco-agent" +
-                                     ".destfile=/Users/gunnar/jacoco.exec2");
         }
-        */
 
         Invoker invoker = new DefaultInvoker();
         invoker.setMavenHome(mvnHome);
@@ -138,6 +135,8 @@ public class MvnRunner {
         }
         List<String> output = logOutput.getLines();
 
+        System.err.println("exit code for build: ("
+                                + request.getMavenOpts() + "): " + exitCode);
         if (exitCode != 0) {
             throw new MavenExecutionException(exitCode, output);
         }

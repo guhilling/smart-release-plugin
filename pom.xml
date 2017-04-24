@@ -23,6 +23,7 @@
         <github.global.server>github</github.global.server>
         <jsch.agentproxy.version>0.0.9</jsch.agentproxy.version>
         <immutables.version>2.4.4</immutables.version>
+        <jacoco-maven.version>0.7.9</jacoco-maven.version>
     </properties>
 
     <ciManagement>
@@ -262,6 +263,7 @@
                 <artifactId>coveralls-maven-plugin</artifactId>
                 <version>3.1.0</version>
             </plugin>
+            <!--
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -278,6 +280,7 @@
                     </execution>
                 </executions>
             </plugin>
+            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -319,7 +322,6 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
                         <version>3.0.0</version>
                         <executions>
@@ -332,7 +334,6 @@
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
                         <version>2.10.3</version>
                         <executions>
@@ -364,7 +365,6 @@
                         </configuration>
                     </plugin>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>1.6</version>
                         <executions>
@@ -409,17 +409,41 @@
         </profile>
         <profile>
             <id>coverage</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>org.jacoco.agent</artifactId>
-                    <classifier>runtime</classifier>
-                    <version>${jacoco-maven.version}</version>
-                    <scope>runtime</scope>
-                </dependency>
-            </dependencies>
             <build>
                 <plugins>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>unpack-jacoco</id>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.jacoco</groupId>
+                                            <artifactId>org.jacoco.agent</artifactId>
+                                            <classifier>runtime</classifier>
+                                            <version>${jacoco-maven.version}</version>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${project.basedir}/target/classes</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>2.19.1</version>
+                        <configuration>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
+                        </configuration>
+                    </plugin>
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
@@ -433,13 +457,26 @@
                             </execution>
                             <execution>
                                 <id>restore</id>
-                                <phase>clean</phase>
-                                <configuration>
-                                    <skip>true</skip>
-                                </configuration>
+                                <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>restore-instrumented-classes</goal>
                                 </goals>
+                            </execution>
+                            <execution>
+                                <id>jacoco-report</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                                <configuration>
+                                    <includes>
+                                        <include>de/hilling/**/*</include>
+                                    </includes>
+                                    <excludes>
+                                        <exclude>**/Immutable*</exclude>
+                                    </excludes>
+                                    <dataFile>/Users/gunnar/jacoco6.exec</dataFile>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -473,6 +510,20 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
                 <version>2.19.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <dataFile>/Users/gunnar/jacoco6.exec</dataFile>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
