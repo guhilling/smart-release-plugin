@@ -474,6 +474,7 @@
                                     </includes>
                                     <excludes>
                                         <exclude>**/Immutable*</exclude>
+                                        <exclude>**/HelpMojo.class</exclude>
                                     </excludes>
                                     <dataFile>/Users/gunnar/jacoco6.exec</dataFile>
                                 </configuration>

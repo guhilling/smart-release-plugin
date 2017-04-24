@@ -24,6 +24,9 @@ import de.hilling.maven.release.utils.ErrorUtils;
  * Base class for {@link NextMojo} and {@link ReleaseMojo}.
  */
 public abstract class BaseMojo extends AbstractMojo {
+
+    private static final JacocoLoader JACOCO_LOADER = new JacocoLoader();
+
     @Parameter(property = "project", required = true, readonly = true, defaultValue = "${project}")
     protected MavenProject project;
 
@@ -79,17 +82,6 @@ public abstract class BaseMojo extends AbstractMojo {
      */
     @Parameter(property = "passphrase")
     private String passphrase;
-
-    static {
-        try {
-            Class.forName("org.jacoco.agent.rt.internal_8ff85ea.core.data.ExecutionDataWriter");
-            Class.forName("org.jacoco.agent.rt.internal_8ff85ea.core.internal.data.CompactDataOutput");
-            Class.forName("org.jacoco.agent.rt.internal_8ff85ea.core.data.SessionInfo");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("unable to preload jacoco execution data collector classes", e);
-        }
-
-    }
 
     @Override
     public final void execute() throws MojoExecutionException, MojoFailureException {
