@@ -4,8 +4,10 @@ import scaffolding.TestProject;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.util.Map;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Ref;
 
 import de.hilling.maven.release.versioning.ImmutableModuleVersion;
 import de.hilling.maven.release.versioning.ImmutableQualifiedArtifact;
@@ -44,20 +46,22 @@ public final class TestUtils {
         return builder.build();
     }
 
-    static AnnotatedTag saveFileInModule(TestProject project, String moduleName, String version) throws IOException,
-                                                                                                        GitAPIException {
+    static AnnotatedTag saveFileInModule(TestProject project, String moduleName, String version,
+                                         Map<AnnotatedTag, Ref> refMap) throws IOException,
+                                                                               GitAPIException {
         project.commitRandomFile(moduleName);
         String nameForTag = moduleName.equals(".")
                             ? "root"
                             : moduleName;
-        return tagLocalRepo(project, nameForTag + "-" + version, version);
+        return tagLocalRepo(project, nameForTag + "-" + version, version, refMap);
     }
 
     public static QualifiedArtifact artifactIdForModule(String module) {
         return ImmutableQualifiedArtifact.builder().groupId(TEST_GROUP_ID).artifactId(module).build();
     }
 
-    private static AnnotatedTag tagLocalRepo(TestProject project, String tagName, String version) throws
+    private static AnnotatedTag tagLocalRepo(TestProject project, String tagName, String version,
+                                             Map<AnnotatedTag, Ref> refMap) throws
                                                                                                   GitAPIException {
         final ImmutableReleaseInfo.Builder builder = ImmutableReleaseInfo.builder();
         builder.tagName(tagName);
@@ -71,7 +75,8 @@ public final class TestUtils {
         versionBuilder.releaseDate(ZonedDateTime.now());
         builder.addModules(versionBuilder.build());
         AnnotatedTag tag = new AnnotatedTag(tagName, builder.build());
-        tag.saveAtHEAD(project.local);
+        final Ref ref = tag.saveAtHEAD(project.local);
+        refMap.put(tag, ref);
         return tag;
     }
 

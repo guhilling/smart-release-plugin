@@ -10,6 +10,8 @@ import static org.hamcrest.Matchers.is;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
@@ -27,10 +29,12 @@ public class DiffDetectorTest {
     @Rule
     public TestProject independentVersions = new TestProject(ProjectType.INDEPENDENT_VERSIONS);
 
-    private Log log;
+    private Log                                         log;
+    private Map<AnnotatedTag, org.eclipse.jgit.lib.Ref> refMap;
 
     @Before
     public void setUp() {
+        refMap = new HashMap<>();
         singleProject.checkClean = false;
         independentVersions.checkClean = false;
         log = new SystemStreamLog();
@@ -39,59 +43,59 @@ public class DiffDetectorTest {
     @Test
     public void canDetectIfFilesHaveBeenChangedForAModuleSinceSomeSpecificTag() throws Exception {
 
-        AnnotatedTag tag1 = saveFileInModule(independentVersions, "console-app", "1.2.3");
-        AnnotatedTag tag2 = saveFileInModule(independentVersions, "core-utils", "2.0");
-        AnnotatedTag tag3 = saveFileInModule(independentVersions, "console-app", "1.2.4");
+        AnnotatedTag tag1 = saveFileInModule(independentVersions, "console-app", "1.2.3", refMap);
+        AnnotatedTag tag2 = saveFileInModule(independentVersions, "core-utils", "2.0", refMap);
+        AnnotatedTag tag3 = saveFileInModule(independentVersions, "console-app", "1.2.4", refMap);
 
         TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(independentVersions.local.getRepository(), log);
 
-        assertThat(detector.hasChangedSince("core-utils", Collections.emptyList(), null), is(false));
-        assertThat(detector.hasChangedSince("console-app", Collections.emptyList(), null), is(true));
-        assertThat(detector.hasChangedSince("console-app", Collections.emptyList(), null), is(false));
+        assertThat(detector.hasChangedSince("core-utils", Collections.emptyList(), refMap.get(tag2)), is(false));
+        assertThat(detector.hasChangedSince("console-app", Collections.emptyList(), refMap.get(tag2)), is(true));
+        assertThat(detector.hasChangedSince("console-app", Collections.emptyList(), refMap.get(tag3)), is(false));
     }
 
     @Test
     public void canDetectThingsInTheRoot() throws IOException, GitAPIException {
-        AnnotatedTag tag1 = saveFileInModule(singleProject, ".", "1.0.1");
+        AnnotatedTag tag1 = saveFileInModule(singleProject, ".", "1.0.1", refMap);
         singleProject.commitRandomFile(".");
-        AnnotatedTag tag2 = saveFileInModule(singleProject, ".", "1.0.2");
+        AnnotatedTag tag2 = saveFileInModule(singleProject, ".", "1.0.2", refMap);
 
         TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(singleProject.local.getRepository(), log);
 
-        assertThat(detector.hasChangedSince(".", Collections.emptyList(), null), is(true));
-        assertThat(detector.hasChangedSince(".", Collections.emptyList(), null), is(false));
+        assertThat(detector.hasChangedSince(".", Collections.emptyList(), refMap.get(tag1)), is(true));
+        assertThat(detector.hasChangedSince(".", Collections.emptyList(), refMap.get(tag2)), is(false));
     }
 
     @Test
     public void ignoreReleaseInfoInTheRoot() throws IOException, GitAPIException {
-        AnnotatedTag tag1 = saveFileInModule(singleProject, ".", "1.0.1");
+        AnnotatedTag tag1 = saveFileInModule(singleProject, ".", "1.0.1", refMap);
         singleProject.commitFile(".", ReleaseInfoStorage.RELEASE_INFO_FILE, "any-content");
         TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(singleProject.local.getRepository(), log);
-        assertThat(detector.hasChangedSince(".", Collections.emptyList(), null), is(false));
+        assertThat(detector.hasChangedSince(".", Collections.emptyList(), refMap.get(tag1)), is(false));
 
-        AnnotatedTag tag2 = saveFileInModule(singleProject, ".", "1.0.2");
-        assertThat(detector.hasChangedSince(".", Collections.emptyList(), null), is(false));
+        AnnotatedTag tag2 = saveFileInModule(singleProject, ".", "1.0.2", refMap);
+        assertThat(detector.hasChangedSince(".", Collections.emptyList(), refMap.get(tag2)), is(false));
     }
 
     @Test
     public void canDetectChangesAfterTheLastTag() throws IOException, GitAPIException {
-        saveFileInModule(independentVersions, "console-app", "1.2.3");
-        saveFileInModule(independentVersions, "core-utils", "2.0");
-        AnnotatedTag tag3 = saveFileInModule(independentVersions, "console-app", "1.2.4");
+        saveFileInModule(independentVersions, "console-app", "1.2.3", refMap);
+        saveFileInModule(independentVersions, "core-utils", "2.0", refMap);
+        AnnotatedTag tag3 = saveFileInModule(independentVersions, "console-app", "1.2.4", refMap);
         independentVersions.commitRandomFile("console-app");
 
         TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(independentVersions.local.getRepository(), log);
-        assertThat(detector.hasChangedSince("console-app", Collections.emptyList(), null), is(true));
+        assertThat(detector.hasChangedSince("console-app", Collections.emptyList(), refMap.get(tag3)), is(true));
     }
 
     @Test
     public void canIgnoreModuleFolders() throws IOException, GitAPIException {
-        saveFileInModule(independentVersions, "console-app", "1.2.3");
-        saveFileInModule(independentVersions, "core-utils", "2.0");
-        AnnotatedTag tag3 = saveFileInModule(independentVersions, "console-app", "1.2.4");
+        saveFileInModule(independentVersions, "console-app", "1.2.3", refMap);
+        saveFileInModule(independentVersions, "core-utils", "2.0", refMap);
+        AnnotatedTag tag3 = saveFileInModule(independentVersions, "console-app", "1.2.4", refMap);
         independentVersions.commitRandomFile("console-app");
 
         TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(independentVersions.local.getRepository(), log);
-        assertThat(detector.hasChangedSince("console-app", singletonList("console-app"),null), is(false));
+        assertThat(detector.hasChangedSince("console-app", singletonList("console-app"),refMap.get(tag3)), is(false));
     }
 }

@@ -2,6 +2,7 @@ package de.hilling.maven.release;
 
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Ref;
 
 import de.hilling.maven.release.versioning.GsonFactory;
 import de.hilling.maven.release.versioning.ReleaseInfo;
@@ -19,9 +20,9 @@ public class AnnotatedTag {
         this.releaseInfo = releaseInfo;
     }
 
-    public void saveAtHEAD(Git git) throws GitAPIException {
+    public Ref saveAtHEAD(Git git) throws GitAPIException {
         final String message = GSON_FACTORY.createGson().toJson(releaseInfo);
-        git.tag().setName(name).setAnnotated(true).setMessage(message).call();
+        return git.tag().setName(name).setAnnotated(true).setMessage(message).call();
     }
 
     public ReleaseInfo getReleaseInfo() {
