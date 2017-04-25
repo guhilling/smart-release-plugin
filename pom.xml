@@ -392,6 +392,14 @@
         </profile>
         <profile>
             <id>coverage</id>
+            <dependencies>
+                <dependency>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>org.jacoco.agent</artifactId>
+                    <version>${jacoco-maven.version}</version>
+                    <classifier>runtime</classifier>
+                </dependency>
+            </dependencies>
             <build>
                 <plugins>
                     <plugin>
@@ -465,7 +473,7 @@
                         <executions>
                             <execution>
                                 <id>remove-jacoco-classes</id>
-                                <phase>post-integration-test</phase>
+                                <phase>verify</phase>
                                 <goals>
                                     <goal>clean</goal>
                                 </goals>
