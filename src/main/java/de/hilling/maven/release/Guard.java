@@ -1,6 +1,9 @@
 package de.hilling.maven.release;
 
-public class Guard {
+public final class Guard {
+
+    private Guard() {
+    }
 
     public static void notNull(String thing, Object value) {
         if (value == null) {
