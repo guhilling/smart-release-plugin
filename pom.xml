@@ -459,15 +459,6 @@
                         <groupId>org.eluder.coveralls</groupId>
                         <artifactId>coveralls-maven-plugin</artifactId>
                         <version>3.1.0</version>
-                        <executions>
-                            <execution>
-                                <id>coveralls</id>
-                                <goals>
-                                    <goal>report</goal>
-                                </goals>
-                                <phase>install</phase>
-                            </execution>
-                        </executions>
                     </plugin>
                     <plugin>
                         <artifactId>maven-clean-plugin</artifactId>
@@ -482,7 +473,7 @@
                                     <excludeDefaultDirectories>true</excludeDefaultDirectories>
                                     <filesets>
                                         <fileset>
-                                            <directory>${project.basedir}/target/classes</directory>
+                                            <directory>target/classes</directory>
                                             <includes>
                                                 <include>com/**/*</include>
                                                 <include>org/**/*</include>

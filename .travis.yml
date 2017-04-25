@@ -3,4 +3,4 @@ language: java
 jdk:
   - oraclejdk8
 script:
-  - mvn clean install -Pcoverage
+  - mvn clean install -Pcoverage coveralls:report
