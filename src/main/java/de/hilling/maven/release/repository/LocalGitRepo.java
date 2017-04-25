@@ -28,7 +28,6 @@ import org.eclipse.jgit.transport.RemoteRefUpdate;
 
 import de.hilling.maven.release.AnnotatedTag;
 import de.hilling.maven.release.FileUtils;
-import de.hilling.maven.release.GitHelper;
 import de.hilling.maven.release.ValidationException;
 
 public class LocalGitRepo {
@@ -154,10 +153,6 @@ public class LocalGitRepo {
         } catch (IOException e) {
             throw new MojoExecutionException("Could not locate the working directory of the Git repo", e);
         }
-    }
-
-    boolean hasLocalTag(String tagName) throws GitAPIException {
-        return GitHelper.hasLocalTag(git, tagName);
     }
 
     public void tagRepo(AnnotatedTag tag) throws GitAPIException {

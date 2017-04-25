@@ -1,6 +1,7 @@
 package de.hilling.maven.release.repository;
 
 import e2e.ProjectType;
+import scaffolding.GitMatchers;
 import scaffolding.TestProject;
 
 import org.eclipse.jgit.api.Git;
@@ -20,9 +21,9 @@ public class LocalGitRepoTest {
     public void canDetectLocalTags() throws GitAPIException {
         LocalGitRepo repo = new LocalGitRepo(project.local, null, null);
         tag(project.local, "some-tag");
-        MatcherAssert.assertThat(repo.hasLocalTag("some-tag"), CoreMatchers.is(true));
-        MatcherAssert.assertThat(repo.hasLocalTag("some-ta"), CoreMatchers.is(false));
-        MatcherAssert.assertThat(repo.hasLocalTag("some-tagyo"), CoreMatchers.is(false));
+        MatcherAssert.assertThat(GitMatchers.hasLocalTag(repo.git, "some-tag"), CoreMatchers.is(true));
+        MatcherAssert.assertThat(GitMatchers.hasLocalTag(repo.git, "some-ta"), CoreMatchers.is(false));
+        MatcherAssert.assertThat(GitMatchers.hasLocalTag(repo.git, "some-tagyo"), CoreMatchers.is(false));
     }
 
     private static void tag(Git repo, String name) throws GitAPIException {

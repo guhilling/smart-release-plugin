@@ -28,7 +28,6 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 
 import de.hilling.maven.release.AnnotatedTag;
-import de.hilling.maven.release.GitHelper;
 import de.hilling.maven.release.Guard;
 import de.hilling.maven.release.releaseinfo.ReleaseInfoStorage;
 import de.hilling.maven.release.versioning.GsonFactory;
@@ -49,7 +48,7 @@ public class GitMatchers {
                 try {
                     mismatchDescription
                         .appendValueList("a git repo with tags: ", ", ", "", repo.getRepository().getTags().keySet());
-                    return GitHelper.hasLocalTag(repo, tag);
+                    return hasLocalTag(repo, tag);
                 } catch (GitAPIException e) {
                     throw new RuntimeException("Couldn't access repo", e);
                 }
@@ -238,5 +237,31 @@ public class GitMatchers {
 
     private static String stripRefPrefix(String refName) {
         return refName.substring("refs/tags/".length());
+    }
+
+    public static boolean hasLocalTag(Git repo, String tagToCheck) throws GitAPIException {
+        return tag(repo, new EqualsMatcher(tagToCheck)) != null;
+    }
+
+    public static Ref tag(Git repo, EqualsMatcher matcher) throws GitAPIException {
+        for (Ref ref : repo.tagList().call()) {
+            String currentTag = ref.getName().replace("refs/tags/", "");
+            if (matcher.matches(currentTag)) {
+                return ref;
+            }
+        }
+        return null;
+    }
+
+    public static class EqualsMatcher {
+        private final String tagToCheck;
+
+        public EqualsMatcher(String tagToCheck) {
+            this.tagToCheck = tagToCheck;
+        }
+
+        public boolean matches(String tagName) {
+            return tagToCheck.equals(tagName);
+        }
     }
 }
