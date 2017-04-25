@@ -233,7 +233,7 @@ public class GitMatchers {
         } finally {
             walk.dispose();
         }
-        return new AnnotatedTag(gitTag, stripRefPrefix(gitTag.getName()), releaseInfo);
+        return new AnnotatedTag(stripRefPrefix(gitTag.getName()), releaseInfo);
     }
 
     private static String stripRefPrefix(String refName) {

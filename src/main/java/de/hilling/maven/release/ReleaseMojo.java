@@ -225,7 +225,7 @@ public class ReleaseMojo extends BaseMojo {
     private void tagAndPushRepo(LocalGitRepo repo, ImmutableReleaseInfo releaseInfo) throws GitAPIException {
         final Optional<String> optionalTag = releaseInfo.getTagName();
         if (optionalTag.isPresent()) {
-            final AnnotatedTag tag = new AnnotatedTag(null, optionalTag.get(), releaseInfo);
+            final AnnotatedTag tag = new AnnotatedTag(optionalTag.get(), releaseInfo);
 
             getLog().info("About to tag repository with " + releaseInfo.toString());
             repo.tagRepo(tag);

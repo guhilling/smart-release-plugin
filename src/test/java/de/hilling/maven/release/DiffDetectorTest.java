@@ -45,9 +45,9 @@ public class DiffDetectorTest {
 
         TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(independentVersions.local.getRepository(), log);
 
-        assertThat(detector.hasChangedSince("core-utils", Collections.emptyList(), tag2.ref()), is(false));
-        assertThat(detector.hasChangedSince("console-app", Collections.emptyList(), tag2.ref()), is(true));
-        assertThat(detector.hasChangedSince("console-app", Collections.emptyList(), tag3.ref()), is(false));
+        assertThat(detector.hasChangedSince("core-utils", Collections.emptyList(), null), is(false));
+        assertThat(detector.hasChangedSince("console-app", Collections.emptyList(), null), is(true));
+        assertThat(detector.hasChangedSince("console-app", Collections.emptyList(), null), is(false));
     }
 
     @Test
@@ -58,8 +58,8 @@ public class DiffDetectorTest {
 
         TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(singleProject.local.getRepository(), log);
 
-        assertThat(detector.hasChangedSince(".", Collections.emptyList(), tag1.ref()), is(true));
-        assertThat(detector.hasChangedSince(".", Collections.emptyList(), tag2.ref()), is(false));
+        assertThat(detector.hasChangedSince(".", Collections.emptyList(), null), is(true));
+        assertThat(detector.hasChangedSince(".", Collections.emptyList(), null), is(false));
     }
 
     @Test
@@ -67,10 +67,10 @@ public class DiffDetectorTest {
         AnnotatedTag tag1 = saveFileInModule(singleProject, ".", "1.0.1");
         singleProject.commitFile(".", ReleaseInfoStorage.RELEASE_INFO_FILE, "any-content");
         TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(singleProject.local.getRepository(), log);
-        assertThat(detector.hasChangedSince(".", Collections.emptyList(), tag1.ref()), is(false));
+        assertThat(detector.hasChangedSince(".", Collections.emptyList(), null), is(false));
 
         AnnotatedTag tag2 = saveFileInModule(singleProject, ".", "1.0.2");
-        assertThat(detector.hasChangedSince(".", Collections.emptyList(), tag2.ref()), is(false));
+        assertThat(detector.hasChangedSince(".", Collections.emptyList(), null), is(false));
     }
 
     @Test
@@ -81,7 +81,7 @@ public class DiffDetectorTest {
         independentVersions.commitRandomFile("console-app");
 
         TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(independentVersions.local.getRepository(), log);
-        assertThat(detector.hasChangedSince("console-app", Collections.emptyList(), tag3.ref()), is(true));
+        assertThat(detector.hasChangedSince("console-app", Collections.emptyList(), null), is(true));
     }
 
     @Test
@@ -92,6 +92,6 @@ public class DiffDetectorTest {
         independentVersions.commitRandomFile("console-app");
 
         TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(independentVersions.local.getRepository(), log);
-        assertThat(detector.hasChangedSince("console-app", singletonList("console-app"), tag3.ref()), is(false));
+        assertThat(detector.hasChangedSince("console-app", singletonList("console-app"),null), is(false));
     }
 }

@@ -70,7 +70,7 @@ public final class TestUtils {
         versionBuilder.releaseTag(TEST_TAG_NAME);
         versionBuilder.releaseDate(ZonedDateTime.now());
         builder.addModules(versionBuilder.build());
-        AnnotatedTag tag = new AnnotatedTag(null, tagName, builder.build());
+        AnnotatedTag tag = new AnnotatedTag(tagName, builder.build());
         tag.saveAtHEAD(project.local);
         return tag;
     }

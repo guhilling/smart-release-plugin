@@ -24,7 +24,7 @@ public class AnnotatedTagTest {
 
     @Test
     public void gettersReturnValuesPassedIn() throws Exception {
-        AnnotatedTag tag = new AnnotatedTag(null, "my-name", TestUtils.releaseInfo(4L, 2134L, "test", "my-name"));
+        AnnotatedTag tag = new AnnotatedTag("my-name", TestUtils.releaseInfo(4L, 2134L, "test", "my-name"));
         assertThat(tag.name(), equalTo("my-name"));
         final ModuleVersion moduleVersion = tag.getReleaseInfo().versionForArtifact(TestUtils.artifactIdForModule
                                                                                                 ("my-name")).get();
@@ -34,7 +34,7 @@ public class AnnotatedTagTest {
 
     @Test
     public void aTagCanBeCreatedFromAGitTag() throws GitAPIException, IOException {
-        AnnotatedTag tag = new AnnotatedTag(null, "my-name", TestUtils.releaseInfo(4L, 2134L, "test", "my-name"));
+        AnnotatedTag tag = new AnnotatedTag("my-name", TestUtils.releaseInfo(4L, 2134L, "test", "my-name"));
         tag.saveAtHEAD(project.local);
 
         Ref ref = project.local.tagList().call().get(0);
