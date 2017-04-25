@@ -105,7 +105,6 @@ public class MvnRunner {
         request.setBaseDirectory(workingDir);
         request.setDebug(false);
         request.setShowErrors(false);
-        final String mavenOpts = request.getMavenOpts();
 
         Invoker invoker = new DefaultInvoker();
         invoker.setMavenHome(mvnHome);
