@@ -106,18 +106,6 @@ public class MvnRunner {
         request.setDebug(true);
         request.setShowErrors(true);
         final String mavenOpts = request.getMavenOpts();
-        /*
-        request.setMavenOpts("-javaagent:/Users/gunnar/.m2/repository/org/jacoco/org.jacoco" +
-                                            ".agent/0.7.9/org.jacoco" +
-                                 ".agent-0.7.9-runtime.jar=destfile=/Users/gunnar/jacoco3.exec,append=true," +
-                                 "includes=de.hilling.*");
-                                 */
-        if (mavenOpts == null) {
-            request.setMavenOpts("-Djacoco-agent.append=true -Djacoco-agent.fork=true " +
-                                     "-Djacoco.append=true " +
-                                     "-Djacoco.destfile=/Users/gunnar/jacoco6.exec " +
-                                     "-Djacoco-agent.destfile=/Users/gunnar/jacoco6.exec");
-        }
 
         Invoker invoker = new DefaultInvoker();
         invoker.setMavenHome(mvnHome);

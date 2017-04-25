@@ -207,6 +207,12 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>de.hilling.maven.release</groupId>
@@ -263,24 +269,6 @@
                 <artifactId>coveralls-maven-plugin</artifactId>
                 <version>3.1.0</version>
             </plugin>
-            <!--
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.9</version>
-                <configuration>
-                    <append>true</append>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>prepare-agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -476,7 +464,6 @@
                                         <exclude>**/Immutable*</exclude>
                                         <exclude>**/HelpMojo.class</exclude>
                                     </excludes>
-                                    <dataFile>/Users/gunnar/jacoco6.exec</dataFile>
                                 </configuration>
                             </execution>
                         </executions>
