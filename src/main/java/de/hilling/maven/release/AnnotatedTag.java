@@ -1,17 +1,10 @@
 package de.hilling.maven.release;
 
-import java.io.IOException;
-
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.revwalk.RevTag;
-import org.eclipse.jgit.revwalk.RevWalk;
 
 import de.hilling.maven.release.versioning.GsonFactory;
-import de.hilling.maven.release.versioning.ImmutableReleaseInfo;
 import de.hilling.maven.release.versioning.ReleaseInfo;
 
 public class AnnotatedTag {
@@ -29,29 +22,9 @@ public class AnnotatedTag {
         this.releaseInfo = releaseInfo;
     }
 
-    public static AnnotatedTag fromRef(Repository repository, Ref gitTag) throws IOException {
-        Guard.notNull("gitTag", gitTag);
-
-        RevWalk walk = new RevWalk(repository);
-        ImmutableReleaseInfo releaseInfo;
-        try {
-            ObjectId tagId = gitTag.getObjectId();
-            RevTag tag = walk.parseTag(tagId);
-            releaseInfo = GSON_FACTORY.createGson().fromJson(tag.getFullMessage(), ImmutableReleaseInfo.class);
-        } finally {
-            walk.dispose();
-        }
-        return new AnnotatedTag(gitTag, stripRefPrefix(gitTag.getName()), releaseInfo);
-    }
-
-    private static String stripRefPrefix(String refName) {
-        return refName.substring("refs/tags/".length());
-    }
-
-    public Ref saveAtHEAD(Git git) throws GitAPIException {
+    public void saveAtHEAD(Git git) throws GitAPIException {
         final String message = GSON_FACTORY.createGson().toJson(releaseInfo);
-        ref = git.tag().setName(name).setAnnotated(true).setMessage(message).call();
-        return ref;
+        git.tag().setName(name).setAnnotated(true).setMessage(message).call();
     }
 
     public Ref ref() {

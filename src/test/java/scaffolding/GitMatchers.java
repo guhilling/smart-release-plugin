@@ -18,6 +18,7 @@ import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevTag;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
@@ -28,13 +29,18 @@ import org.hamcrest.TypeSafeDiagnosingMatcher;
 
 import de.hilling.maven.release.AnnotatedTag;
 import de.hilling.maven.release.GitHelper;
+import de.hilling.maven.release.Guard;
 import de.hilling.maven.release.releaseinfo.ReleaseInfoStorage;
+import de.hilling.maven.release.versioning.GsonFactory;
 import de.hilling.maven.release.versioning.ImmutableFixVersion;
 import de.hilling.maven.release.versioning.ImmutableModuleVersion;
 import de.hilling.maven.release.versioning.ImmutableQualifiedArtifact;
+import de.hilling.maven.release.versioning.ImmutableReleaseInfo;
 import de.hilling.maven.release.versioning.VersionMatcher;
 
 public class GitMatchers {
+
+    private static final GsonFactory GSON_FACTORY = new GsonFactory();
 
     public static Matcher<Git> hasTag(final String tag) {
         return new TypeSafeDiagnosingMatcher<Git>() {
@@ -66,7 +72,7 @@ public class GitMatchers {
                 try {
                     final ArrayList<String> foundVersions = new ArrayList<>();
                     for (Ref ref : repo.tagList().call()) {
-                        final AnnotatedTag tag = AnnotatedTag.fromRef(repo.getRepository(), ref);
+                        final AnnotatedTag tag = fromRef(repo.getRepository(), ref);
                         final Optional<ImmutableModuleVersion> version = tag.getReleaseInfo()
                                                                             .versionForArtifact(artifact);
                         if (version.isPresent()) {
@@ -213,5 +219,24 @@ public class GitMatchers {
             walk.dispose();
             return oldTreeParser;
         }
+    }
+
+    public static AnnotatedTag fromRef(Repository repository, Ref gitTag) throws IOException {
+        Guard.notNull("gitTag", gitTag);
+
+        RevWalk walk = new RevWalk(repository);
+        ImmutableReleaseInfo releaseInfo;
+        try {
+            ObjectId tagId = gitTag.getObjectId();
+            RevTag tag = walk.parseTag(tagId);
+            releaseInfo = GSON_FACTORY.createGson().fromJson(tag.getFullMessage(), ImmutableReleaseInfo.class);
+        } finally {
+            walk.dispose();
+        }
+        return new AnnotatedTag(gitTag, stripRefPrefix(gitTag.getName()), releaseInfo);
+    }
+
+    private static String stripRefPrefix(String refName) {
+        return refName.substring("refs/tags/".length());
     }
 }

@@ -1,6 +1,7 @@
 package de.hilling.maven.release;
 
 import e2e.ProjectType;
+import scaffolding.GitMatchers;
 import scaffolding.TestProject;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -37,7 +38,7 @@ public class AnnotatedTagTest {
         tag.saveAtHEAD(project.local);
 
         Ref ref = project.local.tagList().call().get(0);
-        AnnotatedTag inflatedTag = AnnotatedTag.fromRef(project.local.getRepository(), ref);
+        AnnotatedTag inflatedTag = GitMatchers.fromRef(project.local.getRepository(), ref);
         final ModuleVersion moduleVersion = tag.getReleaseInfo().versionForArtifact(TestUtils.artifactIdForModule
                                                                                                   ("my-name")).get();
         assertThat(moduleVersion.getVersion().getMajorVersion(), equalTo(4L));
@@ -49,7 +50,7 @@ public class AnnotatedTagTest {
         project.local.tag().setName("my-name-1.0.2").setAnnotated(true).setMessage("This is not json").call();
 
         Ref ref = project.local.tagList().call().get(0);
-        AnnotatedTag inflatedTag = AnnotatedTag.fromRef(project.local.getRepository(), ref);
+        AnnotatedTag inflatedTag = GitMatchers.fromRef(project.local.getRepository(), ref);
     }
 
 }
