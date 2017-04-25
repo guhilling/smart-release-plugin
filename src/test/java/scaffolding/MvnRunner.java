@@ -53,12 +53,12 @@ public class MvnRunner {
             return;
         }
         long start = System.currentTimeMillis();
-        System.out.println("Installing the plugin into the local repo");
+        System.out.print("Installing the plugin into the local repo .. ");
         assertThat("Environment variable M2_HOME must be set", systemMavenHome() != null);
         MvnRunner mvnRunner = new MvnRunner();
         mvnRunner.runMaven(new File("."), "-DskipTests=true -Pcoverage", "install");
         System.out.println(
-            "Finished installing the plugin into the local repo in " + (System.currentTimeMillis() - start) + "ms");
+            " installed the plugin into the local repo in " + (System.currentTimeMillis() - start) + "ms");
         haveInstalledPlugin = true;
     }
 
@@ -103,8 +103,8 @@ public class MvnRunner {
         InvocationRequest request = new DefaultInvocationRequest();
         request.setGoals(asList(arguments));
         request.setBaseDirectory(workingDir);
-        request.setDebug(true);
-        request.setShowErrors(true);
+        request.setDebug(false);
+        request.setShowErrors(false);
         final String mavenOpts = request.getMavenOpts();
 
         Invoker invoker = new DefaultInvoker();
@@ -123,8 +123,6 @@ public class MvnRunner {
         }
         List<String> output = logOutput.getLines();
 
-        System.err.println("exit code for build: ("
-                                + request.getMavenOpts() + "): " + exitCode);
         if (exitCode != 0) {
             throw new MavenExecutionException(exitCode, output);
         }
