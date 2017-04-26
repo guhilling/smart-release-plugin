@@ -3,10 +3,9 @@ Documentation, download, and usage instructions
 
 **Automatically releases only changed modules of a multi-module maven project.**
 
-This is fork of Daniel Flowers great 
-[multi-module-maven-release-plugin](http://danielflower.github.io/multi-module-maven-release-plugin/index.html).
+The project was started as a fork of Daniel Flowers [multi-module-maven-release-plugin](http://danielflower.github.io/multi-module-maven-release-plugin/index.html).
+to add some features, mostly creating bugfix releases.
 
-This plugin adds bugfix release feature.
 
 Development
 ===========
