@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GitHelper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">The Multi Module Maven Release Plugin</a> &gt; <a href="index.source.html" class="el_package">de.hilling.maven.release</a> &gt; <span class="el_source">GitHelper.java</span></div><h1>GitHelper.java</h1><pre class="source lang-java linenums">package de.hilling.maven.release;
+
+import static java.util.Arrays.asList;
+
+import org.apache.maven.model.Scm;
+
+<span class="nc" id="L7">public class GitHelper {</span>
+
+    public static final String NEED_TO_USE_GIT = &quot;Cannot run the release plugin with a non-Git version control system&quot;;
+    public static final String GIT_PREFIX = &quot;scm:git:&quot;;
+
+    public static String scmUrlToRemote(String scmUrl) throws ValidationException {
+<span class="fc bfc" id="L13" title="All 2 branches covered.">        if (!scmUrl.startsWith(GIT_PREFIX)) {</span>
+<span class="fc" id="L14">            throw new ValidationException(NEED_TO_USE_GIT, asList(NEED_TO_USE_GIT, &quot;The value in your scm tag is &quot; + scmUrl));</span>
+        }
+<span class="fc" id="L16">        String remote = scmUrl.substring(GIT_PREFIX.length());</span>
+<span class="fc" id="L17">        remote  = remote.replace(&quot;file://localhost/&quot;, &quot;file:///&quot;);</span>
+<span class="fc" id="L18">        return remote;</span>
+    }
+
+    static String getRemoteUrlOrNullIfNoneSet(Scm originalScm, Scm actualScm) throws ValidationException {
+<span class="fc bfc" id="L22" title="All 2 branches covered.">        if (originalScm == null) {</span>
+            // No scm was specified, so don't inherit from any parent poms as they are probably used in different git repos
+<span class="fc" id="L24">            return null;</span>
+        }
+
+        // There is an SCM specified, so the actual SCM with derived values is used in case (so that variables etc are interpolated)
+<span class="fc" id="L28">        String remote = actualScm.getDeveloperConnection();</span>
+<span class="pc bpc" id="L29" title="1 of 2 branches missed.">        if (remote == null) {</span>
+<span class="nc" id="L30">            remote = actualScm.getConnection();</span>
+        }
+<span class="pc bpc" id="L32" title="1 of 2 branches missed.">        if (remote == null) {</span>
+<span class="nc" id="L33">            return null;</span>
+        }
+<span class="fc" id="L35">        return scmUrlToRemote(remote);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

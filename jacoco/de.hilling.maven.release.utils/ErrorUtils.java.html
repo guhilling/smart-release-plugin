@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ErrorUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">The Multi Module Maven Release Plugin</a> &gt; <a href="index.source.html" class="el_package">de.hilling.maven.release.utils</a> &gt; <span class="el_source">ErrorUtils.java</span></div><h1>ErrorUtils.java</h1><pre class="source lang-java linenums">package de.hilling.maven.release.utils;
+
+import static java.util.Arrays.asList;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.List;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
+import org.eclipse.jgit.api.errors.GitAPIException;
+
+public final class ErrorUtils {
+
+<span class="nc" id="L15">    private ErrorUtils() {</span>
+<span class="nc" id="L16">    }</span>
+
+    public static void printBigErrorMessageAndThrow(Log log, String terseMessage, List&lt;String&gt; linesToLog) throws
+                                                                                                           MojoExecutionException {
+<span class="fc" id="L20">        log.error(&quot;&quot;);</span>
+<span class="fc" id="L21">        log.error(&quot;&quot;);</span>
+<span class="fc" id="L22">        log.error(&quot;&quot;);</span>
+<span class="fc" id="L23">        log.error(&quot;************************************&quot;);</span>
+<span class="fc" id="L24">        log.error(&quot;Could not execute the release plugin&quot;);</span>
+<span class="fc" id="L25">        log.error(&quot;************************************&quot;);</span>
+<span class="fc" id="L26">        log.error(&quot;&quot;);</span>
+<span class="fc" id="L27">        log.error(&quot;&quot;);</span>
+<span class="fc bfc" id="L28" title="All 2 branches covered.">        for (String line : linesToLog) {</span>
+<span class="fc" id="L29">            log.error(line);</span>
+<span class="fc" id="L30">        }</span>
+<span class="fc" id="L31">        log.error(&quot;&quot;);</span>
+<span class="fc" id="L32">        log.error(&quot;&quot;);</span>
+<span class="fc" id="L33">        throw new MojoExecutionException(terseMessage);</span>
+    }
+
+    public static void printBigGitErrorExceptionAndThrow(Log log, GitAPIException gae) throws
+                                                                                          MojoExecutionException {
+<span class="fc" id="L38">        StringWriter sw = new StringWriter();</span>
+<span class="fc" id="L39">        gae.printStackTrace(new PrintWriter(sw));</span>
+<span class="fc" id="L40">        String exceptionAsString = sw.toString();</span>
+
+<span class="pc" id="L42">        printBigErrorMessageAndThrow(log, &quot;Could not release due to a Git error&quot;, asList(</span>
+            &quot;There was an error while accessing the Git repository. The error returned from git was:&quot;,
+<span class="fc" id="L44">            gae.getMessage(), &quot;Stack trace:&quot;, exceptionAsString));</span>
+<span class="nc" id="L45">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

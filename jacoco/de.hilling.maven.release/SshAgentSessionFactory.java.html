@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SshAgentSessionFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">The Multi Module Maven Release Plugin</a> &gt; <a href="index.source.html" class="el_package">de.hilling.maven.release</a> &gt; <span class="el_source">SshAgentSessionFactory.java</span></div><h1>SshAgentSessionFactory.java</h1><pre class="source lang-java linenums">package de.hilling.maven.release;
+
+import static java.lang.String.format;
+
+import org.apache.maven.plugin.logging.Log;
+import org.eclipse.jgit.transport.JschConfigSessionFactory;
+import org.eclipse.jgit.transport.OpenSshConfig;
+import org.eclipse.jgit.util.FS;
+
+import com.jcraft.jsch.IdentityRepository;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.agentproxy.AgentProxyException;
+import com.jcraft.jsch.agentproxy.Connector;
+import com.jcraft.jsch.agentproxy.RemoteIdentityRepository;
+import com.jcraft.jsch.agentproxy.USocketFactory;
+import com.jcraft.jsch.agentproxy.connector.SSHAgentConnector;
+import com.jcraft.jsch.agentproxy.usocket.NCUSocketFactory;
+
+/**
+ * SSH-Agent enabler.
+ *
+ * A JschConfigSessionFactory which sets the Preferred authentication method to
+ * Publickey, and tries to use a NetCat Socket Factory to reach a ssh-agent
+ * process via it's Unix Socket as identified by environment var SSH_AUTH_SOCK.
+ *
+ * Note that this requires the 'nc' binary installed and available on PATH!
+ *
+ * @author Johan Ström johan@pistonlabs.com
+ */
+public class SshAgentSessionFactory extends JschConfigSessionFactory {
+	private final Log log;
+	private String knownHostsOrNull;
+	private String identityFile;
+	private String passphraseOrNull;
+
+	public SshAgentSessionFactory(final Log log, final String knownHostsOrNull, final String identityFile,
+<span class="fc" id="L39">			final String passphraseOrNull) {</span>
+<span class="fc" id="L40">		this.log = log;</span>
+<span class="fc" id="L41">		setKnownHosts(knownHostsOrNull);</span>
+<span class="fc" id="L42">		setIdentityFile(identityFile);</span>
+<span class="fc" id="L43">		setPassphrase(passphraseOrNull);</span>
+<span class="fc" id="L44">	}</span>
+
+	void setKnownHosts(String knownHosts) {
+<span class="fc" id="L47">		this.knownHostsOrNull = knownHosts;</span>
+<span class="fc" id="L48">	}</span>
+
+	void setIdentityFile(String identityFile) {
+<span class="fc" id="L51">		this.identityFile = identityFile;</span>
+<span class="fc" id="L52">	}</span>
+
+	void setPassphrase(String passphrase) {
+<span class="fc" id="L55">		this.passphraseOrNull = passphrase;</span>
+<span class="fc" id="L56">	}</span>
+
+	String getKnownHostsOrNull() {
+<span class="nc" id="L59">		return knownHostsOrNull;</span>
+	}
+
+	String getIdentityFile() {
+<span class="nc" id="L63">		return identityFile;</span>
+	}
+
+	String getPassphraseOrNull() {
+<span class="nc" id="L67">		return passphraseOrNull;</span>
+	}
+
+	@Override
+	protected void configure(final OpenSshConfig.Host host, final Session sn) {
+<span class="nc" id="L72">	}</span>
+
+	@Override
+	protected JSch createDefaultJSch(final FS fs) throws JSchException {
+<span class="nc" id="L76">		Connector con = null;</span>
+		try {
+<span class="nc bnc" id="L78" title="All 2 branches missed.">			if (SSHAgentConnector.isConnectorAvailable()) {</span>
+<span class="nc" id="L79">				final USocketFactory usf = new NCUSocketFactory();</span>
+<span class="nc" id="L80">				con = new SSHAgentConnector(usf);</span>
+			}
+<span class="nc" id="L82">		} catch (final AgentProxyException e) {</span>
+<span class="nc" id="L83">			log.warn(&quot;Failed to connect to SSH-agent&quot;, e);</span>
+<span class="nc" id="L84">		}</span>
+
+<span class="nc" id="L86">		final JSch jsch = super.createDefaultJSch(fs);</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">		if (con != null) {</span>
+<span class="nc" id="L88">			JSch.setConfig(&quot;PreferredAuthentications&quot;, &quot;publickey&quot;);</span>
+
+<span class="nc" id="L90">			final IdentityRepository identityRepository = new RemoteIdentityRepository(con);</span>
+<span class="nc" id="L91">			jsch.setIdentityRepository(identityRepository);</span>
+
+<span class="nc" id="L93">			log.debug(format(&quot;Jsch configured to use %s&quot;, con.getName()));</span>
+		}
+
+<span class="nc bnc" id="L96" title="All 2 branches missed.">		if (knownHostsOrNull != null) {</span>
+<span class="nc" id="L97">			jsch.setKnownHosts(knownHostsOrNull);</span>
+<span class="nc" id="L98">			log.debug(format(&quot;Jsch configured to use known hostfile %s&quot;, knownHostsOrNull));</span>
+		}
+
+<span class="nc bnc" id="L101" title="All 2 branches missed.">		if (identityFile != null) {</span>
+<span class="nc" id="L102">			jsch.addIdentity(identityFile, passphraseOrNull);</span>
+<span class="nc" id="L103">			log.debug(format(&quot;Jsch configured to use identity file %s&quot;, identityFile));</span>
+		}
+
+<span class="nc" id="L106">		return jsch;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

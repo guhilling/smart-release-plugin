@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JacocoLoader.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">The Multi Module Maven Release Plugin</a> &gt; <a href="index.source.html" class="el_package">de.hilling.maven.release</a> &gt; <span class="el_source">JacocoLoader.java</span></div><h1>JacocoLoader.java</h1><pre class="source lang-java linenums">package de.hilling.maven.release;
+
+/**
+ * Preload jacoco data writer classes.
+ * &lt;p&gt;
+ *     This class ist used only for jacoco coverage collection.
+ * &lt;/p&gt;
+ */
+<span class="fc" id="L9">public class JacocoLoader {</span>
+
+    static {
+        try {
+<span class="fc" id="L13">            Class.forName(&quot;org.jacoco.agent.rt.internal_8ff85ea.core.data.ExecutionDataWriter&quot;);</span>
+<span class="fc" id="L14">            Class.forName(&quot;org.jacoco.agent.rt.internal_8ff85ea.core.internal.data.CompactDataOutput&quot;);</span>
+<span class="fc" id="L15">            Class.forName(&quot;org.jacoco.agent.rt.internal_8ff85ea.core.data.SessionInfo&quot;);</span>
+<span class="nc" id="L16">        } catch (ClassNotFoundException e) {</span>
+            // Ignored. Used only for coverage collection.
+<span class="fc" id="L18">        }</span>
+
+<span class="fc" id="L20">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

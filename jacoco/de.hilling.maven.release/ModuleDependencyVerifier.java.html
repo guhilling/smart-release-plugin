@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ModuleDependencyVerifier.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">The Multi Module Maven Release Plugin</a> &gt; <a href="index.source.html" class="el_package">de.hilling.maven.release</a> &gt; <span class="el_source">ModuleDependencyVerifier.java</span></div><h1>ModuleDependencyVerifier.java</h1><pre class="source lang-java linenums">package de.hilling.maven.release;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+
+import org.apache.maven.model.Dependency;
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.MavenProject;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.lib.Ref;
+import org.eclipse.jgit.lib.Repository;
+
+import de.hilling.maven.release.repository.LocalGitRepo;
+import de.hilling.maven.release.versioning.ImmutableFixVersion;
+import de.hilling.maven.release.versioning.ImmutableModuleVersion;
+import de.hilling.maven.release.versioning.ImmutableQualifiedArtifact;
+import de.hilling.maven.release.versioning.ReleaseDateSingleton;
+import de.hilling.maven.release.versioning.ReleaseInfo;
+import de.hilling.maven.release.versioning.VersionNamer;
+
+class ModuleDependencyVerifier {
+    private final ReleaseInfo            previousRelease;
+    private final LocalGitRepo           gitRepo;
+    private final Log                    log;
+    private final MavenProject           rootProject;
+    private final List&lt;String&gt;           modulesToForceRelease;
+    private final List&lt;ReleasableModule&gt; modules;
+    private final VersionNamer           versionNamer;
+    private final MavenProject           project;
+
+    public ModuleDependencyVerifier(MavenProject project, MavenProject rootProject, LocalGitRepo gitRepo,
+                                    ReleaseInfo previousRelease, List&lt;String&gt; modulesToForceRelease,
+<span class="fc" id="L36">                                    List&lt;ReleasableModule&gt; modules, boolean bugfixRelease, Log log) {</span>
+<span class="fc" id="L37">        this.gitRepo = gitRepo;</span>
+<span class="fc" id="L38">        this.log = log;</span>
+<span class="fc" id="L39">        this.rootProject = rootProject;</span>
+<span class="fc" id="L40">        this.modulesToForceRelease = modulesToForceRelease;</span>
+<span class="fc" id="L41">        this.modules = modules;</span>
+<span class="fc" id="L42">        this.previousRelease = previousRelease;</span>
+<span class="fc" id="L43">        this.versionNamer = new VersionNamer(bugfixRelease, previousRelease);</span>
+<span class="fc" id="L44">        this.project = project;</span>
+<span class="fc" id="L45">    }</span>
+
+    private static String calculateModulePath(MavenProject rootProject, MavenProject project) throws
+                                                                                              MojoExecutionException {
+        // Getting canonical files because on Windows, it's possible one returns &quot;C:\...&quot; and the other &quot;c:\...&quot; which is rather amazing
+        File projectRoot;
+        File moduleRoot;
+        try {
+<span class="fc" id="L53">            projectRoot = rootProject.getBasedir().getCanonicalFile();</span>
+<span class="fc" id="L54">            moduleRoot = project.getBasedir().getCanonicalFile();</span>
+<span class="nc" id="L55">        } catch (IOException e) {</span>
+<span class="nc" id="L56">            throw new MojoExecutionException(&quot;Could not find directory paths for maven project&quot;, e);</span>
+<span class="fc" id="L57">        }</span>
+<span class="fc" id="L58">        String relativePathToModule = Repository.stripWorkDir(projectRoot, moduleRoot);</span>
+<span class="fc bfc" id="L59" title="All 2 branches covered.">        if (relativePathToModule.length() == 0) {</span>
+<span class="fc" id="L60">            relativePathToModule = &quot;.&quot;;</span>
+        }
+<span class="fc" id="L62">        return relativePathToModule;</span>
+    }
+
+    public ImmutableReleasableModule releaseInfo() throws MojoExecutionException {
+<span class="fc" id="L66">        String relativePathToModule = calculateModulePath(rootProject, project);</span>
+<span class="fc" id="L67">        String artifactId = project.getArtifactId();</span>
+
+<span class="fc" id="L69">        ImmutableFixVersion newVersion = ImmutableFixVersion.copyOf(versionNamer.nextVersion(project));</span>
+
+<span class="fc" id="L71">        boolean dependencyChanged = modules.stream().filter(ReleasableModule::isToBeReleased)</span>
+<span class="fc" id="L72">                                           .anyMatch(this::dependencyOrParentChanged);</span>
+        ImmutableFixVersion equivalentVersion;
+        boolean toBeReleased;
+
+<span class="fc" id="L76">        final Optional&lt;ImmutableModuleVersion&gt; previousVersion = previousRelease.getModules().stream().filter(</span>
+<span class="fc" id="L77">            m -&gt; m.getArtifact().equals(artifact())).findAny();</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (modulesToForceRelease.contains(artifactId)) {</span>
+<span class="nc" id="L79">            toBeReleased = true;</span>
+<span class="nc" id="L80">            equivalentVersion = newVersion;</span>
+<span class="nc" id="L81">            log.info(&quot;Releasing &quot; + artifactId + &quot; &quot; + newVersion.toString() + &quot; as we was asked to forced release.&quot;);</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">        } else if (dependencyChanged) {</span>
+<span class="fc" id="L83">            toBeReleased = true;</span>
+<span class="fc" id="L84">            equivalentVersion = newVersion;</span>
+<span class="fc" id="L85">            log.info(</span>
+<span class="fc" id="L86">                &quot;Releasing &quot; + artifactId + &quot; &quot; + newVersion.toString() + &quot; as at least one dependency has changed.&quot;);</span>
+        } else {
+<span class="fc" id="L88">            final Optional&lt;String&gt; tagInfo = previousVersion.map(ImmutableModuleVersion::getReleaseTag);</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">            if (tagInfo.isPresent()) {</span>
+                try {
+<span class="fc" id="L91">                    final String tagName = tagInfo.get();</span>
+<span class="fc" id="L92">                    log.info(&quot;looking for tag with name '&quot; + tagName + &quot;'&quot;);</span>
+<span class="fc" id="L93">                    final Optional&lt;Ref&gt; tagRef = gitRepo.getRemoteTag(tagName);</span>
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">                    if (tagRef.isPresent()) {</span>
+<span class="fc" id="L95">                        final Ref gitTag = tagRef.get();</span>
+<span class="fc" id="L96">                        final TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(gitRepo.git</span>
+<span class="fc" id="L97">                                                                                                 .getRepository(), log);</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">                        if (detector.hasChangedSince(relativePathToModule, moduleList(), gitTag)) {</span>
+<span class="fc" id="L99">                            toBeReleased = true;</span>
+<span class="fc" id="L100">                            equivalentVersion = newVersion;</span>
+<span class="fc" id="L101">                            log.info(</span>
+                                &quot;using &quot; + equivalentVersion + &quot; for &quot; + artifactId + &quot; as it has changed since the last &quot; + &quot;release.&quot;);
+                        } else {
+<span class="fc" id="L104">                            toBeReleased = false;</span>
+<span class="fc" id="L105">                            equivalentVersion = previousVersion.get().getVersion();</span>
+<span class="fc" id="L106">                            log.info(</span>
+                                &quot;using &quot; + equivalentVersion + &quot; for &quot; + artifactId + &quot; as it has not been changed&quot; + &quot; since that release.&quot;);
+                        }
+<span class="fc" id="L109">                    } else {</span>
+<span class="nc" id="L110">                        final String message = &quot;unable to find remote tag &quot; + tagName;</span>
+<span class="nc" id="L111">                        log.error(message);</span>
+<span class="nc" id="L112">                        throw new MojoExecutionException(message);</span>
+                    }
+<span class="nc" id="L114">                } catch (GitAPIException | IOException e) {</span>
+<span class="nc" id="L115">                    log.error(&quot;unable to list tags: &quot; + e.getMessage());</span>
+<span class="nc" id="L116">                    throw new MojoExecutionException(&quot;unable to list tags&quot;, e);</span>
+<span class="fc" id="L117">                }</span>
+            } else {
+<span class="fc" id="L119">                toBeReleased = true;</span>
+<span class="fc" id="L120">                equivalentVersion = newVersion;</span>
+<span class="fc" id="L121">                log.info(&quot;using &quot; + equivalentVersion + &quot; for &quot; + artifactId + &quot; as it has not been released yet.&quot;);</span>
+            }
+        }
+<span class="fc" id="L124">        final ImmutableReleasableModule.Builder builder = ImmutableReleasableModule.builder();</span>
+<span class="fc" id="L125">        builder.project(project);</span>
+<span class="fc" id="L126">        builder.isToBeReleased(toBeReleased);</span>
+<span class="fc" id="L127">        builder.relativePathToModule(relativePathToModule);</span>
+<span class="fc" id="L128">        builder.immutableModule(moduleVersion(equivalentVersion, previousVersion, toBeReleased).build());</span>
+<span class="fc" id="L129">        return builder.build();</span>
+    }
+
+    private ImmutableModuleVersion.Builder moduleVersion(ImmutableFixVersion equivalentVersion,
+                                                         Optional&lt;ImmutableModuleVersion&gt; previousVersion,
+                                                         boolean toBeReleased) {
+<span class="fc" id="L135">        final ImmutableModuleVersion.Builder moduleBuilder = ImmutableModuleVersion.builder();</span>
+<span class="fc bfc" id="L136" title="All 2 branches covered.">        if (previousVersion.isPresent()) {</span>
+<span class="fc" id="L137">            moduleBuilder.from(previousVersion.get());</span>
+        } else {
+<span class="fc" id="L139">            final ImmutableQualifiedArtifact.Builder artifactBuilder = ImmutableQualifiedArtifact.builder();</span>
+<span class="fc" id="L140">            artifactBuilder.groupId(project.getGroupId()).artifactId(project.getArtifactId());</span>
+<span class="fc" id="L141">            moduleBuilder.artifact(artifactBuilder.build());</span>
+        }
+<span class="fc bfc" id="L143" title="All 2 branches covered.">        if (toBeReleased) {</span>
+<span class="fc" id="L144">            moduleBuilder.releaseTag(ReleaseDateSingleton.getInstance().tagName());</span>
+<span class="fc" id="L145">            moduleBuilder.releaseDate(ReleaseDateSingleton.getInstance().releaseDate());</span>
+        }
+<span class="fc" id="L147">        moduleBuilder.version(equivalentVersion);</span>
+<span class="fc" id="L148">        return moduleBuilder;</span>
+    }
+
+    public ReleasableModule rereleaseModule() throws MojoExecutionException {
+<span class="fc" id="L152">        String relativePathToModule = calculateModulePath(rootProject, project);</span>
+<span class="fc" id="L153">        String artifactId = project.getArtifactId();</span>
+
+<span class="fc" id="L155">        ImmutableFixVersion newVersion = ImmutableFixVersion.copyOf(versionNamer.nextVersion(project));</span>
+
+<span class="fc" id="L157">        log.info(&quot;using &quot; + newVersion + &quot; for &quot; + artifactId + &quot; for rerelease.&quot;);</span>
+<span class="fc" id="L158">        final ImmutableReleasableModule.Builder builder = ImmutableReleasableModule.builder();</span>
+<span class="fc" id="L159">        builder.project(project);</span>
+<span class="fc" id="L160">        builder.immutableModule(moduleVersion(newVersion, Optional.empty(), true).build());</span>
+<span class="fc" id="L161">        builder.isToBeReleased(true);</span>
+<span class="fc" id="L162">        builder.relativePathToModule(relativePathToModule);</span>
+<span class="fc" id="L163">        return builder.build();</span>
+    }
+
+    private List&lt;String&gt; moduleList() {
+<span class="fc" id="L167">        return project.getModules();</span>
+    }
+
+    private ImmutableQualifiedArtifact artifact() {
+<span class="fc" id="L171">        return ImmutableQualifiedArtifact.builder().groupId(project.getGroupId()).artifactId(project.getArtifactId())</span>
+<span class="fc" id="L172">                                         .build();</span>
+    }
+
+    private boolean dependencyOrParentChanged(ReleasableModule module) {
+<span class="fc bfc" id="L176" title="All 2 branches covered.">        for (Dependency dependency : project.getModel().getDependencies()) {</span>
+<span class="fc bfc" id="L177" title="All 2 branches covered.">            if (moduleIsADependency(module, dependency)) {</span>
+<span class="fc" id="L178">                return true;</span>
+            }
+<span class="fc" id="L180">        }</span>
+<span class="fc" id="L181">        return isThisProjectsParentModule(module);</span>
+    }
+
+    private boolean moduleIsADependency(ReleasableModule module, Dependency dependency) {
+<span class="fc bfc" id="L185" title="All 4 branches covered.">        return dependency.getGroupId().equals(module.getProject().getGroupId()) &amp;&amp; dependency.getArtifactId().equals(</span>
+<span class="fc" id="L186">            module.getProject().getArtifactId());</span>
+    }
+
+    private boolean isThisProjectsParentModule(ReleasableModule module) {
+<span class="fc" id="L190">        final MavenProject parent = project.getParent();</span>
+<span class="fc" id="L191">        final MavenProject moduleProject = module.getProject();</span>
+<span class="pc bpc" id="L192" title="1 of 4 branches missed.">        return parent != null &amp;&amp; (parent.getGroupId().equals(moduleProject.getGroupId()) &amp;&amp; parent.getArtifactId()</span>
+<span class="fc bfc" id="L193" title="All 2 branches covered.">                                                                                                  .equals(moduleProject</span>
+<span class="fc" id="L194">                                                                                                              .getArtifactId()));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>

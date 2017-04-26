@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Reactor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">The Multi Module Maven Release Plugin</a> &gt; <a href="index.source.html" class="el_package">de.hilling.maven.release</a> &gt; <span class="el_source">Reactor.java</span></div><h1>Reactor.java</h1><pre class="source lang-java linenums">package de.hilling.maven.release;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.plugin.logging.Log;
+import org.apache.maven.project.MavenProject;
+import org.eclipse.jgit.api.errors.GitAPIException;
+
+import de.hilling.maven.release.repository.LocalGitRepo;
+import de.hilling.maven.release.versioning.ImmutableQualifiedArtifact;
+import de.hilling.maven.release.versioning.ReleaseInfo;
+
+public class Reactor {
+
+    private final List&lt;ReleasableModule&gt; modulesInBuildOrder;
+<span class="fc" id="L20">    private final Map&lt;ImmutableQualifiedArtifact, ReleasableModule&gt; artifactModuleMap = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L22">    public Reactor(List&lt;ReleasableModule&gt; modulesInBuildOrder) {</span>
+<span class="fc" id="L23">        this.modulesInBuildOrder = modulesInBuildOrder;</span>
+<span class="fc" id="L24">        modulesInBuildOrder.forEach(m -&gt; {</span>
+<span class="fc" id="L25">            final ImmutableQualifiedArtifact key = ImmutableQualifiedArtifact.builder().artifactId(</span>
+<span class="fc" id="L26">                m.getProject().getArtifactId()).groupId(m.getProject().getGroupId()).build();</span>
+<span class="fc" id="L27">            artifactModuleMap.put(key, m);</span>
+<span class="fc" id="L28">        });</span>
+<span class="fc" id="L29">    }</span>
+
+    public List&lt;ReleasableModule&gt; getModulesInBuildOrder() {
+<span class="fc" id="L32">        return modulesInBuildOrder;</span>
+    }
+
+    public static Reactor fromProjects(Log log, LocalGitRepo gitRepo, MavenProject rootProject,
+                                       List&lt;MavenProject&gt; projects, List&lt;String&gt; modulesToForceRelease,
+                                       NoChangesAction actionWhenNoChangesDetected, boolean bugfixRelease,
+                                       ReleaseInfo previousRelease)
+            throws ValidationException, GitAPIException, MojoExecutionException {
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        if (previousRelease.isEmpty()) {</span>
+<span class="fc" id="L41">            log.warn(&quot;no info file for previous releases found, assuming initial release&quot;);</span>
+        }
+<span class="fc" id="L43">        TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(gitRepo.git.getRepository(), log);</span>
+<span class="fc" id="L44">        List&lt;ReleasableModule&gt; modules = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        for (MavenProject project : projects) {</span>
+<span class="fc" id="L46">            modules.add(new ModuleDependencyVerifier(project, rootProject, gitRepo, previousRelease,</span>
+                                                     modulesToForceRelease,
+<span class="fc" id="L48">                                                     modules, bugfixRelease, log).releaseInfo());</span>
+<span class="fc" id="L49">        }</span>
+
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        if (!atLeastOneBeingReleased(modules)) {</span>
+<span class="pc bfc" id="L52" title="All 3 branches covered.">            switch (actionWhenNoChangesDetected) {</span>
+                case ReleaseNone:
+<span class="fc" id="L54">                    log.warn(&quot;No changes have been detected in any modules so will not perform release&quot;);</span>
+<span class="fc" id="L55">                    return null;</span>
+                case FailBuild:
+<span class="fc" id="L57">                    throw new MojoExecutionException(&quot;No module changes have been detected&quot;);</span>
+                default:
+<span class="fc" id="L59">                    log.warn(&quot;No changes have been detected in any modules so will re-release them all&quot;);</span>
+<span class="fc" id="L60">                    modules.clear();</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">                    for (MavenProject project : projects) {</span>
+<span class="fc" id="L62">                        modules.add(new ModuleDependencyVerifier(project, rootProject, gitRepo, previousRelease,</span>
+                                                                 modulesToForceRelease,
+<span class="fc" id="L64">                                                                 modules, bugfixRelease, log).rereleaseModule());</span>
+<span class="fc" id="L65">                    }</span>
+
+            }
+        }
+
+<span class="fc" id="L70">        return new Reactor(modules);</span>
+    }
+
+    private static boolean atLeastOneBeingReleased(List&lt;ReleasableModule&gt; modules) {
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        for (ReleasableModule module : modules) {</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">            if (module.isToBeReleased()) {</span>
+<span class="fc" id="L76">                return true;</span>
+            }
+<span class="fc" id="L78">        }</span>
+<span class="fc" id="L79">        return false;</span>
+    }
+
+    public ReleasableModule find(String groupId, String artifactId) throws UnresolvedSnapshotDependencyException {
+<span class="fc" id="L83">        final ImmutableQualifiedArtifact artifact = ImmutableQualifiedArtifact.builder().groupId(groupId)</span>
+<span class="fc" id="L84">                                                                           .artifactId(artifactId).build();</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (artifactModuleMap.containsKey(artifact)) {</span>
+<span class="fc" id="L86">            return artifactModuleMap.get(artifact);</span>
+        } else {
+<span class="fc" id="L88">            throw new UnresolvedSnapshotDependencyException(groupId, artifactId);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.9.201702052155</span></div></body></html>
