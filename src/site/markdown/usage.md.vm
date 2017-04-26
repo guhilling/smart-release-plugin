@@ -1,7 +1,12 @@
-## Velocity treats double hashes as comments, which messes with markdown files. So $H can be used instead.
-#set( $H = '#' )
+## Velocity treats double hashes as comments, which messes with markdown files.
+#set($h1 = '#')
+#set($h2 = '##')
+#set($h3 = '###')
+#set($h4 = '####')
 
-# Usage
+$h1 Usage
+
+$h2 Configuration of the plugin
 
 Add the plugin to your pom:
 
@@ -32,7 +37,28 @@ And then call the plugin:
 
 	mvn smart-release:release
 
-# Creating a bugfix release
+This will execute the following steps:
+
+* The usual sanity checks:
+    * Local Repository clean?
+    * No SNAPSHOT dependencies on non-local artifacts?
+    * Version numbers follow the required scheme?
+* All changes relative to the latest tag are computed. The latest tag is stored in the `release-info.json` file.
+If this file is missing the plugin assumes that all modules are released for the first time.
+* All modules that have changes relative to _their_ latest release (that is stored in `release-info.json`) are
+prepared for release by _setting_ their minor number to the next minor release number in their `pom.xml`.
+The same is done for all modules
+that have transitive dependencies on these modules. The plugin prints out which modules will be released and why.
+* All modules that are _not_ released will not be changed. Only the modules to be released will be built in the
+following steps using maven's `--projects` option. This has two advantages:
+    * Faster builds.
+    * During releases the artifacts for modules that are not going to be released are actually taken from the repository.
+* The first run is performed. By default this means running `mvn -Prelease clean install --projects <modules to be released>`.
+The goals can be configured using the `testGoals` property.
+* The new `release-info.json` is tagged and pushed to the origin. The changed poms are not commited or pushed. The tag
+will be named `MULTI_MODULE_RELEASE-<YYYY-MM-dd-HHmmss>`. The time used is UTC.
+
+$h3 Creating a bugfix release
 
 To create a bugfix release, follow these steps:
 
@@ -41,7 +67,7 @@ To create a bugfix release, follow these steps:
 * Create a bugfix release by running `mvn smart-release:release -DbugfixRelease=true`
 * The same steps as above are run but a new bugfix number will be appended to the latest minor version number.
 
-# Release-info format
+$h3 Release-info format
 
 Information about releases is kept in `.release-info.json`. Sample from the test projects:
 
@@ -90,7 +116,7 @@ Information about releases is kept in `.release-info.json`. Sample from the test
 You should not have to edit this file manually. In addition you must make sure that you do not merge
 `.release-info.json` files from a bugfix branch into your master branch.
 
-# Forcing a release
+$h3 Forcing a release
 
 It is possible to force the release of one or more specified modules, for example if the changes have not been picked up due to some issue.
 To do this, use the `forceRelease` parameter. For example:
@@ -99,7 +125,7 @@ To do this, use the `forceRelease` parameter. For example:
 
 In this case the `MyApp` module will be built, even if there where no changes found.
 
-# SSH authentication
+$h2 SSH authentication
 
 Currently, only public key authentication is supported. By default, the plugin reads the private key from `~/.ssh/id_rsa`.
 If it's required to use a private key file from another location, you have two opportunities to achieve this:
@@ -145,7 +171,7 @@ This is the insecure way to specify your custom private key. Add following prope
 
 Note: POM configuration has precedence over Maven settings.
 	
-# Custom known_hosts
+$h3 Custom known_hosts
 
 Per default, the plugin uses `~/.ssh/known_hosts`. You can override this with following property in
 your plugin configuration:
