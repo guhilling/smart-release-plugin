@@ -11,9 +11,9 @@ This plugin adds bugfix release feature.
 Development
 ===========
 
-[![Build Status](https://travis-ci.org/guhilling/smart-release-plugin.svg?branch=master)](https://travis-ci.org/guhilling/smart-release-plugin)
-[![Coverage Status](https://coveralls.io/repos/github/guhilling/smart-release-plugin/badge.svg?branch=master)](https://coveralls.io/github/guhilling/smart-release-plugin?branch=master)
-[![Maven Central](https://img.shields.io/maven-central/v/de.hilling.maven.release/smart-release-plugin.svg)](http://search.maven.org/#search|gav|1|g:"de.hilling.maven.release"%20AND%20a:"smart-release-plugin")
+[![Build Status](https://travis-ci.org/guhilling/smart-release-plugin.svg?branch=master&maxAge=60)](https://travis-ci.org/guhilling/smart-release-plugin)
+[![Coverage Status](https://coveralls.io/repos/github/guhilling/smart-release-plugin/badge.svg?branch=master&maxAge=60)](https://coveralls.io/github/guhilling/smart-release-plugin?branch=master)
+[![Maven Central](https://img.shields.io/maven-central/v/de.hilling.maven.release/smart-release-plugin.svg?maxAge=60)](http://search.maven.org/#search|gav|1|g:"de.hilling.maven.release"%20AND%20a:"smart-release-plugin")
 
 Contributing
 ------------
