@@ -1,6 +1,6 @@
 <project name="Multi Module Maven Release Plugin">
     <bannerLeft>
-        <name>Multi Module Maven Release Plugin</name>
+        <name>Maven Smart Release Plugin</name>
     </bannerLeft>
     <skin>
         <groupId>org.apache.maven.skins</groupId>

@@ -2,7 +2,7 @@ Changelog
 ---------
 
 
-### 3.0 smart-release-plugin
+### 3.8 smart-release-plugin
 
 * Partial rewrite to obtain robust bugfix releases.
 

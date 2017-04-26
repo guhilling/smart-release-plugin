@@ -1,5 +1,4 @@
-The Multi Module Maven Release Plugin for Git
----------------------------------------------
+# The Maven Smart Release Plugin for Git
 
 This plugin is an alternative to the `maven-release-plugin` which was created with the following principles:
 
@@ -21,8 +20,7 @@ This plugin automatically generates build numbers, starting from 0 and increment
 releases in the Git history. Alternatively, you can use a number that increments on each release - like your CI server's
 build number for example.
 
-Quickstart
-----------
+# Quickstart
 
 Add the following to your plugins section:
 
@@ -36,8 +34,7 @@ Release your project by running `mvn smart-release:release`
 
 See [usage](usage.html) for more details.
 
-Differences with the maven-release-plugin
------------------------------------------
+# Differences with the maven-release-plugin
 
 * Only Git is supported
 * Each module released will have a separate tag with its artifact ID and version so that it is easy to see when a
@@ -46,7 +43,6 @@ version of a module was released
 * The release version of the pom is not committed back to the repository
 * Tests are run once by default (or optionally not at all)
 
-Prerequisites
--------------
+# Prerequisites
 
 The plugin requires **Maven ${project.prerequisites.maven}** or later and **Java 8** or later.

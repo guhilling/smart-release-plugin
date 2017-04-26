@@ -69,7 +69,7 @@ A sample configuration looks like this:
 
 ### Releasing the project
 
-To run the release, use `mvn smart-release-plugin:release`. This will execute the following steps:
+To run the release, use `mvn smart-release:release`. This will execute the following steps:
 
 * The usual sanity checks:
   * Local Repository clean?
@@ -118,7 +118,7 @@ To create a bugfix release, follow these steps:
 
 * Create a branch from one of the tags created during a regular release. The `release-info.json` must exist.
 * Fix your bugs.
-* Create a bugfix release by running `mvn smart-release-plugin:release -DbugfixRelease=true`
+* Create a bugfix release by running `mvn smart-release:release -DbugfixRelease=true`
 * The same steps as above are run but a new bugfix number will be appended to the latest minor version number.
 
 ### Merging changes between branches.

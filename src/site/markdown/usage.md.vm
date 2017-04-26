@@ -1,21 +1,28 @@
 ## Velocity treats double hashes as comments, which messes with markdown files. So $H can be used instead.
 #set( $H = '#' )
 
-Usage
------
+# Usage
 
 Add the plugin to your pom:
 
     <build>
         <plugins>
             <plugin>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>${project.artifactId}</artifactId>
-                <version>${project.version}</version>
+                <groupId>de.hilling.maven.release</groupId>
+                <artifactId>smart-release-plugin</artifactId>
+                <version>3.8</version>
                 <configuration>
+                    <testGoals>
+                        <testGoal>clean</testGoal>
+                        <testGoal>install</testGoal>
+                        <testGoal>-Dmaven.javadoc.skip=true</testGoal>
+                    </testGoals>
                     <releaseGoals>
                         <releaseGoal>deploy</releaseGoal>
                     </releaseGoals>
+                    <releaseProfiles>
+                        <releaseProfile>release</releaseProfile>
+                    </releaseProfiles>
                 </configuration>
             </plugin>
         </plugins>
@@ -25,8 +32,66 @@ And then call the plugin:
 
 	mvn smart-release:release
 
-Forcing a release
------------------
+# Creating a bugfix release
+
+To create a bugfix release, follow these steps:
+
+* Create a branch from one of the tags created during a regular release. The `release-info.json` must exist.
+* Fix your bugs.
+* Create a bugfix release by running `mvn smart-release:release -DbugfixRelease=true`
+* The same steps as above are run but a new bugfix number will be appended to the latest minor version number.
+
+# Release-info format
+
+Information about releases is kept in `.release-info.json`. Sample from the test projects:
+
+    {
+      "tagName": "MULTI_MODULE_RELEASE-2017-04-25-135920",
+      "modules": [
+        {
+          "releaseDate": "2017-04-25T15:59:20.339+02:00[Europe/Berlin]",
+          "releaseTag": "MULTI_MODULE_RELEASE-2017-04-25-135920",
+          "artifact": {
+            "groupId": "de.hilling.maven.release.testprojects.independentversions",
+            "artifactId": "independent-versions"
+          },
+          "version": {
+            "majorVersion": 1,
+            "minorVersion": 0
+          }
+        },
+        {
+          "releaseDate": "2017-04-25T15:59:20.339+02:00[Europe/Berlin]",
+          "releaseTag": "MULTI_MODULE_RELEASE-2017-04-25-135920",
+          "artifact": {
+            "groupId": "de.hilling.maven.release.testprojects.independentversions",
+            "artifactId": "core-utils"
+          },
+          "version": {
+            "majorVersion": 2,
+            "minorVersion": 0
+          }
+        },
+        {
+          "releaseDate": "2017-04-25T15:59:20.339+02:00[Europe/Berlin]",
+          "releaseTag": "MULTI_MODULE_RELEASE-2017-04-25-135920",
+          "artifact": {
+            "groupId": "de.hilling.maven.release.testprojects.independentversions",
+            "artifactId": "console-app"
+          },
+          "version": {
+            "majorVersion": 3,
+            "minorVersion": 0
+          }
+        }
+      ]
+    }
+
+You should not have to edit this file manually. In addition you must make sure that you do not merge
+`.release-info.json` files from a bugfix branch into your master branch.
+
+# Forcing a release
+
 It is possible to force the release of one or more specified modules, for example if the changes have not been picked up due to some issue.
 To do this, use the `forceRelease` parameter. For example:
 
@@ -34,17 +99,9 @@ To do this, use the `forceRelease` parameter. For example:
 
 In this case the `MyApp` module will be built, even if there where no changes found.
 
-Specify custom global/user Maven settings for release build
------------------------------------------------------------
+# SSH authentication
 
-Sometimes it's necessary to specify custom Maven settings for the release build. This can be done with the following
-standard maven command line parameters:
-
-	mvn smart-release:release -s /path/to/custom/user/settings.xml -gs /path/to/custom/global/settings.xml
-
-SSH authentication
-------------------
-Currently, only public key authentication is supported. By default, the plugin reads the private key from `~/.ssh/id_rsa`. 
+Currently, only public key authentication is supported. By default, the plugin reads the private key from `~/.ssh/id_rsa`.
 If it's required to use a private key file from another location, you have two opportunities to achieve this:
 
 $H$H$H Add server section to your Maven settings
@@ -88,8 +145,8 @@ This is the insecure way to specify your custom private key. Add following prope
 
 Note: POM configuration has precedence over Maven settings.
 	
-Custom known_hosts
-------------------
+# Custom known_hosts
+
 Per default, the plugin uses `~/.ssh/known_hosts`. You can override this with following property in
 your plugin configuration:
 
