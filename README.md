@@ -2,9 +2,8 @@
 
 **Automatically releases only changed modules of a multi-module maven project.**
 
-The project was started as a fork of Daniel Flowers [multi-module-maven-release-plugin](http://danielflower.github.io/multi-module-maven-release-plugin/index.html).
+The project was started as a fork of Daniel Flowers [multi-module-maven-release-plugin](http://danielflower.github.io/multi-module-maven-release-plugin/index.html)
 to add some features, mostly creating bugfix releases.
-
 
 ## Development
 
@@ -30,7 +29,7 @@ to add some features, mostly creating bugfix releases.
 
 ## Quick Start
 
-Most important: You have to git as version control system. Support for other VCS is no yet planned.
+Most important: You have to use git as version control system. Support for other VCS is no yet planned.
 
 ### Project Setup
 
@@ -79,7 +78,8 @@ To run the release, use `mvn smart-release-plugin:release`. This will execute th
 * All changes relative to the latest tag are computed. The latest tag is stored in the `release-info.json` file.
 If this file is missing the plugin assumes that all modules are released for the first time.
 * All modules that have changes relative to _their_ latest release (that is stored in `release-info.json`) are 
-prepared for release by _setting_ their minor number to the next minor release number. The same is done for all modules
+prepared for release by _setting_ their minor number to the next minor release number in their `pom.xml`.
+The same is done for all modules
 that have transitive dependencies on these modules. The plugin prints out which modules will be released and why.
 * All modules that are _not_ released will not be changed. Only the modules to be released will be built in the 
 following steps using maven's `--projects` option. This has two advantages:
