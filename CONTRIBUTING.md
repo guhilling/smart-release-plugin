@@ -59,7 +59,7 @@ Note that for site generation you will need access to write to the Git repo and 
     </server>
 
 Once released, go to the Nexus instance at https://oss.sonatype.org and log in, and then click on the "Staging Repositories"
-link where you should find a repository in the list that looks something like `comgithubdanielflower-1010`. Select that
+link where you should find a repository in the list that looks something like `comgithubghilling-1010`. Select that
 and then press the 'Close' button. After confirming, Nexus validates that all their requirements are met. Assuming that
 passes, select the repo again and click 'Release'. Keep the default options and press 'Confirm'. It takes a little while
 but will soon appear in the central Maven repo.
