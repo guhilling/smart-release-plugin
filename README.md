@@ -63,7 +63,8 @@ A sample configuration looks like this:
                     </releaseProfiles>
                 </configuration>
             </plugin>
-            ...
+        </plugins>
+    </build>
 
 ```
 
@@ -128,13 +129,9 @@ run into the problem that the `release-info.json` files cannot be merged. In fac
 * Usually you want to merge everything into the "main" branch.
 * The `release-info.json` of the current branch is not supposed to change when merging changes from other branches.
 
-This can be accomplished by configuring git not to merge changes for `release-info.json` at all:
-
-* Update your `.gitattributes` file to contain:
-```
-.release-info.json merge=ours
-```
-* Then configure your git repo by running `git config merge.ours.driver true`.
+At the moment you have to take care of this situation yourself. If you accidently merge the bugfix `.release-info.json`
+into your master branch however, the next release will just fail because the version numbers in the bugfix release
+are not valid for major releases. So you will be able to fix this accident manually.
 
 ## Contributing
 
