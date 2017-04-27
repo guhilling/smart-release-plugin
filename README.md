@@ -6,7 +6,7 @@ Full documentation is available [here as maven site documentation](https://guhil
 
 The project was started as a fork of Daniel Flowers
 [multi-module-maven-release-plugin](https://danielflower.github.io/multi-module-maven-release-plugin/index.html) with
-with the goal to create bugfix releases automatically (See [documentation](#-creating-a-bugfix-release)).
+with the goal to create bugfix releases automatically (See [documentation](#creating-a-bugfix-release)).
 
 ## Development
 
