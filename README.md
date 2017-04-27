@@ -2,8 +2,11 @@
 
 **Automatically releases only changed modules of a multi-module maven project.**
 
-The project was started as a fork of Daniel Flowers [multi-module-maven-release-plugin](http://danielflower.github.io/multi-module-maven-release-plugin/index.html)
-to add some features, mostly creating bugfix releases.
+Full documentation is available [here as maven site documentation](https://guhilling.github.io/smart-release-plugin/index.html).
+
+The project was started as a fork of Daniel Flowers
+[multi-module-maven-release-plugin](https://danielflower.github.io/multi-module-maven-release-plugin/index.html) with
+with the goal to create bugfix releases automatically (See [documentation](#creating-a-bugfix-release)).
 
 ## Development
 
@@ -143,6 +146,6 @@ can be tested end-to-end.
 
 See also [CONTRIBUTING.md](CONTRIBUTING.md) for information on deploying to Nexus and releasing the plugin.
 
-##Stability stuff
+## Stability stuff
 
 * Figure out if things like MVN_OPTIONS and other JVM options need to be passed during release
