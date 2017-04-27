@@ -6,7 +6,7 @@ Full documentation is available [here as maven site documentation](https://guhil
 
 The project was started as a fork of Daniel Flowers
 [multi-module-maven-release-plugin](https://danielflower.github.io/multi-module-maven-release-plugin/index.html) with
-with the goal to create bugfix releases automatically (See [documentation](#bugfixes)).
+with the goal to create bugfix releases automatically (See [documentation](#-creating-a-bugfix-release)).
 
 ## Development
 
@@ -115,7 +115,7 @@ like:
 * The second run is performed. By default this means running `mvn -Prelease deploy --projects <modules to be released>`.
 * All changes to the poms are reverted. 
 
-### <a name="bugfixes"></a> Creating a bugfix release
+### Creating a bugfix release
 
 To create a bugfix release, follow these steps:
 
