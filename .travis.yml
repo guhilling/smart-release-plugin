@@ -4,3 +4,8 @@ jdk:
   - oraclejdk8
 script:
   - mvn clean install -Pcoverage coveralls:report
+
+cache:
+  directories:
+    - '$HOME/.m2/repository'
+    - '$HOME/.sonar/cache'
