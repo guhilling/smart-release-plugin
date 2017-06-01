@@ -12,7 +12,6 @@ import de.hilling.maven.release.ValidationException;
 class ProjectVersionNamer {
     private final ReleaseInfo  previousRelease;
     private final boolean      bugfixRelease;
-    private       MavenProject project;
     private final SnapshotVersion currentSnapshot;
     private ImmutableQualifiedArtifact artifact;
 
