@@ -186,14 +186,14 @@ public class TestProject extends ExternalResource {
         return mvnRun(TestUtils.NEXT_GOAL, arguments);
     }
 
+    public String readFile(String module, String fileName) throws IOException {
+        File file = getFile(module, fileName);
+        return FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+    }
+
     public TestProject commitFile(String module, String fileName, String fileContent) throws IOException,
                                                                                              GitAPIException {
-        checkNoChanges = false;
-        File moduleDir = new File(localDir, module);
-        if (!moduleDir.isDirectory()) {
-            throw new RuntimeException("Could not find " + moduleDir.getCanonicalPath());
-        }
-        File file = new File(moduleDir, fileName);
+        File file = getFile(module, fileName);
         if (!file.exists()) {
             file.createNewFile();
         }
@@ -206,13 +206,17 @@ public class TestProject extends ExternalResource {
         return this;
     }
 
-    public TestProject commitRandomFile(String module) throws IOException, GitAPIException {
+    private File getFile(String module, String fileName) throws IOException {
         checkNoChanges = false;
         File moduleDir = new File(localDir, module);
         if (!moduleDir.isDirectory()) {
             throw new RuntimeException("Could not find " + moduleDir.getCanonicalPath());
         }
-        File random = new File(moduleDir, nameGenerator.randomName() + ".txt");
+        return new File(moduleDir, fileName);
+    }
+
+    public TestProject commitRandomFile(String module) throws IOException, GitAPIException {
+        File random = getFile(module, nameGenerator.randomName() + ".txt");
         if (!random.createNewFile()) {
             throw new RuntimeException("file alredy exists: " + random.getCanonicalPath());
         }

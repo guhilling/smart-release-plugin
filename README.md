@@ -32,7 +32,7 @@ with the goal to create bugfix releases automatically (See [documentation](#crea
 
 ## Quick Start
 
-Most important: You have to use git as version control system. Support for other VCS is no yet planned.
+Most important: You have to use git as version control system. Support for other VCS is not yet planned.
 
 ### Project Setup
 

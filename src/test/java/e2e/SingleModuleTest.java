@@ -1,6 +1,5 @@
 package e2e;
 
-import scaffolding.MvnRunner;
 import scaffolding.TestProject;
 
 import static de.hilling.maven.release.TestUtils.RELEASE_GOAL;
@@ -13,6 +12,7 @@ import static scaffolding.CountMatcher.oneOf;
 import static scaffolding.CountMatcher.twoOf;
 import static scaffolding.GitMatchers.hasTag;
 import static scaffolding.GitMatchers.hasTagWithModuleVersion;
+import static scaffolding.MvnRunner.assertArtifactInLocalRepo;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +32,8 @@ import de.hilling.maven.release.versioning.ReleaseInfo;
 
 public class SingleModuleTest {
 
-    private static final String expected = "1.0";
+    private static final String EXPECTED_VERSION        = "1.0";
+    private static final String EXPECTED_MANUAL_VERSION = "3.0";
 
     @Rule
     public TestProject testProject = new TestProject(ProjectType.SINGLE);
@@ -40,15 +41,24 @@ public class SingleModuleTest {
     @Test
     public void canUpdateSnapshotVersionToReleaseVersionAndInstallToLocalRepo() throws Exception {
         List<String> outputLines = testProject.mvnRelease();
-        assertThat(outputLines, oneOf(containsString("Going to release single-module " + expected)));
-        assertThat(outputLines, twoOf(containsString("Hello from version " + expected + "!")));
+        assertThat(outputLines, oneOf(containsString("Going to release single-module " + EXPECTED_VERSION)));
+        assertThat(outputLines, twoOf(containsString("Hello from version " + EXPECTED_VERSION + "!")));
 
-        MvnRunner
-            .assertArtifactInLocalRepo(TestUtils.TEST_GROUP_ID, "single-module", expected);
+        assertArtifactInLocalRepo(TestUtils.TEST_GROUP_ID, "single-module", EXPECTED_VERSION);
 
-        assertThat(new File(testProject.localDir, "target/single-module-" + expected + "-package.jar").exists(),
+        assertThat(new File(testProject.localDir, "target/single-module-" + EXPECTED_VERSION + "-package.jar").exists(),
                    is(true));
     }
+
+    @Test
+    public void honorMinimalMajorVersionOnManualSnapshotUpdate() throws Exception {
+        testProject.mvnRelease();
+        final String content = testProject.readFile(".", "pom.xml");
+        testProject.commitFile(".", "pom.xml", content.replaceAll("1-SNAPSHOT", "3-SNAPSHOT"));
+        testProject.mvnRelease();
+        assertArtifactInLocalRepo(TestUtils.TEST_GROUP_ID, "single-module", EXPECTED_MANUAL_VERSION);
+    }
+
 
     @Test
     public void localRepoIsCleanWithoutBuild() throws IOException, GitAPIException {
