@@ -41,6 +41,15 @@ public class VersionNamerTest {
     }
 
     @Test
+    public void honorMinimalMajorVersion() {
+        testProject.setVersion("3-SNAPSHOT");
+        final FixVersion next = namer.nextVersion(testProject);
+        assertThat(next.getMajorVersion(), is(3L));
+        assertThat(next.getMinorVersion(), is(0L));
+    }
+
+
+    @Test
     public void removesTheSnapshotAndSticksTheBuildNumberOnTheEndIllegalVersion() throws Exception {
         assertThat(errorMessageOf("1.0-SNAPSHOT", namer),
                    hasItems("Snapshot version must match ^(?<major>\\d+)-SNAPSHOT$"));
