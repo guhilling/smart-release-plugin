@@ -30,6 +30,9 @@ import de.hilling.maven.release.versioning.ImmutableModuleVersion;
 import de.hilling.maven.release.versioning.ImmutableReleaseInfo;
 import de.hilling.maven.release.versioning.ReleaseInfo;
 
+/**
+ * Tests for simple layout with only one maven module.
+ */
 public class SingleModuleTest {
 
     private static final String EXPECTED_VERSION        = "1.0";
