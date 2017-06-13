@@ -4,7 +4,7 @@ import static java.util.Arrays.asList;
 
 import java.util.List;
 
-public class ValidationException extends RuntimeException {
+public class ValidationException extends ReleaseException {
     private final List<String> messages;
 
     public ValidationException(String summary, List<String> messages) {

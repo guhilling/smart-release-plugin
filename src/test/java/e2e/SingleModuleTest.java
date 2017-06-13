@@ -5,16 +5,12 @@ import scaffolding.TestProject;
 import static de.hilling.maven.release.TestUtils.RELEASE_GOAL;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.not;
 import static scaffolding.CountMatcher.oneOf;
-import static scaffolding.CountMatcher.twoOf;
 import static scaffolding.GitMatchers.hasTag;
 import static scaffolding.GitMatchers.hasTagWithModuleVersion;
-import static scaffolding.MvnRunner.assertArtifactInLocalRepo;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -42,15 +38,9 @@ public class SingleModuleTest {
     public TestProject testProject = new TestProject(ProjectType.SINGLE);
 
     @Test
-    public void canUpdateSnapshotVersionToReleaseVersionAndInstallToLocalRepo() throws Exception {
+    public void canUpdateSnapshotVersionToReleaseVersion() throws Exception {
         List<String> outputLines = testProject.mvnRelease();
         assertThat(outputLines, oneOf(containsString("Going to release single-module " + EXPECTED_VERSION)));
-        assertThat(outputLines, twoOf(containsString("Hello from version " + EXPECTED_VERSION + "!")));
-
-        assertArtifactInLocalRepo(TestUtils.TEST_GROUP_ID, "single-module", EXPECTED_VERSION);
-
-        assertThat(new File(testProject.localDir, "target/single-module-" + EXPECTED_VERSION + "-package.jar").exists(),
-                   is(true));
     }
 
     @Test
@@ -58,8 +48,8 @@ public class SingleModuleTest {
         testProject.mvnRelease();
         final String content = testProject.readFile(".", "pom.xml");
         testProject.commitFile(".", "pom.xml", content.replaceAll("1-SNAPSHOT", "3-SNAPSHOT"));
-        testProject.mvnRelease();
-        assertArtifactInLocalRepo(TestUtils.TEST_GROUP_ID, "single-module", EXPECTED_MANUAL_VERSION);
+        List<String> outputLines = testProject.mvnRelease();
+        assertThat(outputLines, oneOf(containsString("Going to release single-module " + EXPECTED_MANUAL_VERSION)));
     }
 
 

@@ -73,8 +73,8 @@ public class MvnRunner {
     }
 
     public static void assertArtifactNotInLocalRepo(String groupId, String artifactId, String version) throws
-                                                                                                      IOException,
-                                                                                                           MavenInvocationException {
+                                                                                                       IOException,
+                                                                                                       MavenInvocationException {
         assertThat("Found artifact " + artifactId + " in repository",
                    artifactInLocalRepo(groupId, artifactId, version), not(is(0)));
     }

@@ -2,7 +2,7 @@ package scaffolding;
 
 import e2e.ProjectType;
 
-import static de.hilling.maven.release.FileUtils.pathOf;
+import static de.hilling.maven.release.ReleaseFileUtils.pathOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static scaffolding.GitMatchers.hasChangesOnlyInReleaseInfo;
@@ -48,15 +48,15 @@ public class TestProject extends ExternalResource {
     public        Git    origin;
     public        File   localDir;
     public        Git    local;
-    public  boolean       checkClean    = true;
+    public boolean checkClean     = false;
+    public boolean checkNoChanges = false;
+    ObjectId originHeadAtStart;
+    ObjectId localHeadAtStart;
     private AtomicInteger commitCounter = new AtomicInteger(1);
     private ProjectType type;
     private MvnRunner   mvnRunner;
     private boolean purge = true;
     private RandomNameGenerator nameGenerator;
-    ObjectId            originHeadAtStart;
-    ObjectId            localHeadAtStart;
-    public boolean checkNoChanges = true;
 
     public TestProject(ProjectType type) {
         this.type = type;

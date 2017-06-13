@@ -27,7 +27,7 @@ import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 
 import de.hilling.maven.release.AnnotatedTag;
-import de.hilling.maven.release.FileUtils;
+import de.hilling.maven.release.ReleaseFileUtils;
 import de.hilling.maven.release.ValidationException;
 
 public class LocalGitRepo {
@@ -60,7 +60,7 @@ public class LocalGitRepo {
         try {
             git = Git.open(gitDir);
         } catch (RepositoryNotFoundException rnfe) {
-            String fullPathOfCurrentDir = FileUtils.pathOf(gitDir);
+            String fullPathOfCurrentDir = ReleaseFileUtils.pathOf(gitDir);
             File gitRoot = getGitRootIfItExistsInOneOfTheParentDirectories(new File(fullPathOfCurrentDir));
             String summary;
             List<String> messages = new ArrayList<>();
@@ -72,11 +72,11 @@ public class LocalGitRepo {
                 summary = "The release plugin can only be run from the root folder of your Git repository";
                 messages.add(summary);
                 messages.add(fullPathOfCurrentDir + " is not the root of a Gir repository");
-                messages.add("Try running the release plugin from " + FileUtils.pathOf(gitRoot));
+                messages.add("Try running the release plugin from " + ReleaseFileUtils.pathOf(gitRoot));
             }
             throw new ValidationException(summary, messages);
         } catch (Exception e) {
-            throw new ValidationException("Could not open git repository. Is " + FileUtils.pathOf(
+            throw new ValidationException("Could not open git repository. Is " + ReleaseFileUtils.pathOf(
                 gitDir) + " a git repository?", Arrays.asList("Exception returned when accessing the git repo:",
                                                               e.toString()));
         }

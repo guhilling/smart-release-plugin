@@ -1,22 +1,19 @@
 package de.hilling.maven.release;
 
 import static de.hilling.maven.release.Reactor.fromProjects;
-import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
+import static java.util.stream.Collectors.joining;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.maven.model.Scm;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
-import org.apache.maven.shared.invoker.DefaultInvocationRequest;
-import org.apache.maven.shared.invoker.DefaultInvoker;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
 import de.hilling.maven.release.releaseinfo.ReleaseInfoStorage;
@@ -36,98 +33,9 @@ import de.hilling.maven.release.versioning.ReleaseInfo;
       )
 public class ReleaseMojo extends BaseMojo {
 
-    /**
-     * <p>
-     * Profiles to activate during the release.
-     * </p>
-     * <p>
-     * Note that if any profiles are activated during the build using the `-P` or `--activate-profiles` will also be activated during release.
-     * This gives two options for running releases: either configure it in the plugin configuration, or activate profiles from the command line.
-     * </p>
-     *
-     * @since 1.0.1
-     */
-    @Parameter(alias = "releaseProfiles")
-    private       List<String> releaseProfiles = emptyList();
-    /**
-     * <p>
-     * The goals to run against the project before the release. By default this is "test" which
-     * means the project is built and the tests are run.
-     * </p>
-     * <p>
-     * You can specify more goals and maven options. For example if you want to perform
-     * a clean install, use:
-     * </p>
-     * <pre>
-     * {@code
-     * <testGoals>
-     *     <testGoals>clean</testGoals>
-     *     <testGoals>install</testGoals>
-     * </testGoals>
-     * }
-     * </pre>
-     * <p>
-     * Remember that you will most probably do an implicit "compile package install deploy" during the release phase.
-     * </p>
-     */
-    @Parameter(alias = "testGoals")
-    private List<String> testGoals    = emptyList();
-    /**
-     * <p>
-     * Profiles to activate during the the test run.
-     * </p>
-     * <p>
-     * Note that if any profiles are activated during the build using the `-P` or `--activate-profiles` will also be
-     * activated during test.
-     * This gives two options for running test: either configure it in the plugin configuration, or activate profiles
-     * from the command line.
-     * </p>
-     *
-     * @since 1.0.1
-     */
-    @Parameter(alias = "testProfiles")
-    private List<String> testProfiles = emptyList();
-    /**
-     * Determines running of tests. Possible values:
-     * {@code testPhaseOnly}, {@code runAlways}, {@code skipTests}
-     */
-    @Parameter(alias = "testBehaviour", defaultValue = "testPhaseOnly", property = "testBehaviour")
-    private TestBehaviour testBehaviour;
-    /**
-     * <p>
-     * The goals to run against the project during a release. By default this is "deploy" which
-     * means the release version of your artifact will be tested and deployed.
-     * </p>
-     * <p>
-     * You can specify more goals and maven options. For example if you want to perform
-     * a clean, build a maven site, and then deploy it, use:
-     * </p>
-     * <pre>
-     * {@code
-     * <releaseGoals>
-     *     <releaseGoal>clean</releaseGoal>
-     *     <releaseGoal>site</releaseGoal>
-     *     <releaseGoal>deploy</releaseGoal>
-     * </releaseGoals>
-     * }
-     * </pre>
-     */
-    @Parameter(alias = "releaseGoals")
-    private List<String> releaseGoals = emptyList();
-    /**
-     * Push changes to remote repository. This includes:
-     * <ul>
-     * <li>The newly created tag for this release containing the release information</li>
-     * <li>The release info file containing the same information. This will be used to find relevant older
-     * releases to compare to during the following release.</li>
-     * </ul>
-     */
-    @Parameter(alias = "push", defaultValue = "true", property = "push")
-    private boolean push;
-
-    private static List<File> updatePomsAndReturnChangedFiles(Log log, LocalGitRepo repo, Reactor reactor) throws
-                                                                                                           MojoExecutionException,
-                                                                                                           ValidationException {
+    private static List<String> updatePomsAndReturnChangedFiles(Log log, LocalGitRepo repo, Reactor reactor) throws
+                                                                                                             MojoExecutionException,
+                                                                                                             ValidationException {
         PomUpdater pomUpdater = new PomUpdater(log, reactor);
         PomUpdater.UpdateResult result = pomUpdater.updateVersion();
         if (!result.success()) {
@@ -147,14 +55,13 @@ public class ReleaseMojo extends BaseMojo {
                 throw new ValidationException(summary, messages);
             }
         }
-        return result.alteredPoms;
+        return result.alteredPoms.stream().map(ReleaseFileUtils::canonicalName).collect(Collectors.toList());
     }
 
     @Override
     public void executeConcreteMojo(Scm scm, Scm originalScm, LocalGitRepo repo) throws MojoExecutionException,
                                                                                         MojoFailureException,
                                                                                         GitAPIException {
-        setDefaults();
         repo.errorIfNotClean();
 
         final ReleaseInfoStorage infoStorage = new ReleaseInfoStorage(project.getBasedir(), repo.git);
@@ -183,56 +90,33 @@ public class ReleaseMojo extends BaseMojo {
         final ImmutableReleaseInfo currentRelease = releaseBuilder.build();
         getLog().info("current release: " + currentRelease);
 
-        List<File> changedFiles = updatePomsAndReturnChangedFiles(getLog(), repo, reactor);
+        saveModulesToBuild(reactor);
 
-        if (testBehaviour != TestBehaviour.skipPreRelease) {
-            try {
-                final PhaseInvoker invoker = new PhaseInvoker(getLog(), project, new DefaultInvocationRequest(),
-                                                                   new DefaultInvoker(), testGoals, testProfiles,
-                                                                   getSettings(),
-                                                                   !testBehaviour.isRunInTestPhase());
-                invoker.runMavenBuild(reactor);
-                infoStorage.store(currentRelease);
-            } catch (MojoExecutionException mee) {
-                revertChanges(repo, changedFiles, false);
-                throw mee;
-            }
-        }
+        saveFilesToRevert(repo, reactor);
 
-        tagAndPushRepo(repo, currentRelease);
-
-        try {
-            final PhaseInvoker invoker = new PhaseInvoker(getLog(), project, new DefaultInvocationRequest(),
-                                                          new DefaultInvoker(), releaseGoals, releaseProfiles, getSettings(),
-                                                          !testBehaviour.isRunInReleasePhase());
-            invoker.runMavenBuild(reactor);
-            revertChanges(repo, changedFiles, true); // throw if you can't revert as that is the root problem
-        } finally {
-            revertChanges(repo, changedFiles,
-                          false); // warn if you can't revert but keep throwing the original exception so the root cause isn't lost
-        }
+        tagRepo(repo, currentRelease);
     }
 
-    private void setDefaults() {
-        if (testGoals.isEmpty()) {
-            testGoals = singletonList("test");
-        }
-        if (releaseGoals.isEmpty()) {
-            releaseGoals = singletonList("deploy");
-        }
+    private void saveFilesToRevert(LocalGitRepo repo, Reactor reactor) throws MojoExecutionException {
+        final List<String> changedFiles = updatePomsAndReturnChangedFiles(getLog(), repo, reactor);
+        changedFiles.add(Constants.MODULE_BUILD_FILE);
+        ReleaseFileUtils.write(Constants.FILES_TO_REVERT, changedFiles.stream().collect(joining("\n")));
     }
 
-    private void tagAndPushRepo(LocalGitRepo repo, ImmutableReleaseInfo releaseInfo) throws GitAPIException {
+    private void saveModulesToBuild(Reactor reactor) {
+        final String changedModules = reactor.getModulesInBuildOrder().stream().filter(ReleasableModule::isToBeReleased)
+                                             .map(ReleasableModule::getRelativePathToModule)
+                                             .collect(joining(","));
+        ReleaseFileUtils.write(Constants.MODULE_BUILD_FILE, changedModules);
+    }
+
+    private void tagRepo(LocalGitRepo repo, ImmutableReleaseInfo releaseInfo) throws GitAPIException {
         final Optional<String> optionalTag = releaseInfo.getTagName();
         if (optionalTag.isPresent()) {
             final AnnotatedTag tag = new AnnotatedTag(optionalTag.get(), releaseInfo);
 
             getLog().info("About to tag repository with " + releaseInfo.toString());
             repo.tagRepo(tag);
-            if (push) {
-                getLog().info("About to push tags " + tag.name());
-                repo.pushAll();
-            }
         } else {
             throw new ValidationException("internal error: no tag found on release info " + releaseInfo);
         }
