@@ -1,4 +1,4 @@
-package de.hilling.maven.release;
+package de.hilling.maven.release.exceptions;
 
 public class UnresolvedSnapshotDependencyException extends ReleaseException {
     public final String groupId;

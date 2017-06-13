@@ -2,7 +2,7 @@ package de.hilling.maven.release.versioning;
 
 import org.apache.maven.project.MavenProject;
 
-import de.hilling.maven.release.ValidationException;
+import de.hilling.maven.release.exceptions.ValidationException;
 
 /**
  * Select the follow-up versions for project modules.

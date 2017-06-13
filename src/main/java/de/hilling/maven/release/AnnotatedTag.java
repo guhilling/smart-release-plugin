@@ -4,6 +4,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
 
+import de.hilling.maven.release.utils.Guard;
 import de.hilling.maven.release.versioning.GsonFactory;
 import de.hilling.maven.release.versioning.ReleaseInfo;
 

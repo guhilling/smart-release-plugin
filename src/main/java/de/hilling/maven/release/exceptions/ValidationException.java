@@ -1,4 +1,4 @@
-package de.hilling.maven.release;
+package de.hilling.maven.release.exceptions;
 
 import static java.util.Arrays.asList;
 

@@ -10,6 +10,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.hilling.maven.release.exceptions.UnresolvedSnapshotDependencyException;
 import de.hilling.maven.release.versioning.ImmutableModuleVersion;
 import de.hilling.maven.release.versioning.ImmutableQualifiedArtifact;
 import de.hilling.maven.release.versioning.ReleaseDateSingleton;

@@ -28,7 +28,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeDiagnosingMatcher;
 
 import de.hilling.maven.release.AnnotatedTag;
-import de.hilling.maven.release.Guard;
+import de.hilling.maven.release.utils.Guard;
 import de.hilling.maven.release.releaseinfo.ReleaseInfoStorage;
 import de.hilling.maven.release.versioning.GsonFactory;
 import de.hilling.maven.release.versioning.ImmutableFixVersion;

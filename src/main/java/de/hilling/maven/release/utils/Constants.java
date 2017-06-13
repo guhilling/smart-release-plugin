@@ -1,4 +1,4 @@
-package de.hilling.maven.release;
+package de.hilling.maven.release.utils;
 
 /**
  * Global constants for plugin

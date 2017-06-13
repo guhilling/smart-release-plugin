@@ -1,4 +1,4 @@
-package de.hilling.maven.release;
+package de.hilling.maven.release.utils;
 
 import static java.lang.String.format;
 
@@ -43,27 +43,27 @@ public class SshAgentSessionFactory extends JschConfigSessionFactory {
 		setPassphrase(passphraseOrNull);
 	}
 
-	void setKnownHosts(String knownHosts) {
+	private void setKnownHosts(String knownHosts) {
 		this.knownHostsOrNull = knownHosts;
 	}
 
-	void setIdentityFile(String identityFile) {
+    private void setIdentityFile(String identityFile) {
 		this.identityFile = identityFile;
 	}
 
-	void setPassphrase(String passphrase) {
+    private void setPassphrase(String passphrase) {
 		this.passphraseOrNull = passphrase;
 	}
 
-	String getKnownHostsOrNull() {
+	public String getKnownHostsOrNull() {
 		return knownHostsOrNull;
 	}
 
-	String getIdentityFile() {
+	public String getIdentityFile() {
 		return identityFile;
 	}
 
-	String getPassphraseOrNull() {
+	public String getPassphraseOrNull() {
 		return passphraseOrNull;
 	}
 

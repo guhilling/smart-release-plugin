@@ -3,7 +3,7 @@ package de.hilling.maven.release.versioning;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import de.hilling.maven.release.ValidationException;
+import de.hilling.maven.release.exceptions.ValidationException;
 
 public class VersionMatcher {
     private static final Pattern SNAPSHOT_PATTERN = Pattern.compile("^(?<major>\\d+)-SNAPSHOT$");

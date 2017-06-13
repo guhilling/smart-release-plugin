@@ -16,8 +16,11 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
+import de.hilling.maven.release.exceptions.ValidationException;
 import de.hilling.maven.release.releaseinfo.ReleaseInfoStorage;
 import de.hilling.maven.release.repository.LocalGitRepo;
+import de.hilling.maven.release.utils.Constants;
+import de.hilling.maven.release.utils.ReleaseFileUtils;
 import de.hilling.maven.release.versioning.ImmutableReleaseInfo;
 import de.hilling.maven.release.versioning.ReleaseDateSingleton;
 import de.hilling.maven.release.versioning.ReleaseInfo;

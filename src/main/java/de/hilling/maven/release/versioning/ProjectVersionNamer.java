@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.apache.maven.project.MavenProject;
 
-import de.hilling.maven.release.ValidationException;
+import de.hilling.maven.release.exceptions.ValidationException;
 
 /**
  * Select the next version for a specific module in a multi module build.

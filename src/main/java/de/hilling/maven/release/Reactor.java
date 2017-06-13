@@ -10,6 +10,8 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.jgit.api.errors.GitAPIException;
 
+import de.hilling.maven.release.exceptions.UnresolvedSnapshotDependencyException;
+import de.hilling.maven.release.exceptions.ValidationException;
 import de.hilling.maven.release.repository.LocalGitRepo;
 import de.hilling.maven.release.versioning.ImmutableQualifiedArtifact;
 import de.hilling.maven.release.versioning.ReleaseInfo;
@@ -36,7 +38,7 @@ public class Reactor {
                                        List<MavenProject> projects, List<String> modulesToForceRelease,
                                        NoChangesAction actionWhenNoChangesDetected, boolean bugfixRelease,
                                        ReleaseInfo previousRelease)
-            throws ValidationException, GitAPIException, MojoExecutionException {
+        throws ValidationException, GitAPIException, MojoExecutionException {
         if (previousRelease.isEmpty()) {
             log.warn("no info file for previous releases found, assuming initial release");
         }

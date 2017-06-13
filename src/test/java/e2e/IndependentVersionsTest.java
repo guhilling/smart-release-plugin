@@ -43,9 +43,8 @@ public class IndependentVersionsTest {
 
     @Test
     public void buildsAndInstallsAndTagsAllModules() throws Exception {
-        buildsEachProjectTwiceTestsOnce(testProject.mvnRelease());
-        installsAllModulesIntoTheRepoWithTheBuildNumber();
-        theLocalAndRemoteGitReposAreTaggedWithTheModuleNameAndVersion();
+        buildsEachProject(testProject.mvnRelease());
+        theLocalRepoIsTaggedWithTheModuleNameAndVersion();
     }
 
     @Test
@@ -66,13 +65,11 @@ public class IndependentVersionsTest {
                                                                                               (coreUtils).get()));
     }
 
-    private void buildsEachProjectTwiceTestsOnce(List<String> commandOutput) throws Exception {
+    private void buildsEachProject(List<String> commandOutput) throws Exception {
         assertThat(commandOutput,
                    allOf(oneOf(containsString("Going to release independent-versions " + expectedParentVersion)),
-                         twoOf(containsString("Building independent-versions " + expectedParentVersion)),
-                         twoOf(containsString("Building core-utils")),
-                         twoOf(containsString("Building console-app")),
-                         oneOf(containsString("The Calculator Test has run"))));
+                         oneOf(containsString("Going to release core-utils " + expectedCoreVersion)),
+                         oneOf(containsString("Going to release console-app " + expectedAppVersion))));
     }
 
     private void installsAllModulesIntoTheRepoWithTheBuildNumber() throws Exception {
@@ -84,15 +81,11 @@ public class IndependentVersionsTest {
                                   "console-app", expectedAppVersion);
     }
 
-    private void theLocalAndRemoteGitReposAreTaggedWithTheModuleNameAndVersion() throws IOException,
-                                                                                        InterruptedException {
+    private void theLocalRepoIsTaggedWithTheModuleNameAndVersion() throws IOException,
+                                                                          InterruptedException {
         assertThat(testProject.local, hasTagWithModuleVersion(INDEPENDENT_VERSIONS_GROUPID, "independent-versions", expectedParentVersion));
         assertThat(testProject.local, hasTagWithModuleVersion(INDEPENDENT_VERSIONS_GROUPID, "core-utils", expectedCoreVersion));
         assertThat(testProject.local, hasTagWithModuleVersion(INDEPENDENT_VERSIONS_GROUPID, "console-app", expectedAppVersion));
-
-        assertThat(testProject.origin, hasTagWithModuleVersion(INDEPENDENT_VERSIONS_GROUPID, "independent-versions", expectedParentVersion));
-        assertThat(testProject.origin, hasTagWithModuleVersion(INDEPENDENT_VERSIONS_GROUPID, "core-utils", expectedCoreVersion));
-        assertThat(testProject.origin, hasTagWithModuleVersion(INDEPENDENT_VERSIONS_GROUPID, "console-app", expectedAppVersion));
     }
 
     @Test

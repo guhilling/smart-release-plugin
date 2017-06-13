@@ -1,8 +1,10 @@
-package de.hilling.maven.release;
+package de.hilling.maven.release.utils;
 
 import static java.util.Arrays.asList;
 
 import org.apache.maven.model.Scm;
+
+import de.hilling.maven.release.exceptions.ValidationException;
 
 public class GitHelper {
 
@@ -18,7 +20,7 @@ public class GitHelper {
         return remote;
     }
 
-    static String getRemoteUrlOrNullIfNoneSet(Scm originalScm, Scm actualScm) throws ValidationException {
+    public static String getRemoteUrlOrNullIfNoneSet(Scm originalScm, Scm actualScm) throws ValidationException {
         if (originalScm == null) {
             // No scm was specified, so don't inherit from any parent poms as they are probably used in different git repos
             return null;

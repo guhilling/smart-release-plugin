@@ -2,6 +2,8 @@ package de.hilling.maven.release;
 
 import org.junit.Test;
 
+import de.hilling.maven.release.utils.Guard;
+
 public class GuardTest {
 
     public static final String TEST_NAME = "test";

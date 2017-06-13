@@ -2,7 +2,7 @@ package scaffolding;
 
 import e2e.ProjectType;
 
-import static de.hilling.maven.release.ReleaseFileUtils.pathOf;
+import static de.hilling.maven.release.utils.ReleaseFileUtils.pathOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static scaffolding.GitMatchers.hasChangesOnlyInReleaseInfo;

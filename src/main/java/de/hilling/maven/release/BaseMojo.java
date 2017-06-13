@@ -1,6 +1,6 @@
 package de.hilling.maven.release;
 
-import static de.hilling.maven.release.GitHelper.getRemoteUrlOrNullIfNoneSet;
+import static de.hilling.maven.release.utils.GitHelper.getRemoteUrlOrNullIfNoneSet;
 import static de.hilling.maven.release.repository.LocalGitRepo.fromCurrentDir;
 import static java.lang.String.format;
 
@@ -17,8 +17,11 @@ import org.apache.maven.settings.Settings;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.JschConfigSessionFactory;
 
+import de.hilling.maven.release.exceptions.ValidationException;
 import de.hilling.maven.release.repository.LocalGitRepo;
 import de.hilling.maven.release.utils.ErrorUtils;
+import de.hilling.maven.release.utils.JacocoLoader;
+import de.hilling.maven.release.utils.SshAgentSessionFactory;
 
 /**
  * Base class for {@link NextMojo} and {@link ReleaseMojo}.

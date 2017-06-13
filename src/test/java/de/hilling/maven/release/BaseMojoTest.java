@@ -12,6 +12,8 @@ import org.eclipse.jgit.transport.JschConfigSessionFactory;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.hilling.maven.release.utils.SshAgentSessionFactory;
+
 /**
  * @author Roland Hauser sourcepond@gmail.com
  *

@@ -11,6 +11,7 @@ import org.apache.maven.project.MavenProject;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.hilling.maven.release.exceptions.ValidationException;
 import de.hilling.maven.release.versioning.FixVersion;
 import de.hilling.maven.release.versioning.ReleaseInfo;
 import de.hilling.maven.release.versioning.VersionNamer;

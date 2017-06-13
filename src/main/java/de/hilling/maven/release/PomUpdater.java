@@ -15,6 +15,7 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.WriterFactory;
 
+import de.hilling.maven.release.exceptions.UnresolvedSnapshotDependencyException;
 import de.hilling.maven.release.versioning.ImmutableFixVersion;
 
 public class PomUpdater {

@@ -1,4 +1,4 @@
-package de.hilling.maven.release;
+package de.hilling.maven.release.exceptions;
 
 /**
  * General exception thrown during release.

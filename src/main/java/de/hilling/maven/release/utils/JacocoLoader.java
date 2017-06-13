@@ -1,4 +1,4 @@
-package de.hilling.maven.release;
+package de.hilling.maven.release.utils;
 
 /**
  * Preload jacoco data writer classes.

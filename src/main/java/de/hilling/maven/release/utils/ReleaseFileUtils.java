@@ -1,10 +1,12 @@
-package de.hilling.maven.release;
+package de.hilling.maven.release.utils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.FileUtils;
+
+import de.hilling.maven.release.exceptions.ReleaseException;
 
 public class ReleaseFileUtils {
     public static String pathOf(File file) {

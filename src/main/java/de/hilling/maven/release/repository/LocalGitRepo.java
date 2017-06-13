@@ -27,8 +27,8 @@ import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 
 import de.hilling.maven.release.AnnotatedTag;
-import de.hilling.maven.release.ReleaseFileUtils;
-import de.hilling.maven.release.ValidationException;
+import de.hilling.maven.release.utils.ReleaseFileUtils;
+import de.hilling.maven.release.exceptions.ValidationException;
 
 public class LocalGitRepo {
 
