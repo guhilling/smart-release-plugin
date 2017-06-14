@@ -8,7 +8,6 @@ import scaffolding.TestProject;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static scaffolding.CountMatcher.atLeastOneOf;
 import static scaffolding.CountMatcher.oneOf;
 import static scaffolding.CountMatcher.twoOf;
 
@@ -17,7 +16,6 @@ import java.io.IOException;
 
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.StoredConfig;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,22 +51,6 @@ public class GitRelatedTest {
     }
 
     @Test
-    public void ifThereIsNoScmInfoAndNoRemoteBranchThenAnErrorIsThrown() throws GitAPIException, IOException, InterruptedException {
-
-        StoredConfig config = testProject.local.getRepository().getConfig();
-        config.unsetSection("remote", "origin");
-        config.save();
-
-        try {
-            testProject.checkClean = false;
-            testProject.mvnRelease();
-            Assert.fail("Should have failed");
-        } catch (MavenExecutionException e) {
-            assertThat(e.output, atLeastOneOf(containsString("origin: not found.")));
-        }
-    }
-
-    @Test
     public void ifTheScmIsSpecifiedButIsNotGitThenThisIsThrown() throws GitAPIException, IOException, InterruptedException {
         scmTagProject.checkNoChanges = false;
         File pom = new File(scmTagProject.localDir, "pom.xml");
@@ -79,22 +61,12 @@ public class GitRelatedTest {
         scmTagProject.local.commit().setMessage("Changing pom for test").call();
 
         try {
-            scmTagProject.mvnRelease();
+            scmTagProject.mvnReleaseComplete();
             Assert.fail("Should have failed");
         } catch (MavenExecutionException e) {
             assertThat(e.output, twoOf(containsString("Cannot run the release plugin with a non-Git version control system")));
             assertThat(e.output, oneOf(containsString("The value in your scm tag is scm:svn:")));
         }
-    }
-
-    @Test
-    public void ifThereIsNoRemoteButTheScmDetailsArePresentThenThisIsUsed() throws GitAPIException, IOException, InterruptedException {
-
-        StoredConfig config = scmTagProject.local.getRepository().getConfig();
-        config.unsetSection("remote", "origin");
-        config.save();
-
-        scmTagProject.mvnRelease();
     }
 
 }

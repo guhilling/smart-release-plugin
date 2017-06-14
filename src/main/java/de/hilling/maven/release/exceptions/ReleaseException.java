@@ -11,4 +11,8 @@ public class ReleaseException extends RuntimeException {
     public ReleaseException(String summary) {
         super(summary);
     }
+
+    public ReleaseException(Throwable cause) {
+        super(cause);
+    }
 }

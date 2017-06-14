@@ -3,6 +3,7 @@ package de.hilling.maven.release.utils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
@@ -45,6 +46,29 @@ public class ReleaseFileUtils {
         }
     }
 
+    /**
+     * Reads the contents of the given file, using UTF-8 encoding.
+     * @param fileName name of file.
+     * @return content
+     */
+    public static List<String> read(String fileName) {
+        final File file = new File(fileName);
+        if (!file.exists()) {
+            throw new ReleaseException("file does not exists: " + fileName);
+        }
+
+        try {
+            return FileUtils.readLines(file, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new ReleaseException("unable to read " + fileName, e);
+        }
+    }
+
+    /**
+     * Return the canonical name of the given file.
+     * @param file file to get name from.
+     * @return canonical name.
+     */
     public static String canonicalName(File file) {
         try {
             return file.getCanonicalPath();
@@ -52,4 +76,5 @@ public class ReleaseFileUtils {
             throw new ReleaseException("unable to get canonical path " + file, e);
         }
     }
+
 }

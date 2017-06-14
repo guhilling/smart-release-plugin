@@ -39,16 +39,16 @@ public class SingleModuleTest {
 
     @Test
     public void canUpdateSnapshotVersionToReleaseVersion() throws Exception {
-        List<String> outputLines = testProject.mvnRelease();
+        List<String> outputLines = testProject.mvnReleaseComplete();
         assertThat(outputLines, oneOf(containsString("Going to release single-module " + EXPECTED_VERSION)));
     }
 
     @Test
     public void honorMinimalMajorVersionOnManualSnapshotUpdate() throws Exception {
-        testProject.mvnRelease();
+        testProject.mvnReleaseComplete();
         final String content = testProject.readFile(".", "pom.xml");
         testProject.commitFile(".", "pom.xml", content.replaceAll("1-SNAPSHOT", "3-SNAPSHOT"));
-        List<String> outputLines = testProject.mvnRelease();
+        List<String> outputLines = testProject.mvnReleaseComplete();
         assertThat(outputLines, oneOf(containsString("Going to release single-module " + EXPECTED_MANUAL_VERSION)));
     }
 
@@ -64,18 +64,18 @@ public class SingleModuleTest {
 
     @Test
     public void theReleaseNumbersWillStartAt0AndThenIncrement() throws IOException, GitAPIException {
-        testProject.mvn(RELEASE_GOAL);
+        testProject.mvnReleaseComplete();
         assertThat(testProject.local, hasTagWithModuleVersion(TestUtils.TEST_GROUP_ID, "single-module", "1.0"));
-        testProject.mvn(RELEASE_GOAL);
+        testProject.mvnReleaseComplete();
         assertThat(testProject.local, hasTagWithModuleVersion(TestUtils.TEST_GROUP_ID, "single-module", "1.1"));
-        testProject.mvn(RELEASE_GOAL);
+        testProject.mvnReleaseComplete();
         assertThat(testProject.local, hasTagWithModuleVersion(TestUtils.TEST_GROUP_ID, "single-module", "1.2"));
     }
 
     @Test
     public void theReleaseNumbersWillStartAt0AndThenIncrementTakingIntoAccountManuallyUpdatedReleaseInfoFiles() throws
                                                                                                                 Exception {
-        testProject.mvn(RELEASE_GOAL);
+        testProject.mvnReleaseComplete();
         assertThat(testProject.local, hasTagWithModuleVersion(TestUtils.TEST_GROUP_ID, "single-module", "1.0"));
 
         final ReleaseInfoStorage infoStorage = new ReleaseInfoStorage(testProject.localDir, testProject.local);
@@ -94,7 +94,7 @@ public class SingleModuleTest {
 
     @Test
     public void theTagNameIsActuallyStoredInReleaseInfo() throws Exception {
-        testProject.mvnRelease();
+        testProject.mvnReleaseComplete();
         final ReleaseInfo currentInfo = currentReleaseInfo();
         String expectedTag = expectedTag();
         assertThat(testProject.local, hasTag(expectedTag));

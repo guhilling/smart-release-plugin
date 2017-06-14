@@ -30,7 +30,7 @@ public class InheritedVersionsTest {
 
     @Test
     public void buildsAndInstallsAndTagsAllModules() throws Exception {
-        buildsEachProjectTwiceTestsOnce(testProject.mvnRelease());
+        buildsEachProjectTwiceTestsOnce(testProject.mvnReleaseComplete());
         installsAllModulesIntoTheRepoWithTheBuildNumber();
         theLocalAndRemoteGitReposAreTaggedWithTheModuleNameAndVersion();
     }

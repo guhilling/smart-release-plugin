@@ -43,17 +43,18 @@ public class IndependentVersionsTest {
 
     @Test
     public void buildsAndInstallsAndTagsAllModules() throws Exception {
-        buildsEachProject(testProject.mvnRelease());
+        buildsEachProject(testProject.mvnReleaseComplete());
         theLocalRepoIsTaggedWithTheModuleNameAndVersion();
     }
 
     @Test
     public void referCorrectTagIfModuleNotReleased() throws Exception {
-        testProject.mvnRelease("-DtestBehaviour=runAlways");
+        testProject.mvnReleaseComplete("-DtestBehaviour=runAlways");
+
         final ReleaseInfoStorage releaseInfoStorage = new ReleaseInfoStorage(testProject.localDir, testProject.local);
         final ReleaseInfo beforeRelease = releaseInfoStorage.load();
         testProject.commitRandomFile("console-app");
-        testProject.mvnRelease();
+        testProject.mvnReleaseComplete();
         final ReleaseInfo afterRelease = releaseInfoStorage.load();
         builder = ImmutableQualifiedArtifact.builder().groupId(
             INDEPENDENT_VERSIONS_GROUPID);

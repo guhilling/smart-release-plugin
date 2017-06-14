@@ -43,7 +43,7 @@ public class SshAgentSessionFactory extends JschConfigSessionFactory {
 		setPassphrase(passphraseOrNull);
 	}
 
-	private void setKnownHosts(String knownHosts) {
+	public void setKnownHosts(String knownHosts) {
 		this.knownHostsOrNull = knownHosts;
 	}
 
@@ -72,7 +72,7 @@ public class SshAgentSessionFactory extends JschConfigSessionFactory {
 	}
 
 	@Override
-	protected JSch createDefaultJSch(final FS fs) throws JSchException {
+	public JSch createDefaultJSch(final FS fs) throws JSchException {
 		Connector con = null;
 		try {
 			if (SSHAgentConnector.isConnectorAvailable()) {

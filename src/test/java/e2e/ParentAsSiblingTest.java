@@ -31,14 +31,14 @@ public class ParentAsSiblingTest {
 
     @Test
     public void buildsAndInstallsAndTagsAllModules() throws Exception {
-        buildsEachProjectTwiceAndExecutesTestsOnce(testProject.mvnRelease());
+        buildsEachProjectTwiceAndExecutesTestsOnce(testProject.mvnReleaseComplete());
         installsAllModulesIntoTheRepoWithTheBuildNumber();
         theLocalAndRemoteGitReposAreTaggedWithTheModuleNameAndVersion();
     }
 
     @Test
     public void buildsAndInstallsAndTagsAllModulesSkipTestExecution() throws Exception {
-        buildsEachProjectOnceAndOnlyOnce(testProject.mvnRelease("-DtestBehaviour=skipPreRelease"));
+        buildsEachProjectOnceAndOnlyOnce(testProject.mvnReleaseComplete("-DtestBehaviour=skipPreRelease"));
         installsAllModulesIntoTheRepoWithTheBuildNumber();
         theLocalAndRemoteGitReposAreTaggedWithTheModuleNameAndVersion();
     }

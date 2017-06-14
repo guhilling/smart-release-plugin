@@ -37,7 +37,7 @@ public class IndependentVersionsBugfixTest {
         assertArtifactNotInLocalRepo(GROUP_ID, CORE_UTILS_ARTIFACT, expectedCoreVersion);
         assertArtifactNotInLocalRepo(GROUP_ID, CONSOLE_APP_ARTIFACT, expectedAppVersion);
         testProject.checkClean = false;
-        testProject.mvnRelease();
+        testProject.mvnReleaseComplete();
         testProject.local.branchCreate().setName(branchName).call();
     }
 
@@ -51,7 +51,7 @@ public class IndependentVersionsBugfixTest {
     @Test
     public void createBugfixReleaseAll() throws Exception {
         testProject.local.checkout().setName(branchName).call();
-        testProject.mvnReleaseBugfix();
+        testProject.mvnReleaseBugfixComplete();
         assertArtifactInLocalRepo(GROUP_ID, INDEPENDENT_VERSIONS_ARTIFACT, expectedParentVersion + ".1");
         assertArtifactInLocalRepo(GROUP_ID, CORE_UTILS_ARTIFACT, expectedCoreVersion + ".1");
         assertArtifactInLocalRepo(GROUP_ID, CONSOLE_APP_ARTIFACT, expectedAppVersion + ".1");
@@ -59,10 +59,10 @@ public class IndependentVersionsBugfixTest {
 
     @Test
     public void createBugfixReleaseAllAndIgnoreNextMasterRelease() throws Exception {
-        testProject.mvnRelease();
+        testProject.mvnReleaseComplete();
         testProject.local.pull();
         testProject.local.checkout().setName(branchName).call();
-        testProject.mvnReleaseBugfix();
+        testProject.mvnReleaseComplete();
         assertArtifactInLocalRepo(GROUP_ID, INDEPENDENT_VERSIONS_ARTIFACT, expectedParentVersion + ".1");
         assertArtifactInLocalRepo(GROUP_ID, CORE_UTILS_ARTIFACT, expectedCoreVersion + ".1");
         assertArtifactInLocalRepo(GROUP_ID, CONSOLE_APP_ARTIFACT, expectedAppVersion + ".1");
@@ -72,7 +72,7 @@ public class IndependentVersionsBugfixTest {
     public void releaseOnlyModulesThatHaveChanged() throws Exception {
         testProject.local.checkout().setName(branchName).call();
         testProject.commitRandomFile(CONSOLE_APP_ARTIFACT);
-        testProject.mvnReleaseBugfix();
+        testProject.mvnReleaseBugfixComplete();
         assertArtifactNotInLocalRepo(GROUP_ID, INDEPENDENT_VERSIONS_ARTIFACT, expectedParentVersion + ".1");
         assertArtifactNotInLocalRepo(GROUP_ID, CORE_UTILS_ARTIFACT, expectedCoreVersion + ".1");
         assertArtifactInLocalRepo(GROUP_ID, CONSOLE_APP_ARTIFACT, expectedAppVersion + ".1");
@@ -82,7 +82,7 @@ public class IndependentVersionsBugfixTest {
     public void buildOnlyModulesThatHaveChanged() throws Exception {
         testProject.local.checkout().setName(branchName).call();
         testProject.commitRandomFile(CONSOLE_APP_ARTIFACT);
-        final List<String> outputLines = testProject.mvnReleaseBugfix();
+        final List<String> outputLines = testProject.mvnReleaseBugfixComplete();
         assertThat(outputLines, twoOf(containsString("Building console-app 3.0.1")));
         assertThat(outputLines, noneOf(containsString("Building core-utils")));
         assertThat(outputLines, noneOf(containsString("Building independent-versions 1.0")));
@@ -92,7 +92,7 @@ public class IndependentVersionsBugfixTest {
     public void createBugfixCoreChanged() throws Exception {
         testProject.local.checkout().setName(branchName).call();
         testProject.commitRandomFile(CORE_UTILS_ARTIFACT);
-        testProject.mvnReleaseBugfix();
+        testProject.mvnReleaseBugfixComplete();
         assertArtifactInLocalRepo(GROUP_ID, INDEPENDENT_VERSIONS_ARTIFACT, expectedParentVersion);
         assertArtifactInLocalRepo(GROUP_ID, CORE_UTILS_ARTIFACT, expectedCoreVersion + ".1");
         assertArtifactInLocalRepo(GROUP_ID, CONSOLE_APP_ARTIFACT, expectedAppVersion + ".1");
@@ -101,8 +101,8 @@ public class IndependentVersionsBugfixTest {
     @Test
     public void createSecondBugfixReleaseAll() throws Exception {
         testProject.local.checkout().setName(branchName).call();
-        testProject.mvnReleaseBugfix();
-        testProject.mvnReleaseBugfix();
+        testProject.mvnReleaseBugfixComplete();
+        testProject.mvnReleaseBugfixComplete();
         assertArtifactInLocalRepo(GROUP_ID, INDEPENDENT_VERSIONS_ARTIFACT, expectedParentVersion + ".2");
         assertArtifactInLocalRepo(GROUP_ID, CORE_UTILS_ARTIFACT, expectedCoreVersion + ".2");
         assertArtifactInLocalRepo(GROUP_ID, CONSOLE_APP_ARTIFACT, expectedAppVersion + ".2");

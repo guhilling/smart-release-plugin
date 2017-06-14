@@ -46,7 +46,7 @@ public class MavenCompatibilityTest {
     private void buildProjectWithMavenVersion(String mavenVersionToTest) throws IOException, InterruptedException, MavenInvocationException {
         String expected = "1.0";
         testProject.setMvnRunner(MvnRunner.mvn(mavenVersionToTest));
-        testProject.mvnRelease();
+        testProject.mvnReleaseComplete();
         MvnRunner.assertArtifactInLocalRepo(TestUtils.TEST_GROUP_ID, "single-module", expected);
         assertThat(new File(testProject.localDir, "target/single-module-" + expected + "-package.jar").exists(), is(true));
     }

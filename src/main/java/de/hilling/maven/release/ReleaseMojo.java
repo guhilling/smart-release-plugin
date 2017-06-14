@@ -3,7 +3,6 @@ package de.hilling.maven.release;
 import static de.hilling.maven.release.Reactor.fromProjects;
 import static java.util.stream.Collectors.joining;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,31 +35,6 @@ import de.hilling.maven.release.versioning.ReleaseInfo;
       )
 public class ReleaseMojo extends BaseMojo {
 
-    private static List<String> updatePomsAndReturnChangedFiles(Log log, LocalGitRepo repo, Reactor reactor) throws
-                                                                                                             MojoExecutionException,
-                                                                                                             ValidationException {
-        PomUpdater pomUpdater = new PomUpdater(log, reactor);
-        PomUpdater.UpdateResult result = pomUpdater.updateVersion();
-        if (!result.success()) {
-            log.info("Going to revert changes because there was an error.");
-            repo.revertChanges(log, result.alteredPoms);
-            if (result.unexpectedException != null) {
-                throw new ValidationException("Unexpected exception while setting the release versions in the pom",
-                                              result.unexpectedException);
-            } else {
-                String summary = "Cannot release with references to snapshot dependencies";
-                List<String> messages = new ArrayList<>();
-                messages.add(summary);
-                messages.add("The following dependency errors were found:");
-                for (String dependencyError : result.dependencyErrors) {
-                    messages.add(" * " + dependencyError);
-                }
-                throw new ValidationException(summary, messages);
-            }
-        }
-        return result.alteredPoms.stream().map(ReleaseFileUtils::canonicalName).collect(Collectors.toList());
-    }
-
     @Override
     public void executeConcreteMojo(Scm scm, Scm originalScm, LocalGitRepo repo) throws MojoExecutionException,
                                                                                         MojoFailureException,
@@ -91,6 +65,7 @@ public class ReleaseMojo extends BaseMojo {
         }
 
         final ImmutableReleaseInfo currentRelease = releaseBuilder.build();
+        infoStorage.store(currentRelease);
         getLog().info("current release: " + currentRelease);
 
         saveModulesToBuild(reactor);
@@ -100,9 +75,35 @@ public class ReleaseMojo extends BaseMojo {
         tagRepo(repo, currentRelease);
     }
 
+    private static List<String> updatePomsAndReturnChangedFiles(Log log, LocalGitRepo repo, Reactor reactor) throws
+                                                                                                             MojoExecutionException,
+                                                                                                             ValidationException {
+        PomUpdater pomUpdater = new PomUpdater(log, reactor);
+        PomUpdater.UpdateResult result = pomUpdater.updateVersion();
+        if (!result.success()) {
+            log.info("Going to revert changes because there was an error.");
+            repo.revertChanges(log, result.alteredPoms);
+            if (result.unexpectedException != null) {
+                throw new ValidationException("Unexpected exception while setting the release versions in the pom",
+                                              result.unexpectedException);
+            } else {
+                String summary = "Cannot release with references to snapshot dependencies";
+                List<String> messages = new ArrayList<>();
+                messages.add(summary);
+                messages.add("The following dependency errors were found:");
+                for (String dependencyError : result.dependencyErrors) {
+                    messages.add(" * " + dependencyError);
+                }
+                throw new ValidationException(summary, messages);
+            }
+        }
+        return result.alteredPoms.stream().map(ReleaseFileUtils::canonicalName).collect(Collectors.toList());
+    }
+
     private void saveFilesToRevert(LocalGitRepo repo, Reactor reactor) throws MojoExecutionException {
         final List<String> changedFiles = updatePomsAndReturnChangedFiles(getLog(), repo, reactor);
         changedFiles.add(Constants.MODULE_BUILD_FILE);
+        changedFiles.add(Constants.FILES_TO_REVERT);
         ReleaseFileUtils.write(Constants.FILES_TO_REVERT, changedFiles.stream().collect(joining("\n")));
     }
 
@@ -125,15 +126,4 @@ public class ReleaseMojo extends BaseMojo {
         }
     }
 
-    private void revertChanges(LocalGitRepo repo, List<File> changedFiles, boolean throwIfError) throws
-                                                                                                 MojoExecutionException {
-        if (!repo.revertChanges(getLog(), changedFiles)) {
-            String message = "Could not revert changes - working directory is no longer clean. Please revert changes manually";
-            if (throwIfError) {
-                throw new MojoExecutionException(message);
-            } else {
-                getLog().warn(message);
-            }
-        }
-    }
 }

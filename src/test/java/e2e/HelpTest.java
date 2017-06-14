@@ -34,9 +34,9 @@ public class HelpTest {
 
     @Test
     public void runningTheHelpMojoTellsYouAboutThePlugin() throws IOException {
-        assertThat(mvn(TestUtils.HELP_GOAL),
-                   containsStrings("This plugin has 3 goals:", TestUtils.RELEASE_GOAL, TestUtils.NEXT_GOAL,
-                                   TestUtils.HELP_GOAL));
+        final List<String> helpOutput = mvn(TestUtils.HELP_GOAL);
+        assertThat(helpOutput, containsStrings("This plugin has 4 goals:", TestUtils.RELEASE_GOAL, TestUtils.NEXT_GOAL,
+                                               TestUtils.HELP_GOAL, TestUtils.CLEANUP_GOAL));
     }
 
     private List<String> mvn(String... commands) throws IOException {
@@ -45,7 +45,8 @@ public class HelpTest {
 
     @Test
     public void canShowInformationAboutTheReleaseGoal() throws IOException {
-        assertThat(mvn(TestUtils.HELP_GOAL, "-Dgoal=release", "-Ddetail=true"),
-                   containsStrings("The goals to run against the project during a release"));
+        final List<String> helpOutput = mvn(TestUtils.HELP_GOAL, "-Dgoal=release", "-Ddetail=true");
+        assertThat(helpOutput,
+                   containsStrings("Perform a bugfix release. When performing a bugfix release"));
     }
 }

@@ -36,7 +36,7 @@ public class NestedModulesTest {
 
     @Test
     public void buildsAndInstallsAndTagsAllModules() throws Exception {
-        buildsEachProjectTwiceTests(testProject.mvnRelease());
+        buildsEachProjectTwiceTests(testProject.mvnReleaseComplete());
         hasInstalledAllModulesIntoTheRepoWithTheBuildNumber();
 
         assertBothReposTagged("nested-project", expectedAggregatorVersion, "");
@@ -72,7 +72,7 @@ public class NestedModulesTest {
         assertBothReposTagged("server-module-b", minor(expectedServerModuleBVersion, 1), "");
         assertBothReposTagged("server-module-c", minor(expectedServerModuleCVersion, 1), ".misnamed");
 
-        testProject.mvnRelease();
+        testProject.mvnReleaseComplete();
         assertBothReposTagged("nested-project", minor(expectedAggregatorVersion, 1), "");
         assertBothReposTagged("core-utils", minor(expectedCoreVersion, 2), "");
         assertBothReposTagged("console-app", minor(expectedAppVersion, 3), "");

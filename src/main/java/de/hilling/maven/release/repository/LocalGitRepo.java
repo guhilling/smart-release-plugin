@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
 import org.eclipse.jgit.api.FetchCommand;
@@ -136,7 +137,11 @@ public class LocalGitRepo {
         for (File changedFile : changedFiles) {
             try {
                 String pathRelativeToWorkingTree = Repository.stripWorkDir(workTree, changedFile);
-                git.checkout().addPath(pathRelativeToWorkingTree).call();
+                if(git.status().addPath(pathRelativeToWorkingTree).call().getUntracked().isEmpty()) {
+                    git.checkout().addPath(pathRelativeToWorkingTree).call();
+                } else {
+                    FileUtils.forceDelete(changedFile);
+                }
             } catch (Exception e) {
                 hasErrors = true;
                 log.error(

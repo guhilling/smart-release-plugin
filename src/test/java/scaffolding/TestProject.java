@@ -2,7 +2,11 @@ package scaffolding;
 
 import e2e.ProjectType;
 
+import static de.hilling.maven.release.TestUtils.CLEANUP_GOAL;
+import static de.hilling.maven.release.TestUtils.RELEASE_GOAL;
+import static de.hilling.maven.release.TestUtils.TEST_DEPLOY_GOAL;
 import static de.hilling.maven.release.utils.ReleaseFileUtils.pathOf;
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static scaffolding.GitMatchers.hasChangesOnlyInReleaseInfo;
@@ -14,6 +18,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,6 +33,7 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.junit.rules.ExternalResource;
 
 import de.hilling.maven.release.TestUtils;
+import de.hilling.maven.release.exceptions.ReleaseException;
 
 public class TestProject extends ExternalResource {
 
@@ -170,19 +176,36 @@ public class TestProject extends ExternalResource {
     /**
      * Runs a mvn command against the local repo and returns the console output.
      */
-    public List<String> mvn(String... arguments) throws IOException {
+    public List<String> mvn(String... arguments) {
         return mvnRunner.runMaven(localDir, arguments);
     }
 
-    public List<String> mvnRelease(String... arguments) throws IOException, InterruptedException {
-        return mvnRun(TestUtils.RELEASE_GOAL, arguments);
+    public List<String> mvnReleaseComplete(String... arguments) {
+        List<String> result = new ArrayList<>();
+
+        result.addAll(mvnReleasePrepare(arguments));
+
+        List<String> completeArgs = new ArrayList<>();
+        completeArgs.add(CLEANUP_GOAL);
+        completeArgs.addAll(asList(arguments));
+        result.addAll(mvnRun(TEST_DEPLOY_GOAL, completeArgs.toArray(new String[0])));
+        pushTags();
+        return result;
     }
 
-    public List<String> mvnReleaseBugfix() throws IOException, InterruptedException {
-        return mvnRunner.runMaven(localDir, "-DbugfixRelease=true", TestUtils.RELEASE_GOAL);
+    public List<String> mvnReleasePrepare(String... arguments) {
+        return mvnRun(RELEASE_GOAL, arguments);
     }
 
-    public List<String> mvnReleaserNext(String... arguments) throws IOException, InterruptedException {
+    public List<String> mvnCleanup() {
+        return mvnRun(CLEANUP_GOAL);
+    }
+
+    public List<String> mvnReleaseBugfixComplete() {
+        return mvnReleaseComplete("-DbugfixRelease=true");
+    }
+
+    public List<String> mvnReleaserNext(String... arguments) {
         return mvnRun(TestUtils.NEXT_GOAL, arguments);
     }
 
@@ -228,8 +251,20 @@ public class TestProject extends ExternalResource {
         return this;
     }
 
-    public void pushIt() throws GitAPIException {
-        local.push().call();
+    public void push() {
+        try {
+            local.push().call();
+        } catch (GitAPIException e) {
+            throw new ReleaseException(e);
+        }
+    }
+
+    public void pushTags() {
+        try {
+            local.push().setPushTags().call();
+        } catch (GitAPIException e) {
+            throw new ReleaseException(e);
+        }
     }
 
     private List<String> mvnRun(String goal, String... arguments) {

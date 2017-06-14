@@ -27,16 +27,16 @@ public class SkippingUnchangedModulesTest {
     @Test
     public void changesInTheRootAreDetected() throws Exception {
         TestProject simple = TestProject.project(ProjectType.SINGLE);
-        simple.mvnRelease();
+        simple.mvnReleaseComplete();
         simple.commitRandomFile(".");
-        List<String> output = simple.mvnRelease();
+        List<String> output = simple.mvnReleaseComplete();
         assertThat(output, noneOf(containsString("No changes have been detected in any modules")));
         assertThat(output, noneOf(containsString("Will use version 1.0")));
     }
 
     @Test
     public void doesNotReReleaseAModuleThatHasNotChanged() throws Exception {
-        List<String> initialBuildOutput = testProject.mvnRelease();
+        List<String> initialBuildOutput = testProject.mvnReleaseComplete();
         assertTagExists("deep-dependencies-aggregator", "1.0");
         assertTagExists("parent-module", "1.0");
         assertTagExists("core-utils", "2.0");
@@ -46,8 +46,8 @@ public class SkippingUnchangedModulesTest {
         assertThat(initialBuildOutput, oneOf(containsString("Releasing core-utils 2.0 as at least one dependency has changed")));
         assertThat(initialBuildOutput, oneOf(containsString("Releasing console-app 3.0 as at least one dependency has changed")));
 
-        testProject.commitRandomFile("console-app").pushIt();
-        List<String> output = testProject.mvnRelease();
+        testProject.commitRandomFile("console-app").push();
+        List<String> output = testProject.mvnReleaseComplete();
         assertTagExists("console-app", "3.1");
         assertTagDoesNotExist("parent-module", "1.1");
         assertTagDoesNotExist("core-utils", "2.1");
@@ -63,9 +63,9 @@ public class SkippingUnchangedModulesTest {
 
     @Test
     public void ifThereHaveBeenNoChangesThenReReleaseAllModules() throws Exception {
-        List<String> firstBuildOutput = testProject.mvnRelease();
+        List<String> firstBuildOutput = testProject.mvnReleaseComplete();
         assertThat(firstBuildOutput, noneOf(containsString("No changes have been detected in any modules so will re-release them all")));
-        List<String> secondBuildOutput = testProject.mvnRelease();
+        List<String> secondBuildOutput = testProject.mvnReleaseComplete();
         assertThat(secondBuildOutput, oneOf(containsString("No changes have been detected in any modules so will re-release them all")));
 
         assertTagExists("console-app", "3.1");
@@ -77,9 +77,8 @@ public class SkippingUnchangedModulesTest {
 
     @Test
     public void ifThereHaveBeenNoChangesThenCanOptNotToReleaseAnything() throws Exception {
-        List<String> firstBuildOutput = testProject.mvnRelease();
-        assertThat(firstBuildOutput, noneOf(containsString("No changes have been detected in any modules so will not perform release")));
-        List<String> secondBuildOutput = testProject.mvnRelease("-DnoChangesAction=ReleaseNone");
+        List<String> firstBuildOutput = testProject.mvnReleaseComplete();
+        List<String> secondBuildOutput = testProject.mvnReleasePrepare("-DnoChangesAction=ReleaseNone");
         assertThat(secondBuildOutput, oneOf(containsString("No changes have been detected in any modules so will not perform release")));
 
         assertTagExists("console-app", "3.0");
@@ -91,10 +90,10 @@ public class SkippingUnchangedModulesTest {
 
     @Test
     public void ifThereHaveBeenNoChangesThenCanOptToFailTheBuild() throws Exception {
-        List<String> firstBuildOutput = testProject.mvnRelease();
+        List<String> firstBuildOutput = testProject.mvnReleaseComplete();
         assertThat(firstBuildOutput, noneOf(containsString("No changes have been detected in any modules so will not perform release")));
         try {
-            testProject.mvnRelease("-DnoChangesAction=FailBuild");
+            testProject.mvnReleaseComplete("-DnoChangesAction=FailBuild");
             fail("Expected an exception to be thrown");
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString("No module changes have been detected"));
@@ -103,9 +102,9 @@ public class SkippingUnchangedModulesTest {
 
     @Test
     public void ifADependencyHasNotChangedButSomethingItDependsOnHasChangedThenTheDependencyIsReReleased() throws Exception {
-        testProject.mvnRelease();
-        testProject.commitRandomFile("more-utilities").pushIt();
-        List<String> output = testProject.mvnRelease();
+        testProject.mvnReleaseComplete();
+        testProject.commitRandomFile("more-utilities").push();
+        List<String> output = testProject.mvnReleaseComplete();
 
         assertTagExists("console-app", "3.1");
         assertTagDoesNotExist("parent-module", "1.1");

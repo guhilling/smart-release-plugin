@@ -22,7 +22,7 @@ public class NextMojoTest {
     @Test
     public void changesInTheRootAreDetected() throws Exception {
         TestProject simple = TestProject.project(ProjectType.SINGLE);
-        simple.mvnRelease();
+        simple.mvnReleaseComplete();
         simple.commitRandomFile(".");
         List<String> output = simple.mvnReleaserNext();
         assertThat(output,
@@ -32,9 +32,9 @@ public class NextMojoTest {
     @Test
     public void doesNotReReleaseAModuleThatHasNotChanged() throws Exception {
         dependenciesProject.checkNoChanges = false;
-        dependenciesProject.mvnRelease();
+        dependenciesProject.mvnReleaseComplete();
 
-        dependenciesProject.commitRandomFile("console-app").pushIt();
+        dependenciesProject.commitRandomFile("console-app").push();
         List<String> output = dependenciesProject.mvnReleaserNext();
 
         assertThat(output, oneOf(
@@ -51,7 +51,7 @@ public class NextMojoTest {
 
     @Test
     public void ifThereHaveBeenNoChangesThenReReleaseAllModules() throws Exception {
-        List<String> firstBuildOutput = dependenciesProject.mvnRelease();
+        List<String> firstBuildOutput = dependenciesProject.mvnReleaseComplete();
         assertThat(firstBuildOutput,
                    noneOf(containsString("No changes have been detected in any modules so will re-release them all")));
         List<String> output = dependenciesProject.mvnReleaserNext();
@@ -72,7 +72,7 @@ public class NextMojoTest {
 
     @Test
     public void ifThereHaveBeenNoChangesCanOptToReleaseNoModules() throws Exception {
-        List<String> firstBuildOutput = dependenciesProject.mvnRelease();
+        List<String> firstBuildOutput = dependenciesProject.mvnReleaseComplete();
         assertThat(firstBuildOutput,
                    noneOf(containsString("No changes have been detected in any modules so will re-release them all")));
         assertThat(firstBuildOutput,
@@ -96,8 +96,8 @@ public class NextMojoTest {
     @Test
     public void ifADependencyHasNotChangedButSomethingItDependsOnHasChangedThenTheDependencyIsReReleased() throws
                                                                                                            Exception {
-        dependenciesProject.mvnRelease();
-        dependenciesProject.commitRandomFile("more-utilities").pushIt();
+        dependenciesProject.mvnReleaseComplete();
+        dependenciesProject.commitRandomFile("more-utilities").push();
         List<String> output = dependenciesProject.mvnReleaserNext();
 
         assertTagDoesNotExist("console-app-3.2");

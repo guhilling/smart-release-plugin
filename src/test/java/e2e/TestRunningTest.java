@@ -30,7 +30,7 @@ public class TestRunningTest {
     @Test
     public void doesNotReleaseIfThereAreTestFailuresAndNoTagsAreWritten() throws Exception {
         try {
-            projectWithTestsThatFail.mvnRelease();
+            projectWithTestsThatFail.mvnReleaseComplete();
             Assert.fail("Should have failed");
         } catch (MavenExecutionException e) {
         }

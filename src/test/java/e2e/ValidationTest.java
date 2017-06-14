@@ -31,7 +31,7 @@ public class ValidationTest {
         new File(singleProject.localDir, "someFolder/anotherUntracked.txt").createNewFile();
         try {
             singleProject.checkClean = false;
-            singleProject.mvnRelease();
+            singleProject.mvnReleaseComplete();
             Assert.fail("Should not have worked the second time");
         } catch (MavenExecutionException mee) {
             assertThat(mee.output, twoOf(containsString("Cannot release with uncommitted changes")));
@@ -46,7 +46,7 @@ public class ValidationTest {
         singleProject.local.add().addFilepattern("uncommitted.txt").call();
         try {
             singleProject.checkClean = false;
-            singleProject.mvnRelease();
+            singleProject.mvnReleaseComplete();
             Assert.fail("Should not have worked as there are uncommitted files");
         } catch (MavenExecutionException mee) {
             assertThat(mee.output, twoOf(containsString("Cannot release with uncommitted changes")));
@@ -60,7 +60,7 @@ public class ValidationTest {
         File pom = new File(independentVersionsProject.localDir, "console-app/pom.xml");
         pom.setWritable(false); // this should cause an IO exception when writing the pom
         try {
-            independentVersionsProject.mvnRelease();
+            independentVersionsProject.mvnReleaseComplete();
             Assert.fail("It was expected that this would fail due to a pom being readonly.");
         } catch (MavenExecutionException e) {
             assertThat(e.output,
@@ -80,7 +80,7 @@ public class ValidationTest {
         badOne.mvn("install"); // this should work as the snapshot dependency is in the local repo
 
         try {
-            badOne.mvnRelease();
+            badOne.mvnReleaseComplete();
             Assert.fail("Should not have worked as there are snapshot dependencies");
         } catch (MavenExecutionException mee) {
             assertThat(mee.output, twoOf(containsString("Cannot release with references to snapshot dependencies")));
@@ -107,7 +107,7 @@ public class ValidationTest {
         badOne.mvn("install"); // this should work as the snapshot dependency is in the local repo
 
         try {
-            badOne.mvnRelease();
+            badOne.mvnReleaseComplete();
             Assert.fail("Should not have worked as there are snapshot dependencies");
         } catch (MavenExecutionException mee) {
             assertThat(mee.output, twoOf(containsString("Cannot release with references to snapshot dependencies")));

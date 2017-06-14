@@ -20,15 +20,15 @@ import de.hilling.maven.release.versioning.VersionMatcher;
 
 public final class TestUtils {
 
-    public static final String RELEASE_GOAL = "smart-release:release";
-    public static final String NEXT_GOAL = "smart-release:next";
-    public static final String HELP_GOAL = "smart-release:help";
-
+    public static final String RELEASE_GOAL     = "smart-release:release";
+    public static final String TEST_DEPLOY_GOAL = "install";
+    public static final String NEXT_GOAL        = "smart-release:next";
+    public static final String HELP_GOAL        = "smart-release:help";
+    public static final String CLEANUP_GOAL     = "smart-release:cleanup";
+    public static final  String TEST_GROUP_ID = "de.hilling.maven.release.testprojects";
+    private static final String TEST_TAG_NAME = "test-tag";
     private TestUtils() {
     }
-
-    public static final String TEST_GROUP_ID = "de.hilling.maven.release.testprojects";
-    private static final String TEST_TAG_NAME = "test-tag";
 
     public static ReleaseInfo releaseInfo(long major, long minor, String tagName, String moduleName) {
         final ImmutableReleaseInfo.Builder builder = ImmutableReleaseInfo.builder();
@@ -47,8 +47,7 @@ public final class TestUtils {
     }
 
     static AnnotatedTag saveFileInModule(TestProject project, String moduleName, String version,
-                                         Map<AnnotatedTag, Ref> refMap) throws IOException,
-                                                                               GitAPIException {
+                                         Map<AnnotatedTag, Ref> refMap) throws IOException, GitAPIException {
         project.commitRandomFile(moduleName);
         String nameForTag = moduleName.equals(".")
                             ? "root"
@@ -61,8 +60,7 @@ public final class TestUtils {
     }
 
     private static AnnotatedTag tagLocalRepo(TestProject project, String tagName, String version,
-                                             Map<AnnotatedTag, Ref> refMap) throws
-                                                                                                  GitAPIException {
+                                             Map<AnnotatedTag, Ref> refMap) throws GitAPIException {
         final ImmutableReleaseInfo.Builder builder = ImmutableReleaseInfo.builder();
         builder.tagName(tagName);
         final ImmutableModuleVersion.Builder versionBuilder = ImmutableModuleVersion.builder();
