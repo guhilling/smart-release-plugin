@@ -5,7 +5,7 @@ import scaffolding.TestProject;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static scaffolding.CountMatcher.noneOf;
-import static scaffolding.CountMatcher.twoOf;
+import static scaffolding.CountMatcher.oneOf;
 import static scaffolding.MvnRunner.assertArtifactInLocalRepo;
 import static scaffolding.MvnRunner.assertArtifactNotInLocalRepo;
 
@@ -62,7 +62,7 @@ public class IndependentVersionsBugfixTest {
         testProject.mvnReleaseComplete();
         testProject.local.pull();
         testProject.local.checkout().setName(branchName).call();
-        testProject.mvnReleaseComplete();
+        testProject.mvnReleaseBugfixComplete();
         assertArtifactInLocalRepo(GROUP_ID, INDEPENDENT_VERSIONS_ARTIFACT, expectedParentVersion + ".1");
         assertArtifactInLocalRepo(GROUP_ID, CORE_UTILS_ARTIFACT, expectedCoreVersion + ".1");
         assertArtifactInLocalRepo(GROUP_ID, CONSOLE_APP_ARTIFACT, expectedAppVersion + ".1");
@@ -83,7 +83,7 @@ public class IndependentVersionsBugfixTest {
         testProject.local.checkout().setName(branchName).call();
         testProject.commitRandomFile(CONSOLE_APP_ARTIFACT);
         final List<String> outputLines = testProject.mvnReleaseBugfixComplete();
-        assertThat(outputLines, twoOf(containsString("Building console-app 3.0.1")));
+        assertThat(outputLines, oneOf(containsString("Building console-app 3.0.1")));
         assertThat(outputLines, noneOf(containsString("Building core-utils")));
         assertThat(outputLines, noneOf(containsString("Building independent-versions 1.0")));
     }

@@ -13,14 +13,11 @@ import static org.hamcrest.core.IsEqual.equalTo;
 import static scaffolding.CountMatcher.oneOf;
 import static scaffolding.CountMatcher.twoOf;
 import static scaffolding.GitMatchers.hasTagWithModuleVersion;
-import static scaffolding.MvnRunner.assertArtifactInLocalRepo;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.lib.ObjectId;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -73,15 +70,6 @@ public class IndependentVersionsTest {
                          oneOf(containsString("Going to release console-app " + expectedAppVersion))));
     }
 
-    private void installsAllModulesIntoTheRepoWithTheBuildNumber() throws Exception {
-        assertArtifactInLocalRepo(INDEPENDENT_VERSIONS_GROUPID,
-                                  "independent-versions", expectedParentVersion);
-        assertArtifactInLocalRepo(INDEPENDENT_VERSIONS_GROUPID, "core-utils",
-                                  expectedCoreVersion);
-        assertArtifactInLocalRepo(INDEPENDENT_VERSIONS_GROUPID,
-                                  "console-app", expectedAppVersion);
-    }
-
     private void theLocalRepoIsTaggedWithTheModuleNameAndVersion() throws IOException,
                                                                           InterruptedException {
         assertThat(testProject.local, hasTagWithModuleVersion(INDEPENDENT_VERSIONS_GROUPID, "independent-versions", expectedParentVersion));
@@ -100,9 +88,5 @@ public class IndependentVersionsTest {
             assertThat(e.output, oneOf(
                 containsString("Try running the release plugin from " + testProject.localDir.getCanonicalPath())));
         }
-    }
-
-    private ObjectId head(Git git) throws IOException {
-        return git.getRepository().getRef("HEAD").getObjectId();
     }
 }

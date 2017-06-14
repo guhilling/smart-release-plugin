@@ -67,6 +67,7 @@ public class ValidationTest {
                        twoOf(containsString("Unexpected exception while setting the release versions in the pom")));
             assertThat(e.output, oneOf(containsString("Going to revert changes because there was an error")));
         }
+        independentVersionsProject.mvnCleanup();
         assertThat(independentVersionsProject.local, hasCleanWorkingDirectory());
     }
 
@@ -93,6 +94,8 @@ public class ValidationTest {
             //            assertThat(mee.output, oneOf(containsString(" * snapshot-dependencies references plugin multi-module-maven-release-plugin 0.2-SNAPSHOT")));
         }
 
+        badOne.mvnCleanup();
+
         assertThat(badOne.local, hasCleanWorkingDirectory());
     }
 
@@ -115,6 +118,8 @@ public class ValidationTest {
             assertThat(mee.output, oneOf(
                 containsString(" * snapshot-dependencies-with-version-properties references dependency core-utils")));
         }
+
+        badOne.mvnCleanup();
 
         assertThat(badOne.local, hasCleanWorkingDirectory());
     }

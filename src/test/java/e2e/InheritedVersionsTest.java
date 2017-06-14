@@ -39,8 +39,8 @@ public class InheritedVersionsTest {
         assertThat(commandOutput,
                    allOf(oneOf(containsString("Going to release inherited-versions-from-parent " + expected)),
                          twoOf(containsString("Building inherited-versions-from-parent " + expected)),
-                         twoOf(containsString("Building core-utils")),
-                         twoOf(containsString("Building console-app")),
+                         oneOf(containsString("Building core-utils")),
+                         oneOf(containsString("Building console-app")),
                          oneOf(containsString("The Calculator Test has run"))));
     }
 

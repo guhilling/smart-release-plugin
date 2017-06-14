@@ -4,9 +4,7 @@ import e2e.ProjectType;
 
 import static de.hilling.maven.release.TestUtils.CLEANUP_GOAL;
 import static de.hilling.maven.release.TestUtils.RELEASE_GOAL;
-import static de.hilling.maven.release.TestUtils.TEST_DEPLOY_GOAL;
 import static de.hilling.maven.release.utils.ReleaseFileUtils.pathOf;
-import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static scaffolding.GitMatchers.hasChangesOnlyInReleaseInfo;
@@ -21,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
@@ -34,6 +33,8 @@ import org.junit.rules.ExternalResource;
 
 import de.hilling.maven.release.TestUtils;
 import de.hilling.maven.release.exceptions.ReleaseException;
+import de.hilling.maven.release.utils.Constants;
+import de.hilling.maven.release.utils.ReleaseFileUtils;
 
 public class TestProject extends ExternalResource {
 
@@ -184,21 +185,24 @@ public class TestProject extends ExternalResource {
         List<String> result = new ArrayList<>();
 
         result.addAll(mvnReleasePrepare(arguments));
-
-        List<String> completeArgs = new ArrayList<>();
-        completeArgs.add(CLEANUP_GOAL);
-        completeArgs.addAll(asList(arguments));
-        result.addAll(mvnRun(TEST_DEPLOY_GOAL, completeArgs.toArray(new String[0])));
+        result.addAll(mvnInstall());
+        result.addAll(mvnCleanup(arguments));
         pushTags();
         return result;
+    }
+
+    public List<String> mvnInstall() {
+        final String modulesFile = ReleaseFileUtils.canonicalName(localDir) + "/" + Constants.MODULE_BUILD_FILE;
+        String projectList = ReleaseFileUtils.read(modulesFile).stream().collect(Collectors.joining(","));
+        return mvnRun("install", "-pl", projectList);
     }
 
     public List<String> mvnReleasePrepare(String... arguments) {
         return mvnRun(RELEASE_GOAL, arguments);
     }
 
-    public List<String> mvnCleanup() {
-        return mvnRun(CLEANUP_GOAL);
+    public List<String> mvnCleanup(String... arguments) {
+        return mvnRun(CLEANUP_GOAL, arguments);
     }
 
     public List<String> mvnReleaseBugfixComplete() {

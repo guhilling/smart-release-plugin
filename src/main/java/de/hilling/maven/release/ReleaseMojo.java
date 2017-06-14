@@ -25,13 +25,21 @@ import de.hilling.maven.release.versioning.ReleaseDateSingleton;
 import de.hilling.maven.release.versioning.ReleaseInfo;
 
 /**
- * Releases the project.
+ * Prepares the project release.
+ *
+ * This mojo will:
+ * <ul>
+ *     <li>Check if the repository is clean.</li>
+ *     <li>Check which modules need to be released.</li>
+ *     <li>The corresponding poms are updated and the list of modules to build is
+ *      stored in <pre>modules-to-build.txt</pre></li>
+ *     <li>All files that should be cleaned up/reverted later are stored in <pre>files-to-revert.txt</pre></li>
+ *     <li>The cleanup-mojo should later be used to revert these files.</li>
+ * </ul>
  */
-@Mojo(name = "release", requiresDirectInvocation = true,
-      // this should not be bound to a phase as this plugin starts a phase itself
-      inheritByDefault = true, // so you can configure this in a shared parent pom
-      requiresProject = true, // this can only run against a maven project
-      aggregator = true // the plugin should only run once against the aggregator pom
+@Mojo(name = "release",
+      requiresDirectInvocation = true,
+      aggregator = true
       )
 public class ReleaseMojo extends BaseMojo {
 

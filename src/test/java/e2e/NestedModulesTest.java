@@ -2,11 +2,11 @@ package e2e;
 
 import scaffolding.TestProject;
 
-import static de.hilling.maven.release.TestUtils.RELEASE_GOAL;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static scaffolding.CountMatcher.oneOf;
 import static scaffolding.CountMatcher.twoOf;
 import static scaffolding.GitMatchers.hasTagWithModuleVersion;
 import static scaffolding.MvnRunner.assertArtifactInLocalRepo;
@@ -49,7 +49,7 @@ public class NestedModulesTest {
         assertBothReposTagged("server-module-c", expectedServerModuleCVersion, ".misnamed");
 
         testProject.commitRandomFile("server-modules/server-module-b");
-        testProject.mvn(TestUtils.RELEASE_GOAL);
+        testProject.mvnReleaseComplete();
 
         assertBothReposNotTagged("nested-project", minor(expectedAggregatorVersion, 1));
         assertBothReposNotTagged("core-utils", minor(expectedCoreVersion, 1));
@@ -61,7 +61,7 @@ public class NestedModulesTest {
         assertBothReposTagged("server-module-c", expectedServerModuleCVersion, ".misnamed");
 
         testProject.commitRandomFile("parent-module");
-        testProject.mvn(RELEASE_GOAL);
+        testProject.mvnReleaseComplete();
 
         assertBothReposNotTagged("nested-project", minor(expectedAggregatorVersion, 1));
         assertBothReposTagged("core-utils", minor(expectedCoreVersion, 1), "");
@@ -89,13 +89,13 @@ public class NestedModulesTest {
 
     private void buildsEachProjectTwiceTests(List<String> commandOutput) throws Exception {
         assertThat(commandOutput, allOf(twoOf(containsString("Building nested-project " + expectedAggregatorVersion)),
-                                        twoOf(containsString("Building core-utils")),
-                                        twoOf(containsString("Building console-app")),
-                                        twoOf(containsString("Building parent-module")),
-                                        twoOf(containsString("Building server-modules")),
-                                        twoOf(containsString("Building server-module-a")),
-                                        twoOf(containsString("Building server-module-b")),
-                                        twoOf(containsString("Building server-module-c"))));
+                                        oneOf(containsString("Building core-utils")),
+                                        oneOf(containsString("Building console-app")),
+                                        oneOf(containsString("Building parent-module")),
+                                        oneOf(containsString("Building server-modules")),
+                                        oneOf(containsString("Building server-module-a")),
+                                        oneOf(containsString("Building server-module-b")),
+                                        oneOf(containsString("Building server-module-c"))));
     }
 
     private void hasInstalledAllModulesIntoTheRepoWithTheBuildNumber() throws Exception {

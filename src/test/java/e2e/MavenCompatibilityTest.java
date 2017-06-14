@@ -5,6 +5,7 @@ import scaffolding.TestProject;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static scaffolding.MvnRunner.assertArtifactInLocalRepo;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,8 +48,8 @@ public class MavenCompatibilityTest {
         String expected = "1.0";
         testProject.setMvnRunner(MvnRunner.mvn(mavenVersionToTest));
         testProject.mvnReleaseComplete();
-        MvnRunner.assertArtifactInLocalRepo(TestUtils.TEST_GROUP_ID, "single-module", expected);
-        assertThat(new File(testProject.localDir, "target/single-module-" + expected + "-package.jar").exists(), is(true));
+        assertArtifactInLocalRepo(TestUtils.TEST_GROUP_ID, "single-module", expected);
+        assertThat(new File(testProject.localDir, "target/single-module-" + expected + ".jar").exists(), is(true));
     }
 
 }
