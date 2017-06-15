@@ -48,7 +48,7 @@ public class ParentAsSiblingTest {
             commandOutput,
             allOf(
                 oneOf(containsString("Going to release parent-as-sibling " + expectedAggregatorVersion)),
-                oneOf(containsString("Building parent-as-sibling " + expectedAggregatorVersion)),
+                twoOf(containsString("Building parent-as-sibling " + expectedAggregatorVersion)),
                 oneOf(containsString("Building parent-module")),
                 oneOf(containsString("Building core-utils")),
                 oneOf(containsString("Building console-app")),
@@ -63,9 +63,9 @@ public class ParentAsSiblingTest {
             allOf(
                 oneOf(containsString("Going to release parent-as-sibling " + expectedAggregatorVersion)),
                 twoOf(containsString("Building parent-as-sibling " + expectedAggregatorVersion)),
-                twoOf(containsString("Building parent-module")),
-                twoOf(containsString("Building core-utils")),
-                twoOf(containsString("Building console-app")),
+                oneOf(containsString("Building parent-module")),
+                oneOf(containsString("Building core-utils")),
+                oneOf(containsString("Building console-app")),
                 oneOf(containsString("The Calculator Test has run"))
             )
         );
