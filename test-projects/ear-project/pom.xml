@@ -5,7 +5,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>de.hilling.maven.release.testprojects.nested</groupId>
+    <groupId>de.hilling.maven.release.testprojects</groupId>
     <artifactId>parent-project</artifactId>
     <version>1-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -14,6 +14,7 @@
         <module>project-ear</module>
         <module>project-web</module>
         <module>project-ejb</module>
+        <module>project-lib</module>
     </modules>
 
     <build>

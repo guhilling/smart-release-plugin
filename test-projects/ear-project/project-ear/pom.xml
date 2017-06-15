@@ -4,29 +4,56 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
+        <groupId>de.hilling.maven.release.testprojects</groupId>
         <artifactId>parent-project</artifactId>
-        <groupId>de.hilling.maven.release.testprojects.nested</groupId>
         <version>1-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
+    <artifactId>project-ear</artifactId>
+    <version>3-SNAPSHOT</version>
+    <packaging>ear</packaging>
+
     <dependencies>
         <dependency>
-            <groupId>de.hilling.maven.release.testprojects.nested</groupId>
+            <groupId>de.hilling.maven.release.testprojects</groupId>
             <artifactId>project-ejb</artifactId>
             <version>3-SNAPSHOT</version>
             <type>ejb</type>
         </dependency>
         <dependency>
-            <groupId>de.hilling.maven.release.testprojects.nested</groupId>
+            <groupId>de.hilling.maven.release.testprojects</groupId>
             <artifactId>project-war</artifactId>
             <version>2-SNAPSHOT</version>
             <type>war</type>
         </dependency>
     </dependencies>
 
-    <artifactId>project-ear</artifactId>
-    <version>3-SNAPSHOT</version>
-    <packaging>ear</packaging>
-
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-ear-plugin</artifactId>
+                <configuration>
+                    <displayName>SampleEar</displayName>
+                    <generateApplicationXml>true</generateApplicationXml>
+                    <jboss>
+                        <applicationName>Sample</applicationName>
+                    </jboss>
+                    <modules>
+                        <ejbModule>
+                            <groupId>de.hilling.maven.release.testprojects</groupId>
+                            <artifactId>project-ejb</artifactId>
+                            <bundleFileName>ccontrol-ejb.jar</bundleFileName>
+                        </ejbModule>
+                        <webModule>
+                            <groupId>de.hilling.maven.release.testprojects</groupId>
+                            <artifactId>project-war</artifactId>
+                            <bundleFileName>ccontrol.war</bundleFileName>
+                            <contextRoot>/ccontrol</contextRoot>
+                        </webModule>
+                    </modules>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

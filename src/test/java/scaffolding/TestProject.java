@@ -187,6 +187,7 @@ public class TestProject extends ExternalResource {
         result.addAll(mvnReleasePrepare(arguments));
         result.addAll(mvnInstall());
         result.addAll(mvnCleanup(arguments));
+        push();
         pushTags();
         return result;
     }
