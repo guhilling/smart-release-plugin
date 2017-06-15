@@ -3,8 +3,8 @@ package e2e;
 public enum ProjectType {
     SINGLE("single-module"),
     NESTED("nested-project"),
+    EAR("ear-project"),
     TAGGED_MODULE("module-with-scm-tag"),
-    MODULE_PROFILES("module-with-profiles"),
     INHERITED_VERSIONS("inherited-versions-from-parent"),
     INDEPENDENT_VERSIONS("independent-versions"),
     INDEPENDENT_VERSIONS_BUGFIX("independent-versions-bugfix"),
