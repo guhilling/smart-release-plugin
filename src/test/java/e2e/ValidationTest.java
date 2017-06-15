@@ -67,14 +67,14 @@ public class ValidationTest {
                        twoOf(containsString("Unexpected exception while setting the release versions in the pom")));
             assertThat(e.output, oneOf(containsString("Going to revert changes because there was an error")));
         }
-        independentVersionsProject.mvnCleanup();
+
         assertThat(independentVersionsProject.local, hasCleanWorkingDirectory());
     }
 
     @Test
     public void failsIfThereAreDependenciesOnSnapshotVersionsThatAreNotPartOfTheReactor() throws Exception {
         TestProject badOne = TestProject.project(ProjectType.SNAPSHOT_DEPENDENCIES);
-        // Install the snapshot dependency so that it can be built
+        independentVersionsProject.checkClean = false;
         independentVersionsProject.mvn("install");
 
 
@@ -89,12 +89,7 @@ public class ValidationTest {
             assertThat(mee.output,
                        oneOf(containsString(" * The parent of snapshot-dependencies is independent-versions")));
             assertThat(mee.output, oneOf(containsString(" * snapshot-dependencies references dependency core-utils")));
-
-            // commented out because this plugin is allowed to be a snapshot for testing purposes only
-            //            assertThat(mee.output, oneOf(containsString(" * snapshot-dependencies references plugin multi-module-maven-release-plugin 0.2-SNAPSHOT")));
         }
-
-        badOne.mvnCleanup();
 
         assertThat(badOne.local, hasCleanWorkingDirectory());
     }
@@ -104,7 +99,9 @@ public class ValidationTest {
                                                                                                                Exception {
         // Install the snapshot dependency so that it can be built
         TestProject badOne = TestProject.project(ProjectType.SNAPSHOT_DEPENDENCIES_VIA_PROPERTIES);
+        independentVersionsProject.checkClean = false;
         independentVersionsProject.mvn("install");
+
 
 
         badOne.mvn("install"); // this should work as the snapshot dependency is in the local repo
@@ -116,10 +113,8 @@ public class ValidationTest {
             assertThat(mee.output, twoOf(containsString("Cannot release with references to snapshot dependencies")));
             assertThat(mee.output, oneOf(containsString("The following dependency errors were found:")));
             assertThat(mee.output, oneOf(
-                containsString(" * snapshot-dependencies-with-version-properties references dependency core-utils")));
+            containsString(" * snapshot-dependencies-with-version-properties references dependency core-utils")));
         }
-
-        badOne.mvnCleanup();
 
         assertThat(badOne.local, hasCleanWorkingDirectory());
     }
