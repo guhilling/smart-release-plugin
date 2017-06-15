@@ -45,7 +45,7 @@ public class HelpTest {
 
     @Test
     public void canShowInformationAboutTheReleaseGoal() throws IOException {
-        final List<String> helpOutput = mvn(TestUtils.HELP_GOAL, "-Dgoal=release", "-Ddetail=true");
+        final List<String> helpOutput = mvn(TestUtils.HELP_GOAL, "-Dgoal=prepare", "-Ddetail=true");
         assertThat(helpOutput,
                    containsStrings("Perform a bugfix release. When performing a bugfix release"));
     }
