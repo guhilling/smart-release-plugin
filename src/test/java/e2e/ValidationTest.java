@@ -7,7 +7,6 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static scaffolding.CountMatcher.oneOf;
 import static scaffolding.CountMatcher.twoOf;
-import static scaffolding.GitMatchers.hasCleanWorkingDirectory;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,6 +56,7 @@ public class ValidationTest {
     @Test
     public void ifIOErrorOccursWhileUpdatingPomsThenThisIsReported() throws IOException, InterruptedException {
         independentVersionsProject.checkClean = false;
+        independentVersionsProject.checkNoChanges = false;
         File pom = new File(independentVersionsProject.localDir, "console-app/pom.xml");
         pom.setWritable(false); // this should cause an IO exception when writing the pom
         try {
@@ -67,14 +67,13 @@ public class ValidationTest {
                        twoOf(containsString("Unexpected exception while setting the release versions in the pom")));
             assertThat(e.output, oneOf(containsString("Going to revert changes because there was an error")));
         }
-
-        assertThat(independentVersionsProject.local, hasCleanWorkingDirectory());
     }
 
     @Test
     public void failsIfThereAreDependenciesOnSnapshotVersionsThatAreNotPartOfTheReactor() throws Exception {
         TestProject badOne = TestProject.project(ProjectType.SNAPSHOT_DEPENDENCIES);
-        independentVersionsProject.checkClean = false;
+        badOne.checkClean = false;
+        badOne.checkNoChanges = false;
         independentVersionsProject.mvn("install");
 
 
@@ -90,8 +89,6 @@ public class ValidationTest {
                        oneOf(containsString(" * The parent of snapshot-dependencies is independent-versions")));
             assertThat(mee.output, oneOf(containsString(" * snapshot-dependencies references dependency core-utils")));
         }
-
-        assertThat(badOne.local, hasCleanWorkingDirectory());
     }
 
     @Test
@@ -99,7 +96,8 @@ public class ValidationTest {
                                                                                                                Exception {
         // Install the snapshot dependency so that it can be built
         TestProject badOne = TestProject.project(ProjectType.SNAPSHOT_DEPENDENCIES_VIA_PROPERTIES);
-        independentVersionsProject.checkClean = false;
+        badOne.checkClean = false;
+        badOne.checkNoChanges = false;
         independentVersionsProject.mvn("install");
 
 
@@ -115,7 +113,5 @@ public class ValidationTest {
             assertThat(mee.output, oneOf(
             containsString(" * snapshot-dependencies-with-version-properties references dependency core-utils")));
         }
-
-        assertThat(badOne.local, hasCleanWorkingDirectory());
     }
 }
