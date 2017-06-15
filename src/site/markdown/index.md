@@ -33,7 +33,7 @@ Software should be modular. When using this plugin you have to choose how to per
 
 ## Using the smart-release-plugin
 
-See [Usage](usage.html)
+See [Usage](usage.html).
 
 ## Prerequisites
 
