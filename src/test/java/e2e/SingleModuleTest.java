@@ -2,7 +2,7 @@ package e2e;
 
 import scaffolding.TestProject;
 
-import static de.hilling.maven.release.TestUtils.RELEASE_GOAL;
+import static de.hilling.maven.release.TestUtils.PREPARE_GOAL;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -59,7 +59,7 @@ public class SingleModuleTest {
 
     @Test
     public void localRepoIsCleanAfterReleaseBuild() throws IOException, GitAPIException {
-        testProject.mvn(RELEASE_GOAL);
+        testProject.mvn(PREPARE_GOAL);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class SingleModuleTest {
         releaseBuilder.modules(singletonList(moduleInfo.version(versionBuilder.minorVersion(5L).build()).build()));
         infoStorage.store(releaseBuilder.build());
 
-        testProject.mvn(RELEASE_GOAL);
+        testProject.mvn(PREPARE_GOAL);
         assertThat(testProject.local, hasTagWithModuleVersion(TestUtils.TEST_GROUP_ID, "single-module", "1.6"));
     }
 
@@ -117,7 +117,7 @@ public class SingleModuleTest {
     @Test
     public void onlyLocalGitRepoIsTaggedWithoutPush() throws IOException, InterruptedException {
         testProject.checkClean = false;
-        testProject.mvn("-Dpush=false", RELEASE_GOAL);
+        testProject.mvn("-Dpush=false", PREPARE_GOAL);
         assertThat(testProject.local, hasTag(expectedTag()));
         assertThat(testProject.origin, not(hasTag(expectedTag())));
     }

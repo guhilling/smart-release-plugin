@@ -36,7 +36,6 @@ public class BaseMojoTest {
 		when(server.getPassphrase()).thenReturn(SETTINGS_PASSPHRASE);
 		when(settings.getServer(SERVER_ID)).thenReturn(server);
         when(mojo.getLog()).thenReturn(log);
-        mojo.setSettings(settings);
 		JschConfigSessionFactory.setInstance(null);
 	}
 

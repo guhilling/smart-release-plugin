@@ -42,7 +42,7 @@ public class GitRelatedTest {
                                                                                                .getInstance().randomName());
         TestProject.performPomSubstitution(projectRoot);
         try {
-            new MvnRunner().runMaven(projectRoot, TestUtils.RELEASE_GOAL);
+            new MvnRunner().runMaven(projectRoot, TestUtils.PREPARE_GOAL);
             Assert.fail("Should have failed");
         } catch (MavenExecutionException e) {
             assertThat(e.output, twoOf(containsString("Releases can only be performed from Git repositories.")));

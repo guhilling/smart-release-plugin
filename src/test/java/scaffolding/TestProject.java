@@ -3,7 +3,7 @@ package scaffolding;
 import e2e.ProjectType;
 
 import static de.hilling.maven.release.TestUtils.CLEANUP_GOAL;
-import static de.hilling.maven.release.TestUtils.RELEASE_GOAL;
+import static de.hilling.maven.release.TestUtils.PREPARE_GOAL;
 import static de.hilling.maven.release.utils.ReleaseFileUtils.pathOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -39,7 +39,7 @@ import de.hilling.maven.release.utils.ReleaseFileUtils;
 public class TestProject extends ExternalResource {
 
     private static final MvnRunner DEFAULT_RUNNER;
-    private static final String PLUGIN_VERSION_FOR_TESTS = "3-SNAPSHOT";
+    private static final String PLUGIN_VERSION_FOR_TESTS = "4-SNAPSHOT";
 
     static {
         DEFAULT_RUNNER = new MvnRunner(null);
@@ -199,7 +199,7 @@ public class TestProject extends ExternalResource {
     }
 
     public List<String> mvnReleasePrepare(String... arguments) {
-        return mvnRun(RELEASE_GOAL, arguments);
+        return mvnRun(PREPARE_GOAL, arguments);
     }
 
     public List<String> mvnCleanup(String... arguments) {

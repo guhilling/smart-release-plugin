@@ -37,7 +37,7 @@ public abstract class BaseMojo extends AbstractMojo {
     protected List<MavenProject> projects;
 
     /**
-     * A module to force release on, even if no changes has been detected.
+     * Modules to force release on, even if no changes has been detected.
      */
     @Parameter(alias = "forceRelease", property = "forceRelease")
     protected List<String> modulesToForceRelease;
@@ -54,6 +54,9 @@ public abstract class BaseMojo extends AbstractMojo {
      */
     @Parameter(defaultValue = "false", alias = "bugfixRelease", property = "bugfixRelease")
     protected boolean         bugfixRelease;
+    /**
+     * Disable use of the ssh agent.
+     */
     @Parameter(property = "disableSshAgent")
     private   boolean         disableSshAgent;
     @Parameter(defaultValue = "${settings}", readonly = true, required = true)

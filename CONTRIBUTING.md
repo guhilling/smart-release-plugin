@@ -48,7 +48,7 @@ Performing a release
 
 The plugin uses itself to release itself.
 
-    mvn smart-release:release
+    mvn smart-release:prepare
 
 Note that for site generation you will need access to write to the Git repo and the following in your `settings.xml`:
 

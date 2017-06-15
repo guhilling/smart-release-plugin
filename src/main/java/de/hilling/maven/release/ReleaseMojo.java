@@ -30,14 +30,15 @@ import de.hilling.maven.release.versioning.ReleaseInfo;
  * This mojo will:
  * <ul>
  *     <li>Check if the repository is clean.</li>
- *     <li>Check which modules need to be released.</li>
+ *     <li>Check which modules need to be released. This is accomplished by comparing the git history to the
+ *     version information in <code>.release-info.json</code></li>
  *     <li>The corresponding poms are updated and the list of modules to build is
- *      stored in <pre>modules-to-build.txt</pre></li>
- *     <li>All files that should be cleaned up/reverted later are stored in <pre>files-to-revert.txt</pre></li>
+ *      stored in <code>modules-to-build.txt</code></li>
+ *     <li>All files that should be cleaned up/reverted later are stored in <code>files-to-revert.txt</code></li>
  *     <li>The cleanup-mojo should later be used to revert these files.</li>
  * </ul>
  */
-@Mojo(name = "release",
+@Mojo(name = "prepare",
       requiresDirectInvocation = true,
       aggregator = true
       )

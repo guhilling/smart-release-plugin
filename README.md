@@ -25,24 +25,15 @@ with the goal to create bugfix releases automatically (See [documentation](#crea
 * Allows to create bugfix-releases in bugfix branches.
     * Use flag -DperformBugfixRelease to trigger bugfix.
 * Tracks the released versions robust and efficient in release-files.
-* Builds the modules in two steps:
-    * Tests are only run once.
-    * In the second step the local changes are pushed an the artifacts are deployed.
-    * The steps can be configured.
+* The actual release creation is up to the user (See [Quick start]).
 
 ## Quick Start
 
 Most important: You have to use git as version control system. Support for other VCS is not yet planned.
 
-### Project Setup
+# Configuration of the plugin
 
-Your project modules must use version numbers following the scheme `<Major>-SNAPSHOT`.
-This is necessary because the release will resolve the next minor number to be released from the tag history and the
-release file `.release-info.json` that is stored in the root of the project after the first release.
-
-### Plugin Configuration
-
-A sample configuration looks like this:
+Add the plugin to your pom:
 
 ```xml
     <build>
@@ -50,102 +41,46 @@ A sample configuration looks like this:
             <plugin>
                 <groupId>de.hilling.maven.release</groupId>
                 <artifactId>smart-release-plugin</artifactId>
-                <version>3.8</version>
-                <configuration>
-                    <testGoals>
-                        <testGoal>clean</testGoal>
-                        <testGoal>install</testGoal>
-                        <testGoal>-Dmaven.javadoc.skip=true</testGoal>
-                    </testGoals>
-                    <releaseGoals>
-                        <releaseGoal>deploy</releaseGoal>
-                    </releaseGoals>
-                    <releaseProfiles>
-                        <releaseProfile>release</releaseProfile>
-                    </releaseProfiles>
-                </configuration>
+                <version>4.0</version>
             </plugin>
         </plugins>
     </build>
-
 ```
 
-### Releasing the project
+## Release
 
-To run the release, use `mvn smart-release:release`. This will execute the following steps:
+To run the release, use `mvn smart-release:prepare`. This will execute the following steps:
 
-* The usual sanity checks:
-  * Local Repository clean?
-  * No SNAPSHOT dependencies on non-local artifacts?
-  * Version numbers follow the required scheme?
-* All changes relative to the latest tag are computed. The latest tag is stored in the `release-info.json` file.
+* Sanity checks:
+    * Local Repository clean?
+    * Version numbers follow the required scheme?
+    * No SNAPSHOT-dependencies except the local ones?
+* Version management:
+    * All changes relative to the latest tag are computed. The latest tag is stored in the `release-info.json` file.
 If this file is missing the plugin assumes that all modules are released for the first time.
-* All modules that have changes relative to _their_ latest release (that is stored in `release-info.json`) are 
+    * All modules that have changes relative to _their_ latest release (that is stored in `release-info.json`) are
 prepared for release by _setting_ their minor number to the next minor release number in their `pom.xml`.
 The same is done for all modules
 that have transitive dependencies on these modules. The plugin prints out which modules will be released and why.
-* All modules that are _not_ released will not be changed. Only the modules to be released will be built in the 
-following steps using maven's `--projects` option. This has two advantages:
-  * Faster builds.
-  * During releases the artifacts for modules that are not going to be released are actually taken from the repository.
-* The first run is performed. By default this means running `mvn -Prelease clean install --projects <modules to be released>`.
-The goals can be configured using the `testGoals` property.
-* The new `release-info.json` is tagged and pushed to the origin. The changed poms are not commited or pushed. The tag
-will be named `MULTI_MODULE_RELEASE-<YYYY-MM-dd-HHmmss>`. The time used is UTC. The `release-info.json` will look
-like:
-```json
-{
-  "tagName": "MULTI_MODULE_RELEASE-2017-04-12-150927",
-  "modules": [
-    {
-      "releaseDate": "2017-04-12T17:09:27.452+02:00[Europe/Berlin]",
-      "releaseTag": "MULTI_MODULE_RELEASE-2017-04-12-150927",
-      "artifact": {
-        "groupId": "de.hilling.maven.release",
-        "artifactId": "smart-release-plugin"
-      },
-      "version": {
-        "majorVersion": 3,
-        "minorVersion": 8
-      }
-    }
-  ]
-}
+The `release-info.json` file is commited an tagged. It is not pushed. It is up to you, when you want to push the file
+and the corresponding tag.
+    * All modules that are _not_ released will not be changed.
+* A list of modules to build is stored in `modules-to-build.txt`. The content can be fed directly to the maven `-pl`
+(project list) option
+* A list of files that need to be reverted later is stored in `files-to-revert.txt`. The `cleanup` goal can be used
+to actual revert.
+* You do a maven run to build an deploy the modules that have changed. Usually you would run:
+
+```bash
+   mvn -pl $(cat modules-to-build.txt) clean deploy
 ```
-* The second run is performed. By default this means running `mvn -Prelease deploy --projects <modules to be released>`.
-* All changes to the poms are reverted. 
 
-### Creating a bugfix release
+* If the deploy-stage was successful you should push the updated `release-info.json` and the corresponding tag:
+    * This should actually be performed automatically by jenkins or whatever ci-System you are using to perform your
+releases. You are using a ci-System, aren't you?.
+    * Of course the details of the git setup are up to you. It is actually one of the advantages of this plugin that it
+only does one thing and lets you configure how to handle the rest.
 
-To create a bugfix release, follow these steps:
-
-* Create a branch from one of the tags created during a regular release. The `release-info.json` must exist.
-* Fix your bugs.
-* Create a bugfix release by running `mvn smart-release:release -DbugfixRelease=true`
-* The same steps as above are run but a new bugfix number will be appended to the latest minor version number.
-
-### Merging changes between branches.
-
-If you try to merge your changes from a bugfix branch into some other branch that is roughly based on master you will
-run into the problem that the `release-info.json` files cannot be merged. In fact they are not supposed to be merged:
-
-* Usually you want to merge everything into the "main" branch.
-* The `release-info.json` of the current branch is not supposed to change when merging changes from other branches.
-
-At the moment you have to take care of this situation yourself. If you accidently merge the bugfix `.release-info.json`
-into your master branch however, the next release will just fail because the version numbers in the bugfix release
-are not valid for major releases. So you will be able to fix this accident manually.
-
-## Contributing
-
-To build and run the tests, you need Java 8 or later and Maven 3 or later. Simply clone and run `mvn install`
-
-Note that the tests run the plugin against a number of sample test projects, located in the `test-projects` folder.
-If adding new functionality, or fixing a bug, it is recommended that a sample project be set up so that the scenario
-can be tested end-to-end.
-
-See also [CONTRIBUTING.md](CONTRIBUTING.md) for information on deploying to Nexus and releasing the plugin.
-
-## Stability stuff
-
-* Figure out if things like MVN_OPTIONS and other JVM options need to be passed during release
+```bash
+   git push --all
+```

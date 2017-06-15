@@ -2,7 +2,7 @@ package e2e;
 
 import scaffolding.TestProject;
 
-import static de.hilling.maven.release.TestUtils.RELEASE_GOAL;
+import static de.hilling.maven.release.TestUtils.PREPARE_GOAL;
 
 import java.io.IOException;
 
@@ -16,6 +16,6 @@ public class TestRunningTest {
 
     @Test
     public void ifTestsAreSkippedYouCanReleaseWithoutRunningThem() throws IOException {
-        projectWithTestsThatFail.mvn("-DtestBehaviour=skipTests", RELEASE_GOAL);
+        projectWithTestsThatFail.mvn("-DtestBehaviour=skipTests", PREPARE_GOAL);
     }
 }

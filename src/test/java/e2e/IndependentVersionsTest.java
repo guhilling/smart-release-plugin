@@ -4,7 +4,7 @@ import scaffolding.MavenExecutionException;
 import scaffolding.MvnRunner;
 import scaffolding.TestProject;
 
-import static de.hilling.maven.release.TestUtils.RELEASE_GOAL;
+import static de.hilling.maven.release.TestUtils.PREPARE_GOAL;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
@@ -80,7 +80,7 @@ public class IndependentVersionsTest {
     @Test
     public void whenRunFromASubFolderItShowsAnError() throws IOException, InterruptedException {
         try {
-            new MvnRunner().runMaven(new File(testProject.localDir, "console-app"), RELEASE_GOAL);
+            new MvnRunner().runMaven(new File(testProject.localDir, "console-app"), PREPARE_GOAL);
             Assert.fail("Should not have worked");
         } catch (MavenExecutionException e) {
             assertThat(e.output, twoOf(

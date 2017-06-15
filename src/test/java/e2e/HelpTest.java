@@ -35,7 +35,7 @@ public class HelpTest {
     @Test
     public void runningTheHelpMojoTellsYouAboutThePlugin() throws IOException {
         final List<String> helpOutput = mvn(TestUtils.HELP_GOAL);
-        assertThat(helpOutput, containsStrings("This plugin has 4 goals:", TestUtils.RELEASE_GOAL, TestUtils.NEXT_GOAL,
+        assertThat(helpOutput, containsStrings("This plugin has 4 goals:", TestUtils.PREPARE_GOAL, TestUtils.NEXT_GOAL,
                                                TestUtils.HELP_GOAL, TestUtils.CLEANUP_GOAL));
     }
 

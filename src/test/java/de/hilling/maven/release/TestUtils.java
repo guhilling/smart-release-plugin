@@ -20,10 +20,10 @@ import de.hilling.maven.release.versioning.VersionMatcher;
 
 public final class TestUtils {
 
-    public static final String RELEASE_GOAL     = "smart-release:release";
-    public static final String NEXT_GOAL        = "smart-release:next";
-    public static final String HELP_GOAL        = "smart-release:help";
-    public static final String CLEANUP_GOAL     = "smart-release:cleanup";
+    public static final String  PREPARE_GOAL  = "smart-release:prepare";
+    public static final String  NEXT_GOAL     = "smart-release:next";
+    public static final String  HELP_GOAL     = "smart-release:help";
+    public static final String  CLEANUP_GOAL  = "smart-release:cleanup";
     public static final  String TEST_GROUP_ID = "de.hilling.maven.release.testprojects";
     private static final String TEST_TAG_NAME = "test-tag";
     private TestUtils() {
