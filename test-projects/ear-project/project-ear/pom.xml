@@ -43,13 +43,13 @@
                         <ejbModule>
                             <groupId>de.hilling.maven.release.testprojects</groupId>
                             <artifactId>project-ejb</artifactId>
-                            <bundleFileName>ccontrol-ejb.jar</bundleFileName>
+                            <bundleFileName>project-ejb.jar</bundleFileName>
                         </ejbModule>
                         <webModule>
                             <groupId>de.hilling.maven.release.testprojects</groupId>
                             <artifactId>project-war</artifactId>
-                            <bundleFileName>ccontrol.war</bundleFileName>
-                            <contextRoot>/ccontrol</contextRoot>
+                            <bundleFileName>project.war</bundleFileName>
+                            <contextRoot>/project</contextRoot>
                         </webModule>
                     </modules>
                 </configuration>

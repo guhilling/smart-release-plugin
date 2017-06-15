@@ -234,7 +234,7 @@ public class TestProject extends ExternalResource {
         return this;
     }
 
-    private File getFile(String module, String fileName) throws IOException {
+    public File getFile(String module, String fileName) throws IOException {
         checkNoChanges = false;
         File moduleDir = new File(localDir, module);
         if (!moduleDir.isDirectory()) {
