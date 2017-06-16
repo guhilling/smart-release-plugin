@@ -1,7 +1,5 @@
 package de.hilling.maven.release.repository;
 
-import static java.util.stream.Collectors.joining;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,22 +12,17 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.logging.Log;
-import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.LsRemoteCommand;
-import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.transport.PushResult;
-import org.eclipse.jgit.transport.RefSpec;
-import org.eclipse.jgit.transport.RemoteRefUpdate;
 
 import de.hilling.maven.release.AnnotatedTag;
-import de.hilling.maven.release.utils.ReleaseFileUtils;
 import de.hilling.maven.release.exceptions.ValidationException;
+import de.hilling.maven.release.utils.ReleaseFileUtils;
 
 public class LocalGitRepo {
 
@@ -164,33 +157,7 @@ public class LocalGitRepo {
         tag.saveAtHEAD(git);
     }
 
-    public void pushAll() throws GitAPIException {
-        PushCommand pushAll = git.push().setPushAll().setPushTags();
-        FetchCommand fetchCommand = git.fetch();
-        fetchCommand.setRefSpecs(new RefSpec("+refs/heads/*:refs/remotes/origin/*"),
-            new RefSpec("+refs/tags/*:refs/tags/*"),
-            new RefSpec("+refs/notes/*:refs/notes/*"));
-
-        if (remoteUrl != null) {
-            pushAll.setRemote(remoteUrl);
-            fetchCommand.setRemote(remoteUrl);
-        }
-        pushAll.call().iterator().forEachRemaining(this::logResult);
-        try {
-            fetchCommand.call();
-        } catch (GitAPIException gae) {
-            if (!gae.getMessage().contains("Nothing to fetch")) {
-                throw gae;
-            }
-        }
-    }
-
-    private void logResult(PushResult m) {
-        log.debug("push: " + m.getRemoteUpdates().stream().map(RemoteRefUpdate::toString).collect(joining(",")));
-    }
-
     public Optional<Ref> getRemoteTag(String tagName) throws GitAPIException {
-        List<String> results = new ArrayList<>();
         Collection<Ref> remoteTags = allRemoteTags();
         for (Ref remoteTag : remoteTags) {
             if (remoteTag.getName().equals("refs/tags/" + tagName)) {

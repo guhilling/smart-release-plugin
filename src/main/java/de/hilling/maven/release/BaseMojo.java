@@ -108,10 +108,6 @@ public abstract class BaseMojo extends AbstractMojo {
                                                                                              GitAPIException,
                                                                                              ValidationException;
 
-    final Settings getSettings() {
-        return settings;
-    }
-
     final void setSettings(final Settings settings) {
         this.settings = settings;
     }
