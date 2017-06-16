@@ -51,7 +51,7 @@ releases. You are using a ci-System, aren't you?.
 only does one thing and lets you configure how to handle the rest.
 
 ```bash
-   git push --all
+   git push && git push --tags
 ```
 
 ## Creating a bugfix release
