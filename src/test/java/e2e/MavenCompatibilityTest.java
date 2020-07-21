@@ -25,23 +25,13 @@ public class MavenCompatibilityTest {
     public TestProject testProject = new TestProject(ProjectType.SINGLE);
 
     @Test
-    public void maven_3_0_1() throws Exception {
-        buildProjectWithMavenVersion("3.0.1");
+    public void maven_3_6_3() throws Exception {
+        buildProjectWithMavenVersion("3.6.3");
     }
 
     @Test
-    public void maven_3_0_4() throws Exception {
-        buildProjectWithMavenVersion("3.0.4");
-    }
-
-    @Test
-    public void maven_3_2_1() throws Exception {
-        buildProjectWithMavenVersion("3.2.1");
-    }
-
-    @Test
-    public void maven_3_3_9() throws Exception {
-        buildProjectWithMavenVersion("3.3.9");
+    public void maven_3_5_4() throws Exception {
+        buildProjectWithMavenVersion("3.5.4");
     }
 
     private void buildProjectWithMavenVersion(String mavenVersionToTest) throws IOException, InterruptedException, MavenInvocationException {
