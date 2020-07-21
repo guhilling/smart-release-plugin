@@ -1,7 +1,14 @@
+sudo: false
 dist: trusty
-language: java
-jdk:
-  - oraclejdk8
+group: edge
+
+matrix:
+  include:
+    - name: "Java 11"
+      jdk: openjdk11
+    - name: "Java 14"
+      jdk: openjdk14
+
 script:
   - mvn clean install -Pcoverage coveralls:report
 
