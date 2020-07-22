@@ -43,11 +43,7 @@ public class TestProject extends ExternalResource {
 
     static {
         DEFAULT_RUNNER = new MvnRunner(null);
-        try {
-            MvnRunner.installReleasePluginToLocalRepo();
-        } catch (MavenInvocationException e) {
-            throw new RuntimeException("unable to install plugin");
-        }
+        MvnRunner.installReleasePluginToLocalRepo();
     }
 
     private final String artifactId;

@@ -48,7 +48,7 @@ public class MvnRunner {
         return new MvnRunner(mvnHome);
     }
 
-    public static void installReleasePluginToLocalRepo() throws MavenInvocationException {
+    public static void installReleasePluginToLocalRepo() {
         if (haveInstalledPlugin) {
             return;
         }
@@ -56,7 +56,12 @@ public class MvnRunner {
         System.out.print("Installing the plugin into the local repo .. ");
         assertThat("Environment variable M2_HOME must be set", systemMavenHome() != null);
         MvnRunner mvnRunner = new MvnRunner();
-        mvnRunner.runMaven(new File("."), "-DskipTests=true -Pcoverage", "install");
+        try {
+            mvnRunner.runMaven(new File("."), "-DskipTests=true -Pcoverage -e", "install");
+        } catch (MavenExecutionException mee) {
+            System.err.println("caught mee: " + mee.toString());
+            throw new RuntimeException("run maven failed", mee);
+        }
         System.out.println(
             " installed the plugin into the local repo in " + (System.currentTimeMillis() - start) + "ms");
         haveInstalledPlugin = true;
