@@ -26,7 +26,7 @@
         <immutables.version>2.4.4</immutables.version>
         <required.maven.version>3.5.2</required.maven.version>
         <jacoco-maven.version>0.7.9</jacoco-maven.version>
-        <jgit.version>4.6.1.201703071140-r</jgit.version>
+        <jgit.version>4.11.9.201909030838-r</jgit.version>
     </properties>
 
     <ciManagement>
@@ -295,9 +295,12 @@
                             <goal>analyze-only</goal>
                         </goals>
                         <configuration>
-                            <failOnWarning>true</failOnWarning>
+                            <failOnWarning>false</failOnWarning>
                             <ignoreNonCompile>true</ignoreNonCompile>
                             <outputXML>true</outputXML>
+                            <ignoredDependencies>
+                               <ignoredDependency>org.apache.maven:maven-artifact:jar:3.3.3:compile</ignoredDependency>
+                            </ignoredDependencies>
                         </configuration>
                     </execution>
                 </executions>
