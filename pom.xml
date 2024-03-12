@@ -31,6 +31,7 @@
 
     <scm>
         <url>https://github.com/guhilling/smart-release-plugin</url>
+        <connection>scm:git:https://github.com/guhilling/smart-release-plugin.git</connection>
     </scm>
 
     <inceptionYear>2017</inceptionYear>
