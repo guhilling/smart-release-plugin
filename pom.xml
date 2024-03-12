@@ -4,7 +4,7 @@
 
     <groupId>de.hilling.maven.release</groupId>
     <artifactId>smart-release-plugin</artifactId>
-    <version>4.2</version> <!-- When changing also update scaffolding.TestProject.PLUGIN_VERSION_FOR_TESTS and add to src/site/markdown/changelog.md -->
+    <version>4.3-SNAPSHOT</version> <!-- When changing also update scaffolding.TestProject.PLUGIN_VERSION_FOR_TESTS and add to src/site/markdown/changelog.md -->
 
     <name>The Multi Module Maven Release Plugin</name>
     <description>A maven release plugin built for multi-maven-module git repositories allowing continuous deployment
@@ -30,7 +30,7 @@
     <scm>
         <url>https://github.com/guhilling/smart-release-plugin</url>
         <connection>scm:git:https://github.com/guhilling/smart-release-plugin.git</connection>
-      <tag>smart-release-plugin-4.2</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <inceptionYear>2017</inceptionYear>
