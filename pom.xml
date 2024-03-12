@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>de.hilling.maven.release</groupId>
     <artifactId>smart-release-plugin</artifactId>
-    <version>4.2</version> <!-- When changing also update scaffolding.TestProject.PLUGIN_VERSION_FOR_TESTS and add to src/site/markdown/changelog.md -->
+    <version>4-SNAPSHOT</version> <!-- When changing also update scaffolding.TestProject.PLUGIN_VERSION_FOR_TESTS and add to src/site/markdown/changelog.md -->
 
     <name>The Multi Module Maven Release Plugin</name>
     <description>A maven release plugin built for multi-maven-module git repositories allowing continuous deployment
@@ -35,8 +37,7 @@
     <scm>
         <url>https://github.com/guhilling/smart-release-plugin</url>
         <connection>scm:git:git@github.com:guhilling/smart-release-plugin.git</connection>
-      <tag>smart-release-plugin-4.2</tag>
-  </scm>
+    </scm>
 
     <inceptionYear>2017</inceptionYear>
 
