@@ -22,6 +22,8 @@ public class GsonFactory {
                                                                                                               (DateTimeFormatter
                                                                                             .ISO_DATE_TIME)));
         builder.registerTypeAdapterFactory(new GsonAdaptersReleaseInfo());
+        builder.registerTypeAdapterFactory(new GsonAdaptersModuleVersion());
+        builder.registerTypeAdapterFactory(new GsonAdaptersQualifiedArtifact());
         return builder.create();
     }
 }

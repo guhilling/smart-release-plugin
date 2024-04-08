@@ -1,11 +1,13 @@
 package de.hilling.maven.release.versioning;
 
+import org.immutables.gson.Gson;
 import org.immutables.value.Value;
 
 /**
  * Maven identifier:
  * groupid and artifact id.
  */
+@Gson.TypeAdapters
 @Value.Immutable
 public abstract class QualifiedArtifact {
 
