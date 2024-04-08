@@ -3,8 +3,11 @@ package de.hilling.maven.release.versioning;
 import java.util.List;
 import java.util.Optional;
 
+import org.immutables.gson.Gson;
 import org.immutables.value.Value;
+import org.immutables.value.internal.$processor$.meta.$GsonMirrors;
 
+@Gson.TypeAdapters
 @Value.Immutable
 public abstract class ReleaseInfo {
 

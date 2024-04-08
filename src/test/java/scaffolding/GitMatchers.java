@@ -228,7 +228,8 @@ public class GitMatchers {
         try {
             ObjectId tagId = gitTag.getObjectId();
             RevTag tag = walk.parseTag(tagId);
-            releaseInfo = GSON_FACTORY.createGson().fromJson(tag.getFullMessage(), ImmutableReleaseInfo.class);
+            String fullMessage = tag.getFullMessage();
+            releaseInfo = GSON_FACTORY.createGson().fromJson(fullMessage, ImmutableReleaseInfo.class);
         } finally {
             walk.dispose();
         }

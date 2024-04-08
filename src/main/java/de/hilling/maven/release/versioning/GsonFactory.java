@@ -2,6 +2,7 @@ package de.hilling.maven.release.versioning;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -20,7 +21,7 @@ public class GsonFactory {
                                                                         jsonSerializationContext.serialize(dateTime.format
                                                                                                               (DateTimeFormatter
                                                                                             .ISO_DATE_TIME)));
-
+        builder.registerTypeAdapterFactory(new GsonAdaptersReleaseInfo());
         return builder.create();
     }
 }
