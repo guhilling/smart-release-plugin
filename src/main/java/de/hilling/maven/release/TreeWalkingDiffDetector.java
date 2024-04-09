@@ -2,7 +2,6 @@ package de.hilling.maven.release;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.maven.plugin.logging.Log;
@@ -52,10 +51,9 @@ public class TreeWalkingDiffDetector {
             filterOutOtherModulesChanges(moduleForChangeDetection, childModules, walk);
             stopWalkingWhenTheTagsAreHit(tagReference, walk);
             boolean changed = false;
-            final Iterator<RevCommit> iterator = walk.iterator();
-            while (iterator.hasNext()) {
+            for (RevCommit revCommit : walk) {
                 changed = true;
-                log.debug("change detected: " + iterator.next());
+                log.debug("change detected: " + revCommit);
             }
             return changed;
         } finally {
@@ -87,7 +85,7 @@ public class TreeWalkingDiffDetector {
                                 : AndTreeFilter.create(treeFilters);
         TreeFilter releaseInfoFilter = new TreeFilter() {
             @Override
-            public boolean include(TreeWalk walker) throws IOException {
+            public boolean include(TreeWalk walker) {
                 final String nameString = walker.getPathString();
                 return !nameString.endsWith(ReleaseInfoStorage.RELEASE_INFO_FILE);
             }

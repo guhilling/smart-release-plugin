@@ -4,6 +4,7 @@ import e2e.ProjectType;
 import scaffolding.TestProject;
 
 import static de.hilling.maven.release.TestUtils.saveFileInModule;
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -28,6 +29,8 @@ public class DiffDetectorTest {
     public TestProject singleProject = new TestProject(ProjectType.SINGLE);
     @Rule
     public TestProject independentVersions = new TestProject(ProjectType.INDEPENDENT_VERSIONS);
+    @Rule
+    public TestProject nestedProject = new TestProject(ProjectType.NESTED);
 
     private Log                                         log;
     private Map<AnnotatedTag, org.eclipse.jgit.lib.Ref> refMap;
@@ -37,6 +40,7 @@ public class DiffDetectorTest {
         refMap = new HashMap<>();
         singleProject.checkClean = false;
         independentVersions.checkClean = false;
+        nestedProject.checkClean = false;
         log = new SystemStreamLog();
     }
 
@@ -89,13 +93,23 @@ public class DiffDetectorTest {
     }
 
     @Test
-    public void canIgnoreModuleFolders() throws IOException, GitAPIException {
-        saveFileInModule(independentVersions, "console-app", "1.2.3", refMap);
-        saveFileInModule(independentVersions, "core-utils", "2.0", refMap);
-        AnnotatedTag tag3 = saveFileInModule(independentVersions, "console-app", "1.2.4", refMap);
-        independentVersions.commitRandomFile("console-app");
+    public void canIgnoreChangesInModuleFolders() throws IOException, GitAPIException {
+        AnnotatedTag tag1 = saveFileInModule(nestedProject, "server-modules", "1.2.4", refMap);
+        nestedProject.commitRandomFile("server-modules/server-module-a");
 
-        TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(independentVersions.local.getRepository(), log);
-        assertThat(detector.hasChangedSince("console-app", singletonList("console-app"),refMap.get(tag3)), is(false));
+        TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(nestedProject.local.getRepository(), log);
+        assertThat(detector.hasChangedSince("server-modules", asList("server-module-a", "server-module-b"),
+                                            refMap.get(tag1)), is(false));
     }
+
+    @Test
+    public void canDetectLocalChangesWithModuleFolders() throws IOException, GitAPIException {
+        AnnotatedTag tag1 = saveFileInModule(nestedProject, "server-modules", "1.2.4", refMap);
+        nestedProject.commitRandomFile("server-modules");
+
+        TreeWalkingDiffDetector detector = new TreeWalkingDiffDetector(nestedProject.local.getRepository(), log);
+        assertThat(detector.hasChangedSince("server-modules", asList("server-module-a", "server-module-b"),
+                                            refMap.get(tag1)), is(true));
+    }
+
 }

@@ -90,7 +90,7 @@ public class MvnRunner {
         File temp = new File("target/downloads/" + RandomNameGenerator.getInstance().randomName());
 
         InvocationRequest request = new DefaultInvocationRequest();
-        request.setGoals(Collections.singletonList("org.apache.maven.plugins:maven-dependency-plugin:2.8:copy"));
+        request.setGoals(Collections.singletonList("org.apache.maven.plugins:maven-dependency-plugin:3.6.1:copy"));
 
         Properties props = new Properties();
         props.setProperty("artifact", artifact);
