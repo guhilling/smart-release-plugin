@@ -84,6 +84,7 @@ public class MvnRunner {
 
         InvocationRequest request = new DefaultInvocationRequest();
         request.setGoals(Collections.singletonList("org.apache.maven.plugins:maven-dependency-plugin:3.6.1:copy"));
+        request.setBatchMode(true);
 
         Properties props = new Properties();
         props.setProperty("artifact", artifact);
