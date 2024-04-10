@@ -44,10 +44,9 @@ public class TreeWalkingDiffDetector {
      */
     public boolean hasChangedSince(String moduleForChangeDetection, java.util.List<String> childModules, Ref tagReference) throws
                                                                                                              IOException {
-        RevWalk walk = new RevWalk(repo);
-        try {
+        try(RevWalk walk = new RevWalk(repo)) {
             walk.setRetainBody(false);
-            walk.markStart(walk.parseCommit(repo.getRef("HEAD").getObjectId()));
+            walk.markStart(walk.parseCommit(repo.getRefDatabase().findRef("HEAD").getObjectId()));
             filterOutOtherModulesChanges(moduleForChangeDetection, childModules, walk);
             stopWalkingWhenTheTagsAreHit(tagReference, walk);
             boolean changed = false;
@@ -56,8 +55,6 @@ public class TreeWalkingDiffDetector {
                 log.debug("change detected: " + revCommit);
             }
             return changed;
-        } finally {
-            walk.dispose();
         }
     }
 
