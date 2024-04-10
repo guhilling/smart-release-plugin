@@ -102,6 +102,7 @@ public class MvnRunner {
         request.setGoals(asList(arguments));
         request.setBaseDirectory(workingDir);
         request.setDebug(false);
+        request.setBatchMode(true);
         request.setShowErrors(false);
 
         Invoker invoker = new DefaultInvoker();
