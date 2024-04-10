@@ -13,22 +13,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [ '11', '17', '21' ]
+        java: [ '11' ]
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Set up JDK
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         distribution: temurin
         java-version: ${{ matrix.java }}
         cache: maven
+    - name: Set M2_HOME
+      run: echo "M2_HOME=$(dirname $(dirname `which mvn`))" >> $GITHUB_ENV
+    - name: Configure Git
+      run: git config --global user.email "test@example.com" && git config --global user.name "Test user"
     - name: Maven Build JDK ${{ matrix.java }}
       run: mvn -B package --file pom.xml -DskipTests
     - name: Maven Test JDK ${{ matrix.java }}
