@@ -39,6 +39,11 @@ public class MavenCompatibilityTest {
         buildProjectWithMavenVersion("3.8.5");
     }
 
+    @Test
+    public void maven_3_6_2() throws Exception {
+        buildProjectWithMavenVersion("3.6.2");
+    }
+
     private void buildProjectWithMavenVersion(String mavenVersionToTest) throws IOException, MavenInvocationException {
         String expected = "1.0";
         testProject.setMvnRunner(MvnRunner.mvn(mavenVersionToTest));
