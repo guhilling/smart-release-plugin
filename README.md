@@ -1,5 +1,3 @@
-# As I've no time maintaining this project and I'm archiving it
-
 # Documentation, download, and usage instructions
 
 **Automatically releases only changed modules of a multi-module maven project.**

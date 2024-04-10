@@ -37,7 +37,7 @@ public class ReleaseInfoStorage {
                 final String json = org.apache.commons.io.FileUtils
                                         .readFileToString(releaseInfoFile, StandardCharsets.UTF_8);
                 previousRelease = new GsonFactory().createGson().fromJson(json, ImmutableReleaseInfo.class);
-            } catch (IOException e) {
+            } catch (Exception e) {
                 throw new MojoExecutionException("unable to read release info file " + releaseInfoFile
                                                                                            .getAbsolutePath(), e);
             }

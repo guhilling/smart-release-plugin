@@ -39,7 +39,7 @@ import de.hilling.maven.release.utils.ReleaseFileUtils;
 public class TestProject extends ExternalResource {
 
     private static final MvnRunner DEFAULT_RUNNER;
-    private static final String PLUGIN_VERSION_FOR_TESTS = "4-SNAPSHOT";
+    private static final String PLUGIN_VERSION_FOR_TESTS = "5-SNAPSHOT";
 
     static {
         DEFAULT_RUNNER = new MvnRunner(null);

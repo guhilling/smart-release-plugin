@@ -41,7 +41,8 @@ public class MvnRunner {
         MvnRunner mvnRunner = new MvnRunner();
         String dirWithMavens = "target/mavens/" + version;
         mvnRunner.runMaven(new File("."), "-Dartifact=org.apache.maven:apache-maven:" + version + ":zip:bin",
-                           "-DmarkersDirectory=" + dirWithMavens, "-DoutputDirectory=" + dirWithMavens,
+                           "-DmarkersDirectory=" + dirWithMavens,
+                           "-DoutputDirectory=" + dirWithMavens,
                            "org.apache.maven.plugins:maven-dependency-plugin:2.10:unpack");
         File mvnHome = new File(dirWithMavens).listFiles((FileFilter) DirectoryFileFilter.INSTANCE)[0];
         System.out.println("Maven " + version + " available at " + mvnHome.getAbsolutePath());
@@ -53,22 +54,14 @@ public class MvnRunner {
             return;
         }
         long start = System.currentTimeMillis();
-        System.out.print("Installing the plugin into the local repo .. ");
-        assertThat("Environment variable M2_HOME must be set", systemMavenHome() != null);
+        String m2Home = System.getenv("M2_HOME");
+        System.out.println("Installing the plugin into the local repo with M2_HOME=" + m2Home);
+        assertThat("Environment variable M2_HOME must be set", m2Home != null);
+        assertThat("Environment variable M2_HOME must be a directory but was " + m2Home, new File(m2Home).isDirectory());
         MvnRunner mvnRunner = new MvnRunner();
-        try {
-            mvnRunner.runMaven(new File("."), "-DskipTests=true -Pcoverage -e", "install");
-        } catch (MavenExecutionException mee) {
-            System.err.println("caught mee: " + mee.toString());
-            throw new RuntimeException("run maven failed", mee);
-        }
-        System.out.println(
-            " installed the plugin into the local repo in " + (System.currentTimeMillis() - start) + "ms");
+        mvnRunner.runMaven(new File("."), "-DskipTests=true", "install");
+        System.out.println("Finished installing the plugin into the local repo in " + (System.currentTimeMillis() - start) + "ms");
         haveInstalledPlugin = true;
-    }
-
-    public static String systemMavenHome() {
-        return System.getenv("M2_HOME");
     }
 
     public static void assertArtifactInLocalRepo(String groupId, String artifactId, String version) throws IOException,
