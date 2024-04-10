@@ -29,6 +29,10 @@ jobs:
         distribution: temurin
         java-version: ${{ matrix.java }}
         cache: maven
+    - name: Set M2_HOME
+      run: echo "M2_HOME=$(dirname $(dirname `which mvn`))" >> $GITHUB_ENV
+    - name: Configure Git
+      run: git config --global user.email "test@example.com" && git config --global user.name "Test user"
     - name: Maven Build JDK ${{ matrix.java }}
       run: mvn -B package --file pom.xml -DskipTests
     - name: Maven Test JDK ${{ matrix.java }}
