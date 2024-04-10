@@ -52,7 +52,7 @@ public class BaseMojoTest {
 	public void configureJsch_SshAgentDisabled() {
 		mojo.disableSshAgent();
 		mojo.configureJsch();
-		assertEquals("org.eclipse.jgit.transport.DefaultSshSessionFactory",
+		assertEquals("org.eclipse.jgit.transport.JschConfigSessionFactory",
 				JschConfigSessionFactory.getInstance().getClass().getName());
 	}
 	

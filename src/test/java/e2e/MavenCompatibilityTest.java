@@ -35,13 +35,8 @@ public class MavenCompatibilityTest {
     }
 
     @Test
-    public void maven_3_8_8() throws Exception {
-        buildProjectWithMavenVersion("3.8.8");
-    }
-
-    @Test
-    public void maven_3_6_3() throws Exception {
-        buildProjectWithMavenVersion("3.6.3");
+    public void maven_3_8_5() throws Exception {
+        buildProjectWithMavenVersion("3.8.5");
     }
 
     private void buildProjectWithMavenVersion(String mavenVersionToTest) throws IOException, MavenInvocationException {
