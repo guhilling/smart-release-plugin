@@ -259,6 +259,7 @@
             </resource>
         </resources>
         <plugins>
+            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
@@ -269,6 +270,12 @@
                     <releaseProfiles>release</releaseProfiles>
                     <goals>deploy</goals>
                 </configuration>
+            </plugin>
+            -->
+            <plugin>
+                <groupId>de.hilling.maven.release</groupId>
+                <artifactId>smart-release-plugin</artifactId>
+                <version>4.1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
