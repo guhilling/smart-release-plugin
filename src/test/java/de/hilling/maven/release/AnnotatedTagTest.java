@@ -11,6 +11,7 @@ import java.io.IOException;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Ref;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -18,39 +19,43 @@ import de.hilling.maven.release.versioning.ModuleVersion;
 import com.google.gson.JsonSyntaxException;
 
 public class AnnotatedTagTest {
-
     @Rule
-    public TestProject project = new TestProject(ProjectType.SINGLE);
+    public  TestProject  project = new TestProject(ProjectType.SINGLE);
+    private AnnotatedTag tag;
+
+    private static final long MAJOR_VERSION = 4L;
+    private static final long MINOR_VERSION = 2134L;
+
+    @Before
+    public void setup() {
+        tag = new AnnotatedTag("my-name", TestUtils.releaseInfo(MAJOR_VERSION, MINOR_VERSION, "test", "my-name"));
+    }
 
     @Test
-    public void gettersReturnValuesPassedIn() throws Exception {
-        AnnotatedTag tag = new AnnotatedTag("my-name", TestUtils.releaseInfo(4L, 2134L, "test", "my-name"));
-        assertThat(tag.name(), equalTo("my-name"));
-        final ModuleVersion moduleVersion = tag.getReleaseInfo().versionForArtifact(TestUtils.artifactIdForModule
-                                                                                                ("my-name")).get();
-        assertThat(moduleVersion.getVersion().getMajorVersion(), equalTo(4L));
-        assertThat(moduleVersion.getVersion().getMinorVersion(), equalTo(2134L));
+    public void gettersReturnValuesPassedIn() {
+        assertModuleVersion(tag);
     }
 
     @Test
     public void aTagCanBeCreatedFromAGitTag() throws GitAPIException, IOException {
-        AnnotatedTag tag = new AnnotatedTag("my-name", TestUtils.releaseInfo(4L, 2134L, "test", "my-name"));
         tag.saveAtHEAD(project.local);
-
         Ref ref = project.local.tagList().call().get(0);
         AnnotatedTag inflatedTag = GitMatchers.fromRef(project.local.getRepository(), ref);
-        final ModuleVersion moduleVersion = tag.getReleaseInfo().versionForArtifact(TestUtils.artifactIdForModule
-                                                                                                  ("my-name")).get();
-        assertThat(moduleVersion.getVersion().getMajorVersion(), equalTo(4L));
-        assertThat(moduleVersion.getVersion().getMinorVersion(), equalTo(2134L));
+        assertModuleVersion(inflatedTag);
     }
 
     @Test(expected = JsonSyntaxException.class)
     public void ifATagIsSavedWithoutJsonThenAnExceptionIsThrown() throws GitAPIException, IOException {
         project.local.tag().setName("my-name-1.0.2").setAnnotated(true).setMessage("This is not json").call();
-
         Ref ref = project.local.tagList().call().get(0);
-        AnnotatedTag inflatedTag = GitMatchers.fromRef(project.local.getRepository(), ref);
+        GitMatchers.fromRef(project.local.getRepository(), ref);
     }
 
+    private void assertModuleVersion(AnnotatedTag testedTag) {
+        final ModuleVersion moduleVersion = testedTag.getReleaseInfo()
+                                                     .versionForArtifact(TestUtils.artifactIdForModule("my-name"))
+                                                     .orElseThrow(() -> new RuntimeException("artifact version missing"));
+        assertThat(moduleVersion.getVersion().getMajorVersion(), equalTo(MAJOR_VERSION));
+        assertThat(moduleVersion.getVersion().getMinorVersion(), equalTo(MINOR_VERSION));
+    }
 }
