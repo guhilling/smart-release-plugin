@@ -22,9 +22,13 @@
         <github.global.server>github</github.global.server>
         <jsch.agentproxy.version>0.0.9</jsch.agentproxy.version>
         <immutables.version>2.10.1</immutables.version>
-        <required.maven.version>3.9.6</required.maven.version>
+        <maven.artifact.version>3.8.5</maven.artifact.version>
+        <maven.plugin.api.version>3.8.5</maven.plugin.api.version>
+        <maven.project.version>2.2.1</maven.project.version>
+        <maven.model.version>3.8.5</maven.model.version>
+        <maven.settings.version>3.8.5</maven.settings.version>
         <jacoco-maven.version>0.8.12</jacoco-maven.version>
-        <jgit.version>4.11.9.201909030838-r</jgit.version>
+        <jgit.version>5.13.0.202109080827-r</jgit.version>
     </properties>
 
     <scm>
@@ -112,21 +116,58 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.maven.plugin-tools</groupId>
-            <artifactId>maven-plugin-annotations</artifactId>
-            <version>3.2</version>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-core</artifactId>
+            <version>${maven.settings.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
-            <artifactId>maven-core</artifactId>
-            <version>3.3.3</version>
+            <artifactId>maven-plugin-api</artifactId>
+            <version>${maven.plugin.api.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-model</artifactId>
+            <version>${maven.model.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-settings</artifactId>
+            <version>${maven.settings.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-compat</artifactId>
+            <version>${maven.settings.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-artifact</artifactId>
-            <version>3.3.3</version>
+            <version>${maven.artifact.version}</version>
+            <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-settings-builder</artifactId>
+            <version>3.8.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.plugin-tools</groupId>
+            <artifactId>maven-plugin-annotations</artifactId>
+            <version>3.6.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.maven.shared</groupId>
+            <artifactId>maven-invoker</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.maven.plugin-testing</groupId>
             <artifactId>maven-plugin-testing-harness</artifactId>
@@ -140,27 +181,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-compat</artifactId>
-            <version>3.9.6</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-plugin-api</artifactId>
-            <version>3.3.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-model</artifactId>
-            <version>3.3.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-settings</artifactId>
-            <version>3.3.3</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>33.1.0-jre</version>
@@ -168,7 +188,11 @@
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
             <artifactId>org.eclipse.jgit</artifactId>
-            <!-- check changes in jgit, run DiffDetectorTest before upgrading to 4.7.x -->
+            <version>${jgit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit.ssh.jsch</artifactId>
             <version>${jgit.version}</version>
         </dependency>
         <dependency>
@@ -186,7 +210,7 @@
         <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-utils</artifactId>
-            <version>1.5.15</version>
+            <version>3.4.1</version>
         </dependency>
 
         <dependency>

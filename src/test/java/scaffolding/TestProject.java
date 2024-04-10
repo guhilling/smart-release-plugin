@@ -111,7 +111,7 @@ public class TestProject extends ExternalResource {
 
     public static ObjectId head(Git git) {
         try {
-            return git.getRepository().getRef("HEAD").getObjectId();
+            return git.getRepository().getRefDatabase().findRef("HEAD").getObjectId();
         } catch (IOException e) {
             throw new RuntimeException("failed to get objectid of head");
         }
