@@ -1,16 +1,16 @@
 {
-  "tagName": "MULTI_MODULE_RELEASE-2017-06-16-072141",
+  "tagName": "MULTI_MODULE_RELEASE-2024-04-10-112424",
   "modules": [
     {
-      "releaseDate": "2017-06-16T09:21:41.34+02:00[Europe/Berlin]",
-      "releaseTag": "MULTI_MODULE_RELEASE-2017-06-16-072141",
+      "releaseDate": "2024-04-10T13:24:24.925442+02:00[Europe/Berlin]",
+      "releaseTag": "MULTI_MODULE_RELEASE-2024-04-10-112424",
       "artifact": {
         "groupId": "de.hilling.maven.release",
         "artifactId": "smart-release-plugin"
       },
       "version": {
-        "majorVersion": 4,
-        "minorVersion": 1
+        "majorVersion": 5,
+        "minorVersion": 0
       }
     }
   ]
