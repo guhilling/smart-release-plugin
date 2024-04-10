@@ -23,7 +23,7 @@
         <jsch.agentproxy.version>0.0.9</jsch.agentproxy.version>
         <immutables.version>2.10.1</immutables.version>
         <required.maven.version>3.9.6</required.maven.version>
-        <jacoco-maven.version>0.7.9</jacoco-maven.version>
+        <jacoco-maven.version>0.8.12</jacoco-maven.version>
         <jgit.version>4.11.9.201909030838-r</jgit.version>
     </properties>
 
