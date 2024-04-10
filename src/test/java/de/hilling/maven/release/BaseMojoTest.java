@@ -9,6 +9,7 @@ import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.eclipse.jgit.transport.JschConfigSessionFactory;
+import org.eclipse.jgit.transport.SshSessionFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -55,12 +56,12 @@ public class BaseMojoTest {
 		assertEquals("org.eclipse.jgit.transport.JschConfigSessionFactory",
 				JschConfigSessionFactory.getInstance().getClass().getName());
 	}
-	
-	private void assertIdentity(final String identityFile, final String passphrase) {
-		final SshAgentSessionFactory factory = (SshAgentSessionFactory) JschConfigSessionFactory.getInstance();
-		assertEquals(identityFile, factory.getIdentityFile());
-		assertEquals(passphrase, factory.getPassphraseOrNull());
-	}
+
+    private void assertIdentity(final String identityFile, final String passphrase) {
+        final SshAgentSessionFactory factory = (SshAgentSessionFactory) JschConfigSessionFactory.getInstance();
+        assertEquals(identityFile, factory.getIdentityFile());
+        assertEquals(passphrase, factory.getPassphraseOrNull());
+    }
 
 	@Test
 	public void configureJsch_PomIdentityFile() {
