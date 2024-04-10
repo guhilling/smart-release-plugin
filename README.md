@@ -1,3 +1,6 @@
+[![Build Smart Release Plugin](https://github.com/guhilling/smart-release-plugin/actions/workflows/ci.yaml/badge.svg)](https://github.com/guhilling/smart-release-plugin/actions/workflows/ci.yaml)
+[![Maven Central](https://img.shields.io/maven-central/v/de.hilling.maven.release/smart-release-plugin.svg?maxAge=60)](http://search.maven.org/#search|gav|1|g:"de.hilling.maven.release"%20AND%20a:"smart-release-plugin")
+
 # Documentation, download, and usage instructions
 
 **Automatically releases only changed modules of a multi-module maven project.**
@@ -7,12 +10,6 @@ Full documentation is available [here as maven site documentation](https://guhil
 The project was started as a fork of Daniel Flowers
 [multi-module-maven-release-plugin](https://danielflower.github.io/multi-module-maven-release-plugin/index.html) with
 with the goal to create bugfix releases automatically (See [documentation](#creating-a-bugfix-release)).
-
-## Development
-
-[![Build Status](https://travis-ci.org/guhilling/smart-release-plugin.svg?branch=master&maxAge=60)](https://travis-ci.org/guhilling/smart-release-plugin)
-[![Coverage Status](https://coveralls.io/repos/github/guhilling/smart-release-plugin/badge.svg?branch=master&maxAge=60)](https://coveralls.io/github/guhilling/smart-release-plugin?branch=master)
-[![Maven Central](https://img.shields.io/maven-central/v/de.hilling.maven.release/smart-release-plugin.svg?maxAge=60)](http://search.maven.org/#search|gav|1|g:"de.hilling.maven.release"%20AND%20a:"smart-release-plugin")
 
 ## Features
 
