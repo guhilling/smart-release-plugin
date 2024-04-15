@@ -14,5 +14,6 @@ updates:
          - dependency-name: org.mockito:mockito-core
            update-types: major
     - package-ecosystem: github-actions
+      directory: "/.github"
       schedule:
          interval: weekly
