@@ -9,13 +9,17 @@ updates:
       ignore:
          - dependency-name: org.apache.maven:*
            update-types:
-             - major
+             - version-update:semver-major
+             - version-update:semver-minor
          - dependency-name: org.eclipse.jgit:*
            update-types:
-             - major
+             - version-update:semver-major
          - dependency-name: org.mockito:mockito-core
            update-types:
-             - major
+             - version-update:semver-major
+         - dependency-name: org.hamcrest:hamcrest-library
+           update-types:
+             - version-update:semver-major
     - package-ecosystem: github-actions
       directory: "/.github"
       schedule:
