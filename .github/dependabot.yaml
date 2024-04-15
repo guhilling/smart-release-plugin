@@ -8,11 +8,14 @@ updates:
       open-pull-requests-limit: 10
       ignore:
          - dependency-name: org.apache.maven:*
-           update-types: major
+           update-types:
+             - major
          - dependency-name: org.eclipse.jgit:*
-           update-types: major
+           update-types:
+             - major
          - dependency-name: org.mockito:mockito-core
-           update-types: major
+           update-types:
+             - major
     - package-ecosystem: github-actions
       directory: "/.github"
       schedule:
