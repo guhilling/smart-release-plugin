@@ -25,7 +25,7 @@
         <maven.artifact.version>3.9.11</maven.artifact.version>
         <maven.plugin.api.version>3.9.10</maven.plugin.api.version>
         <maven.project.version>2.2.1</maven.project.version>
-        <maven.model.version>3.9.10</maven.model.version>
+        <maven.model.version>3.9.11</maven.model.version>
         <maven.settings.version>3.9.10</maven.settings.version>
         <jacoco-maven.version>0.8.13</jacoco-maven.version>
         <jgit.version>5.13.3.202401111512-r</jgit.version>
