@@ -21,7 +21,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <github.global.server>github</github.global.server>
         <jsch.agentproxy.version>0.0.9</jsch.agentproxy.version>
-        <immutables.version>2.11.1</immutables.version>
+        <immutables.version>2.11.2</immutables.version>
         <maven.artifact.version>3.9.11</maven.artifact.version>
         <maven.plugin.api.version>3.9.11</maven.plugin.api.version>
         <maven.project.version>2.2.1</maven.project.version>
